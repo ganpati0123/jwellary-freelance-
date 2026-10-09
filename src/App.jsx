@@ -301,6 +301,23 @@ function Footer({ showToast }) {
   </footer>;
 }
 
+const directoryLinks = [
+  ['Blessing Of The Month', '/collections/whats-new'], ['Europe Collection Season - 3', '/collections/europe-season-3'],
+  ['Ancestry Manifestation Sheet - October', '/collections/e-studio'], ['New Lightcoded Mixels @1919', '/collections/whats-new'],
+  ['MVK Verified', '/collections/mvk-verified'], ['New Arrivals', '/collections/whats-new'],
+  ['Pure Bracelets', '/collections/bracelets'], ['Magic Mixel Bracelets', '/collections/bracelets'],
+  ['Know Your Gemstone Form', '/collections/crystals'], ['Gemstones', '/collections/crystals'],
+  ['E-Studio', '/collections/e-studio'], ['Learn About Crystals', '/collections/crystals'],
+  ['3 Sacred Rites Of A Shaman', '/pages/3-sacred-rites-of-a-shaman'], ['Daily Crystal Quiz', '/pages/daily-crystal-quiz']
+];
+
+function DirectoryLinks() {
+  return <>
+    <div className="directory-list">{directoryLinks.map(([label, path]) => <a key={label} className="directory-link" href={path}>{label}</a>)}</div>
+    <p className="directory-policy">By continuing, you acknowledge that you have read and agree to our <a href="#disclaimer"><u>Terms of Use</u></a> and <a href="#disclaimer"><u>Privacy Policy</u></a>.</p>
+  </>;
+}
+
 function Home() {
   const landingLinks = [
     { title: 'Aumatrix 2.0', subtitle: 'Tools for a more intentional everyday', href: '/collections/aumatrix-2', image: '/attached_assets/generated_images/divine-diwali-stilllife.jpg' },
@@ -318,6 +335,11 @@ function Home() {
           <a href="https://youtube.com" aria-label="YouTube"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
         </div>
       </header>
+      <section className="home-directory-section" aria-labelledby="home-directory-title">
+        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
+        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
+        <DirectoryLinks />
+      </section>
       <div className="link-home-cards">
         <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
           <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
@@ -330,7 +352,6 @@ function Home() {
           <span className="home-link-overlay" />
           <span className="home-link-copy"><span>{link.subtitle}</span><strong>{link.title}</strong><ArrowRight size={17} /></span>
         </a>)}
-        <a className="home-directory-link" href="/links">See every collection and experience <ArrowRight size={15} /></a>
       </div>
     </div>
   </main>;
@@ -388,21 +409,11 @@ function CollectionPage({ collection, currency, favorites, onFavorite, onQuickVi
 }
 
 function DirectoryPage() {
-  const directoryLinks = [
-    ['Blessing Of The Month', '/collections/whats-new'], ['Europe Collection Season - 3', '/collections/europe-season-3'],
-    ['Ancestry Manifestation Sheet - October', '/collections/e-studio'], ['New Lightcoded Mixels @1919', '/collections/whats-new'],
-    ['MVK Verified', '/collections/mvk-verified'], ['New Arrivals', '/collections/whats-new'],
-    ['Pure Bracelets', '/collections/bracelets'], ['Magic Mixel Bracelets', '/collections/bracelets'],
-    ['Know Your Gemstone Form', '/collections/crystals'], ['Gemstones', '/collections/crystals'],
-    ['E-Studio', '/collections/e-studio'], ['Learn About Crystals', '/collections/crystals'],
-    ['3 Sacred Rites Of A Shaman', '/pages/3-sacred-rites-of-a-shaman'], ['Daily Crystal Quiz', '/pages/daily-crystal-quiz']
-  ];
   return <main className="directory-page">
     <Brand large />
     <h1 className="directory-title">A place for every path.</h1>
     <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
-    <div className="directory-list">{directoryLinks.map(([label, path]) => <a key={label} className="directory-link" href={path}>{label}</a>)}</div>
-    <p className="directory-policy">By continuing, you acknowledge that you have read and agree to our <a href="#disclaimer"><u>Terms of Use</u></a> and <a href="#disclaimer"><u>Privacy Policy</u></a>.</p>
+    <DirectoryLinks />
   </main>;
 }
 
