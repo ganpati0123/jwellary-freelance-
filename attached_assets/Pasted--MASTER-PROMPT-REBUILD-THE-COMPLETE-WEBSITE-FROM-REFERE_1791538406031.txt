@@ -1,0 +1,50 @@
+# MASTER PROMPT — REBUILD THE COMPLETE WEBSITE FROM REFERENCE IMAGES
+
+Act as a world-class senior frontend engineer, React architect, UI/UX designer, and interaction designer. Your task is to transform my existing React website into a complete, premium, production-quality website that matches my provided reference images as closely as possible.
+
+## 1. FIRST: ANALYZE THE EXISTING PROJECT
+
+Before writing or modifying any code:
+
+- Inspect the complete existing project structure.
+- Understand the current framework, dependencies, routing, components, assets, styling, and application architecture.
+- Identify the existing website entry point and current homepage.
+- Analyze all provided reference images carefully.
+- Understand which image represents the initial homepage, which represents the secondary navigation page, and which represents the special page for "3 Sacred Rites of a Shaman."
+- Preserve the existing architecture wherever possible.
+- Do not unnecessarily replace the project, remove existing functionality, or rewrite working components.
+- Do not stop after analysis. Proceed with the complete implementation.
+
+## 2. RECREATE THE REFERENCE DESIGN
+
+Rebuild the website based on the provided reference images.
+
+The reference images represent the intended design, layout, and interaction behavior. Do not create a generic website inspired by them. Reproduce their visual structure as closely as possible.
+
+Match the following:
+
+- Overall page composition and content hierarchy.
+- Header, top navigation bar, navigation spacing, and alignment.
+- Typography, font sizes, font weights, and line heights.
+- Background colors, gradients, borders, shadows, and decorative elements.
+- Card dimensions, image placement, image cropping, and text positioning.
+- Buttons, icons, hover effects, active states, and visual feedback.
+- Section spacing, container widths, margins, and paddings.
+- Footer, secondary sections, and other visible elements.
+- All visible design details that can be identified from the reference images.
+
+### Image scale and proportions
+
+The first reference image was reduced to approximately 40% of its original display size when captured or uploaded.
+
+Do not reproduce that reduced display size as the actual website layout.
+
+Instead, reconstruct the website at its proper full-size proportions. Use the reference as a visual guide and scale its elements appropriately for a full browser viewport.
+
+Preserve the original aspect ratios of images, avoid unnecessary distortion, and use appropriate `object-fit`, `object-position`, and responsive sizing.
+
+Do not simply stretch the reference screenshot to fill the screen. Rebuild the individual website elements in React and CSS.
+
+## 3. HOMEPAGE — INITIAL VISIT
+
+When a user
