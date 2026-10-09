@@ -5,6 +5,7 @@ import {
   Play
 } from 'lucide-react';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
+import { getSession, onAuthStateChange, signIn, signOut, signUp, hasSupabaseConfig } from './lib/supabase.js';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -262,6 +263,39 @@ function SearchModal({ query, setQuery, close, onQuickView }) {
   </Modal>;
 }
 
+function AuthModal({ close, session, onSession, showToast }) {
+  const [mode, setMode] = useState('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const submit = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      const result = mode === 'signin' ? await signIn(email, password) : await signUp(email, password, displayName);
+      if (result.error) throw result.error;
+      if (mode === 'signup' && !result.data?.session) showToast('Check your email to confirm your account.');
+      else { onSession(result.data?.session || null); close(); showToast('Welcome back to the studio.'); }
+    } catch (error) {
+      showToast(error.message?.toLowerCase().includes('invalid') ? 'Invalid email or password.' : 'We could not complete that request. Please try again.');
+    } finally { setBusy(false); }
+  };
+  return <Modal onClose={close} className="search-modal auth-modal">
+    <button className="modal-close" aria-label="Close account" onClick={close}><X size={17} /></button>
+    <span className="eyebrow">Your studio account</span>
+    <h2>{session ? 'Welcome back' : mode === 'signin' ? 'Sign in' : 'Create your account'}</h2>
+    {session ? <div className="auth-account"><p>{session.user.email}</p><button className="button button-dark" onClick={async () => { await signOut(); onSession(null); close(); showToast('You have been signed out.'); }}>Sign out</button></div> : <form className="auth-form" onSubmit={submit}>
+      {mode === 'signup' && <input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Your name" aria-label="Your name" />}
+      <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" aria-label="Email address" />
+      <input required minLength={6} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" aria-label="Password" />
+      <button className="button button-dark" disabled={busy || !hasSupabaseConfig()}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'} <ArrowRight size={15} /></button>
+      {!hasSupabaseConfig() && <p className="demo-note">Account access is not configured in this preview.</p>}
+      <button type="button" className="button button-text" onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}>{mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}</button>
+    </form>}
+  </Modal>;
+}
+
 function Footer({ showToast }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -483,6 +517,7 @@ function App() {
   const [quickProduct, setQuickProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
+  const [session, setSession] = useState(null);
   const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const showToast = (message) => {
     setToast(message);
@@ -494,7 +529,7 @@ function App() {
     if (action === 'search-query') setSearchQuery(value);
     if (action === 'cart') setDrawer('cart');
     if (action === 'wishlist') setDrawer('wishlist');
-    if (action === 'account') showToast('Account tools are not active in this demo storefront.');
+    if (action === 'account') setDrawer('account');
   };
   const addToCart = (product) => {
     setCart((old) => ({ ...old, [product.id]: (old[product.id] || 0) + 1 }));
@@ -509,6 +544,11 @@ function App() {
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
+  useEffect(() => {
+    getSession().then(({ data }) => setSession(data.session));
+    const subscription = onAuthStateChange?.((_event, nextSession) => setSession(nextSession));
+    return () => subscription?.data?.subscription?.unsubscribe();
+  }, []);
   const collectionValid = !!collection;
   const content = home ? <Home />
     : collectionValid ? <CollectionPage collection={collection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
@@ -524,6 +564,7 @@ function App() {
     {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
     {toast && <div className="toast" role="status">{toast}</div>}
     {showStoreChrome && <button className="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><ArrowUp size={18} strokeWidth={1.5} /></button>}
