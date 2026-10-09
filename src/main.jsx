@@ -3,72 +3,67 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 
 const assets = {
-  linkHub: '/images/image.png',
-  collectionReference: '/images/image copy.png',
-  masterclassReference: '/images/image copy 2.png',
   masterclassHero: 'https://images.pexels.com/photos/5427039/pexels-photo-5427039.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
   collectionHero: 'https://images.pexels.com/photos/2099265/pexels-photo-2099265.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
-  portrait: 'https://images.pexels.com/photos/9430457/pexels-photo-9430457.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
+  portrait: 'https://images.pexels.com/photos/9430457/pexels-photo-9430457.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+  stone: 'https://images.pexels.com/photos/161853/stone-amber-stones-gem-161853.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+  crystals: 'https://images.pexels.com/photos/1614807/pexels-photo-1614807.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
 };
 
 const navItems = ['WHAT’S NEW', 'AUMATRIX 2.0', 'DIVINE DIWALI', 'EUROPE SEASON 3', 'MVK VERIFIED', 'RARE', 'BRACELETS', 'CRYSTALS', 'AROMATHERAPY', 'E-STUDIO', 'ANCIENT TOOLS'];
-const linkItems = ['Blessing Of The Month', 'Europe Collection Season - 3', 'Ancestry Manifestation Sheet - October', 'New Lightcoded Noobs (9191)', 'MVK Verified', 'New Arrivals', 'Pure Bracelets', 'Magic Ritual Bracelets', 'Know Your Gemstone Form', 'Gemstones', 'E - Studio', 'Learn About Crystals'];
+const navRoutes = { 'WHAT’S NEW': 'new', 'AUMATRIX 2.0': 'aumatrix', 'DIVINE DIWALI': 'collection', 'EUROPE SEASON 3': 'europe', 'MVK VERIFIED': 'verified', RARE: 'rare', BRACELETS: 'bracelets', CRYSTALS: 'crystals', AROMATHERAPY: 'aromatherapy', 'E-STUDIO': 'estudio', 'ANCIENT TOOLS': 'tools' };
+const linkItems = ['Blessing Of The Month', 'Europe Collection Season - 3', 'Ancestry Manifestation Sheet - October', 'New Lightcoded Mixels @1919', 'MVK Verified', 'New Arrivals', 'Pure Bracelets', 'Magic Mixel Bracelets', 'Know Your Gemstone Form', 'Gemstones', 'E - Studio', 'Learn About Crystals'];
+const products = [
+  { name: '44 Aumatrix™ Cards of Fate', price: '₹ 4,444', tone: 'amber', image: assets.stone },
+  { name: 'Job Mixel', price: '₹ 5,555', tone: 'cream', image: assets.crystals },
+  { name: 'Divine Diwali Bracelet', price: '₹ 3,500', tone: 'sand', image: assets.portrait },
+  { name: 'Unlimited Abundance Wallpaper', price: '₹ 499', tone: 'warm', image: assets.collectionHero },
+  { name: 'Green Angelite Bracelet', price: '₹ 3,535', tone: 'green', image: assets.crystals },
+  { name: 'Gentle Love Sage', price: '₹ 1,616', tone: 'rose', image: assets.stone },
+];
 
-function Logo({ dark = false }) {
-  return <div className={`logo ${dark ? 'logo-dark' : ''}`}><div className="logo-mark">VK</div><div className="logo-name">VANI KABIR</div><div className="logo-tag">MAKING SPIRITUALITY SIMPLE</div></div>;
-}
+function Logo() { return <div className="logo"><div className="logo-mark">VK</div><div className="logo-name">VANI KABIR</div><div className="logo-tag">MAKING SPIRITUALITY SIMPLE</div></div>; }
+function IconButton({ type, onClick }) { return <button className="icon-button" aria-label={type} onClick={onClick}><span className={`icon icon-${type}`} /></button>; }
 
-function IconButton({ type, onClick }) {
-  return <button className="icon-button" aria-label={type} onClick={onClick}><span className={`icon icon-${type}`} /></button>;
-}
-
-function StoreHeader({ active = '' , onNavigate }) {
+function StoreHeader({ active = '', onNavigate, onSearch, cartCount }) {
   return <>
     <div className="delivery-bar"><span className="paper-plane">⌁</span> International Delivery - Minimum Order Value - INR 10,000/-</div>
     <header className="store-header">
       <div className="header-top">
-        <IconButton type="search" />
+        <IconButton type="search" onClick={onSearch} />
         <button className="header-logo-button" onClick={() => onNavigate('collection')}><Logo /></button>
-        <div className="header-actions"><IconButton type="account" /><IconButton type="heart" /><IconButton type="bag" /><small>1</small></div>
+        <div className="header-actions"><IconButton type="account" onClick={() => onNavigate('account')} /><IconButton type="heart" onClick={() => onNavigate('wishlist')} /><IconButton type="bag" onClick={() => onNavigate('cart')} /><small>{cartCount}</small></div>
       </div>
-      <nav className="shop-nav">{navItems.map((item) => <button className={active === item ? 'active' : ''} key={item} onClick={() => onNavigate(item === 'DIVINE DIWALI' ? 'collection' : item === 'E-STUDIO' ? 'masterclass' : 'collection')}><b>✦</b>{item}</button>)}</nav>
+      <nav className="shop-nav">{navItems.map((item) => <button className={active === item ? 'active' : ''} key={item} onClick={() => onNavigate(navRoutes[item])}><b>✦</b>{item}</button>)}</nav>
     </header>
   </>;
 }
 
 function Landing({ onNavigate }) {
-  return <main className="landing-page">
-    <section className="link-hub">
-      <Logo />
-      <p className="hub-intro">Vani Kabir Studio is a modern home for timeless wisdom, conscious jewellery<br />and experiences that make spirituality simple.</p>
-      <div className="socials"><span>◎</span><span>◉</span><span>◍</span></div>
-      <button className="feature-card divine-card" onClick={() => onNavigate('collection')}><img src={assets.collectionHero} alt="Divine Diwali collection" /><div><small>AUMATRIX 2.0 COLLECTION</small><strong>DIVINE<br />DIWALI</strong></div></button>
-      <button className="feature-card rite-card" onClick={() => onNavigate('masterclass')}><img src={assets.portrait} alt="Masterclass with Vani Kabir" /><div><small>3 SACRED RITES</small><strong>OF A SHAMAN</strong><em>YOU DON'T HAVE TO BE A SHAMAN<br />TO LEARN THEM.</em><span>MASTERCLASS<br /><small>WITH MASTER VANI KABIR</small></span></div></button>
-      <div className="link-list">{linkItems.map((item, index) => <button key={item} onClick={() => onNavigate(index === 0 ? 'masterclass' : 'collection')}><span className="tiny-orb">{index % 3 === 0 ? '◌' : '◒'}</span>{item}<span>↗</span></button>)}</div>
-    </section>
-  </main>;
+  return <main className="landing-page"><section className="link-hub"><Logo /><p className="hub-intro">Vani Kabir Studio is a modern home for timeless wisdom, conscious jewellery<br />and experiences that make spirituality simple.</p><div className="socials"><span>◎</span><span>◉</span><span>◍</span></div><button className="feature-card divine-card" onClick={() => onNavigate('collection')}><img src={assets.collectionHero} alt="Divine Diwali collection" /><div><small>AUMATRIX 2.0 COLLECTION</small><strong>DIVINE<br />DIWALI</strong></div></button><button className="feature-card rite-card" onClick={() => onNavigate('masterclass')}><img src={assets.portrait} alt="Masterclass with Vani Kabir" /><div><small>3 SACRED RITES</small><strong>OF A SHAMAN</strong><em>YOU DON'T HAVE TO BE A SHAMAN<br />TO LEARN THEM.</em><span>MASTERCLASS<br /><small>WITH MASTER VANI KABIR</small></span></div></button><div className="link-list">{linkItems.map((item, index) => <button key={item} onClick={() => onNavigate(index === 0 ? 'new' : index === 1 ? 'europe' : index === 4 ? 'verified' : index === 5 ? 'new' : index === 6 || index === 7 ? 'bracelets' : index === 8 || index === 9 ? 'crystals' : index === 10 ? 'estudio' : 'tools')}><span className="tiny-orb">{index % 3 === 0 ? '◌' : '◒'}</span>{item}<span>↗</span></button>)}</div></section></main>;
 }
 
-function Collection({ onNavigate }) {
-  const products = [
-    ['Divine Diwali Bracelet', '₹ 3,500', 'amber'], ['Lakshmi Light Talisman', '₹ 5,200', 'cream'], ['Aumatrix 2.0 Pendant', '₹ 7,800', 'sand'], ['The Diwali Edit', '₹ 4,400', 'warm']
-  ];
-  return <div className="site-page"><StoreHeader active="DIVINE DIWALI" onNavigate={onNavigate} /><section className="collection-heading"><div className="breadcrumbs"><span>⌂</span><i>/</i><span>Collections</span><i>/</i><b>Divine Diwali - Season 4</b></div><h1>DIVINE DIWALI - SEASON 4</h1></section><section className="shop-controls"><button>INR <span>⌄</span></button><button>Show filters <span>⌄</span></button><label>Sort by: <button>Featured <span>•</span></button></label></section><section className="products"><div className="collection-banner"><img src={assets.collectionHero} alt="Crystals and an open book" /><div><span>THE FESTIVAL OF LIGHT</span><h2>Jewellery that<br />remembers you.</h2><button>Explore collection <span>↗</span></button></div></div>{products.map(([name, price, tone]) => <article className="product-card" key={name}><div className={`product-art ${tone}`}><div className="orb-art">✦</div><button>♡</button></div><div className="product-info"><h3>{name}</h3><p>{price}</p></div></article>)}</section><Footer onNavigate={onNavigate} /></div>;
+function ProductCard({ product, onNavigate, onAdd }) {
+  return <article className="product-card"><button className={`product-art ${product.tone}`} onClick={() => onNavigate('product')}><img src={product.image} alt="" /><span className="orb-art">✦</span><span className="heart-corner">♡</span></button><div className="product-info"><button onClick={() => onNavigate('product')}><h3>{product.name}</h3><p>{product.price}</p></button><button className="quick-add" onClick={onAdd}>+</button></div></article>;
 }
 
-function Masterclass({ onNavigate }) {
-  return <div className="master-page"><header className="master-header"><button onClick={() => onNavigate('collection')}><Logo /></button><nav>{['Home', 'About', 'Evenreoom ™', 'Private Readings', 'Soulpath Reset ™', 'Masterclass', 'Library⌄'].map(item => <button className={item === 'Masterclass' ? 'selected' : ''} key={item} onClick={() => item === 'Home' ? onNavigate('collection') : item === 'Masterclass' ? onNavigate('masterclass') : undefined}>{item}</button>)}</nav><button className="menu-button" aria-label="Open menu">☰</button></header><section className="master-hero"><img src={assets.masterclassHero} alt="Hands holding a book" /><div className="hero-shade" /><h1>MASTERCLASS</h1></section><section className="master-intro"><p>THE WISDOM OF THE ANCIENTS, MADE SIMPLE</p><h2>3 SACRED RITES<br /><em>OF A SHAMAN</em></h2><div className="intro-grid"><img src={assets.portrait} alt="Vani Kabir" /><div><p>There are practices that are older than language. Quiet rituals that bring us back to ourselves.</p><p>Join Master Vani Kabir for an intimate journey into the sacred rites of a shaman — designed for the modern seeker.</p><button>Reserve your place <span>↗</span></button></div></div></section><Footer onNavigate={onNavigate} /></div>;
+function CollectionPage({ route, onNavigate, onSearch, cartCount, onAdd }) {
+  const collection = { collection: ['Divine Diwali - Season 4', 'THE FESTIVAL OF LIGHT', 'Jewellery that remembers you.'], new: ["What's New", 'NEW LIGHTCODED ARRIVALS', 'A new ritual for every season.'], aumatrix: ['Aumatrix 2.0', 'THE SACRED CODES', 'Tools for your next becoming.'], europe: ['Europe Season 3', 'WITH LOVE FROM EUROPE', 'A collection gathered across distances.'], verified: ['MVK Verified', 'MASTER VANI KABIR’S PICKS', 'Chosen with intention.'], rare: ['Rare', 'RARE FINDS', 'For the energy that cannot be repeated.'], bracelets: ['Bracelets', 'WEAR YOUR INTENTION', 'Crystal bracelets, lightcoded by hand.'], crystals: ['Crystals', 'EARTH’S ANCIENT LANGUAGE', 'Find the stone that speaks to you.'], aromatherapy: ['Aromatherapy', 'SCENT AS MEDICINE', 'Small rituals for every room.'], tools: ['Ancient Tools', 'TOOLS FOR THE INNER WORLD', 'Begin where your attention goes.'], estudio: ['E-Studio', 'DIGITAL RITUALS', 'Wisdom you can carry anywhere.'] }[route] || ['All Products', 'MAGIC MIXELS', 'Lightcoded tools for modern life.'];
+  return <div className="site-page"><StoreHeader active={navItems.find(item => navRoutes[item] === route)} onNavigate={onNavigate} onSearch={onSearch} cartCount={cartCount} /><section className="collection-heading"><div className="breadcrumbs"><span>⌂</span><i>/</i><span>Collections</span><i>/</i><b>{collection[0]}</b></div><h1>{collection[0].toUpperCase()}</h1></section><section className="shop-controls"><button>INR <span>⌄</span></button><button>Show filters <span>⌄</span></button><label>Sort by: <button>Featured <span>•</span></button></label></section><section className="products"><div className="collection-banner"><img src={assets.collectionHero} alt="Crystals and an open book" /><div><span>{collection[1]}</span><h2>{collection[2]}</h2><button onClick={() => onNavigate('product')}>Explore collection <span>↗</span></button></div></div>{products.map((product) => <ProductCard key={product.name} product={product} onNavigate={onNavigate} onAdd={onAdd} />)}</section><Footer onNavigate={onNavigate} /></div>;
 }
 
-function Footer({ onNavigate }) { return <footer><Logo /><div><button onClick={() => onNavigate('collection')}>Shop</button><button onClick={() => onNavigate('masterclass')}>Masterclass</button><button>Contact</button></div><span>© 2026 Vani Kabir Studio</span></footer>; }
-
-function App() {
-  const [page, setPage] = useState(() => window.location.hash.replace('#', '') || 'landing');
-  const navigate = (next) => { setPage(next); window.location.hash = next; window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  useEffect(() => { const onHash = () => setPage(window.location.hash.replace('#', '') || 'landing'); window.addEventListener('hashchange', onHash); return () => window.removeEventListener('hashchange', onHash); }, []);
-  if (page === 'collection') return <Collection onNavigate={navigate} />;
-  if (page === 'masterclass') return <Masterclass onNavigate={navigate} />;
-  return <Landing onNavigate={navigate} />;
+function ProductPage({ onNavigate, onAdd }) {
+  return <div className="site-page"><StoreHeader onNavigate={onNavigate} onSearch={() => onNavigate('search')} cartCount="0" /><section className="product-detail"><div className="detail-image"><img src={assets.crystals} alt="Lightcoded crystal product" /><span>♡</span></div><div className="detail-copy"><div className="breadcrumbs"><span>⌂</span><i>/</i><span>Magic Mixels</span><i>/</i><b>Job Mixel</b></div><p className="eyebrow">EVRENROO™ LIGHTCODED</p><h1>Job Mixel</h1><p className="price">₹ 5,555</p><p className="description">The Job Mixel enhances self-esteem, self-acceptance and self-trust. A crystal tool to support communication, creative ability and the energy of your intention.</p><div className="detail-note">Every product is a tool. Its meaning and impact are shaped by your belief, intention and personal journey.</div><button className="add-to-cart" onClick={onAdd}>Add to cart <span>↗</span></button><div className="accordions"><button>How to use <span>+</span></button><button>Shipping & care <span>+</span></button><button>Returns policy <span>+</span></button></div></div></section><Footer onNavigate={onNavigate} /></div>;
 }
+
+function Masterclass({ onNavigate }) { return <div className="master-page"><header className="master-header"><button onClick={() => onNavigate('collection')}><Logo /></button><nav>{['Home', 'About', 'Everneroo ™', 'Private Readings', 'Soulpath Reset ™', 'Masterclass', 'Library⌄'].map(item => <button className={item === 'Masterclass' ? 'selected' : ''} key={item} onClick={() => item === 'Home' ? onNavigate('collection') : item === 'About' ? onNavigate('about') : item === 'Private Readings' ? onNavigate('private') : item === 'Soulpath Reset ™' ? onNavigate('soulpath') : item === 'Library⌄' ? onNavigate('library') : undefined}>{item}</button>)}</nav><button className="menu-button" aria-label="Open menu">☰</button></header><section className="master-hero"><img src={assets.masterclassHero} alt="Hands holding a book" /><div className="hero-shade" /><h1>MASTERCLASS</h1></section><section className="master-intro"><p>THE WISDOM OF THE ANCIENTS, MADE SIMPLE</p><h2>3 SACRED RITES<br /><em>OF A SHAMAN</em></h2><div className="intro-grid"><img src={assets.portrait} alt="Vani Kabir" /><div><p>There are practices that are older than language. Quiet rituals that bring us back to ourselves.</p><p>Join Master Vani Kabir for an intimate journey into the sacred rites of a shaman — designed for the modern seeker.</p><button onClick={() => onNavigate('product')}>Reserve your place <span>↗</span></button></div></div></section><Footer onNavigate={onNavigate} /></div>; }
+
+function EditorialPage({ type, onNavigate }) { const content = { about: ['ABOUT VANI KABIR', 'A softer way to remember who you are.', 'Vani Kabir Studio brings together crystals, rituals and learning for people who want spirituality to feel simple, grounded and personal.'], private: ['PRIVATE READINGS', 'A quiet room for your questions.', 'Personal guidance for the seasons of life that ask you to pause, listen and choose again.'], soulpath: ['SOULPATH RESET ™', 'Return to the path beneath the noise.', 'A guided energetic reset for clearing old patterns and making space for the next chapter.'], library: ['LIBRARY', 'A living archive of wisdom.', 'Explore essays, rituals and practical teachings from the studio.'] }[type]; return <div className="editorial-page"><header className="editorial-header"><button onClick={() => onNavigate('collection')}><Logo /></button><nav><button onClick={() => onNavigate('collection')}>Shop</button><button onClick={() => onNavigate('masterclass')}>Masterclass</button><button className="selected">{content[0]}</button></nav></header><section className="editorial-hero"><img src={assets.collectionHero} alt="Open book and crystals" /><div><p>VANI KABIR STUDIO</p><h1>{content[0]}</h1><h2>{content[1]}</h2><p className="editorial-body">{content[2]}</p><button onClick={() => onNavigate(type === 'library' ? 'masterclass' : 'product')}>Enter the studio <span>↗</span></button></div></section><Footer onNavigate={onNavigate} /></div>; }
+
+function UtilityPage({ type, onNavigate }) { const title = type === 'cart' ? 'YOUR CART' : type === 'account' ? 'ACCOUNT' : type === 'wishlist' ? 'WISHLIST' : 'SEARCH'; return <div className="site-page"><StoreHeader onNavigate={onNavigate} onSearch={() => onNavigate('search')} cartCount="0" /><section className="utility-page"><div className="breadcrumbs"><span>⌂</span><i>/</i><b>{title}</b></div><h1>{title}</h1>{type === 'search' ? <div className="search-box"><input autoFocus placeholder="Search the studio" /><button onClick={() => onNavigate('collection')}>Search ↗</button></div> : <div className="empty-state"><div className="empty-symbol">○</div><h2>{type === 'cart' ? 'Your ritual basket is empty.' : type === 'account' ? 'Sign in to your studio space.' : 'Your saved pieces will appear here.'}</h2><button onClick={() => onNavigate(type === 'account' ? 'collection' : 'new')}>{type === 'account' ? 'Continue shopping' : 'Explore the studio'} <span>↗</span></button></div>}</section><Footer onNavigate={onNavigate} /></div>; }
+
+function Footer({ onNavigate }) { return <footer><Logo /><div><button onClick={() => onNavigate('collection')}>Shop</button><button onClick={() => onNavigate('masterclass')}>Masterclass</button><button onClick={() => onNavigate('about')}>Contact</button></div><span>© 2026 Vani Kabir Studio</span></footer>; }
+
+function App() { const [page, setPage] = useState(() => window.location.hash.replace('#', '') || 'landing'); const [cartCount, setCartCount] = useState(0); const navigate = (next) => { setPage(next); window.location.hash = next; window.scrollTo({ top: 0, behavior: 'smooth' }); }; const addToCart = () => setCartCount((count) => count + 1); useEffect(() => { const onHash = () => setPage(window.location.hash.replace('#', '') || 'landing'); window.addEventListener('hashchange', onHash); return () => window.removeEventListener('hashchange', onHash); }, []); if (page === 'landing') return <Landing onNavigate={navigate} />; if (page === 'masterclass') return <Masterclass onNavigate={navigate} />; if (['about', 'private', 'soulpath', 'library'].includes(page)) return <EditorialPage type={page} onNavigate={navigate} />; if (['cart', 'account', 'wishlist', 'search'].includes(page)) return <UtilityPage type={page} onNavigate={navigate} />; if (page === 'product') return <ProductPage onNavigate={navigate} onAdd={addToCart} />; return <CollectionPage route={page} onNavigate={navigate} onSearch={() => navigate('search')} cartCount={cartCount} onAdd={addToCart} />; }
 
 createRoot(document.getElementById('root')).render(<App />);
