@@ -343,11 +343,6 @@ function Home() {
           <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
         </a>
       </div>
-      <section className="home-directory-section" aria-labelledby="home-directory-title">
-        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
-        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
-        <DirectoryLinks />
-      </section>
       <div className="link-home-cards">
         {landingLinks.map((link) => <a className="home-link-card" href={link.href} key={link.title}>
           <img src={link.image} alt="" />
@@ -355,6 +350,11 @@ function Home() {
           <span className="home-link-copy"><span>{link.subtitle}</span><strong>{link.title}</strong><ArrowRight size={17} /></span>
         </a>)}
       </div>
+      <section className="home-directory-section" aria-labelledby="home-directory-title">
+        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
+        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
+        <DirectoryLinks />
+      </section>
     </div>
   </main>;
 }
