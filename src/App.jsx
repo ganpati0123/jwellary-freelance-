@@ -100,8 +100,8 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
         </div>
       </div>
       <nav className="desktop-nav" aria-label="Collections" onMouseLeave={() => setOpenMenu(null)}>
-        {navigationMenus.map((item) => <div className={`desktop-nav-item ${active === item.slug ? 'active' : ''} ${openMenu === item.slug ? 'open' : ''}`} key={item.slug} onMouseEnter={() => setOpenMenu(item.slug)}>
-          <button type="button" className="desktop-nav-trigger" aria-expanded={openMenu === item.slug} aria-controls={`mega-menu-${item.slug}`} onFocus={() => setOpenMenu(item.slug)} onClick={() => setOpenMenu(item.slug)}>
+        {navigationMenus.map((item) => <div className={`desktop-nav-item ${active === item.slug ? 'active' : ''} ${openMenu === item.slug ? 'open' : ''}`} key={item.slug} onMouseEnter={() => setOpenMenu(item.slug)} onPointerEnter={() => setOpenMenu(item.slug)}>
+          <button type="button" className="desktop-nav-trigger" aria-expanded={openMenu === item.slug} aria-controls={`mega-menu-${item.slug}`} onFocus={() => setOpenMenu(item.slug)} onClick={() => toggleMenu(item.slug)}>
             <span className="nav-star" aria-hidden="true">✦</span>
             <span>{item.title.replace(' - Season 4', '')}</span>
             <ChevronDown className="nav-chevron" size={11} aria-hidden="true" />
