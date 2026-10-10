@@ -124,10 +124,12 @@ function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onA
       </div>
     </div>
     <div className="product-info">
+      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>Hand-finished</span></div>
       <h3>{product.name}</h3>
+      <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
         <p className="product-price">{formatPrice(product.price, currency)}</p>
-        <button className="add-small" onClick={() => onAdd(product)}>Add to bag</button>
+        <button className="add-small" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={13} /></button>
       </div>
     </div>
   </article>;
@@ -160,9 +162,10 @@ function ProductModal({ product, currency, onClose, onAdd }) {
         <span className="eyebrow">{product.collection.replaceAll('-', ' ')}</span>
         <h2>{product.name}</h2>
         <p>{formatPrice(product.price, currency)}</p>
-        <p>A thoughtful companion for {product.intention.toLowerCase()}. Made with {product.material.toLowerCase()} and chosen for its own natural character. Every piece arrives with space for your own practice.</p>
-        <p className="small-label">Stone · {product.crystalType} &nbsp; / &nbsp; Intention · {product.intention}</p>
-        <button className="button button-dark" onClick={() => { onAdd(product); onClose(); }}>Add to bag <ArrowRight size={15} /></button>
+        <p className="quick-description">A thoughtful companion for {product.intention.toLowerCase()}. Made with {product.material.toLowerCase()} and chosen for its own natural character. Every piece arrives with space for your own practice.</p>
+        <div className="product-spec-grid"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div>
+        <div className="quick-perks"><span>Complimentary shipping</span><span>Gift-ready packaging</span></div>
+        <button className="button button-dark quick-add" onClick={() => { onAdd(product); onClose(); }}>Add to bag <ArrowRight size={15} /></button>
         <p className="demo-note" style={{ marginTop: 17 }}>Demo storefront — this action adds the item to your local sample bag. No payment is taken.</p>
       </div>
     </div>
