@@ -8,7 +8,8 @@
 
 ## Project notes
 
-- This is a responsive React and Vite reference rebuild of the supplied Vani Kabir Studio screenshots.
-- Collection, link-directory, masterclass, and daily crystal quiz routes are handled by the client app.
-- Product details and commerce interactions are local demo data only; there is no live inventory, booking, checkout, or payment service.
+- The home page recreates the Vani Kabir Studio bio-link layout with the two campaign cards and its 12 original destinations.
+- The existing five-question crystal quiz opens as a first-visit popup on the home page. Visitors can skip it, dismiss it with Escape or the backdrop, and reopen it from the home-page button.
+- Collection, product, checkout, link-directory, masterclass, and quiz routes are handled by the client app.
+- The storefront uses local demo catalog data. Supabase and Razorpay code paths are optional and need project configuration; no live inventory or booking data is bundled.
 - The homepage intentionally omits the shared footer; other routes include it.

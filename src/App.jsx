@@ -4,6 +4,9 @@ import {
   RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X,
   Play
 } from 'lucide-react';
+import {
+  getSession, hasSupabaseConfig, onAuthStateChange, signIn, signOut, signUp, startCheckout
+} from './lib/supabase.js';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
 import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
 
@@ -37,6 +40,13 @@ const collectionAliases = {
   'aumatrix-2-0': 'aumatrix-2',
   'aumatrix-2.0': 'aumatrix-2',
   'divine-diwali-season-4': 'divine-diwali',
+  'divini-diwali-season-4': 'divine-diwali',
+  'start-here': 'whats-new',
+  'mvk-picks': 'mvk-verified',
+  'pure-bracelet-2026': 'bracelets',
+  'magic-mixels-2026': 'bracelets',
+  'gemstones-2026': 'crystals',
+  'e-studio-2026': 'e-studio',
   'new-arrivals': 'whats-new'
 };
 
@@ -197,14 +207,39 @@ function formatPrice(price, currency) {
   return `${sign}${currency === 'INR' ? value.toLocaleString('en-IN') : value.toLocaleString('en-US')}`;
 }
 
-function Modal({ children, onClose, className = '' }) {
+function Modal({ children, onClose, className = '', labelId }) {
+  const dialogRef = useRef(null);
   useEffect(() => {
-    const key = (event) => { if (event.key === 'Escape') onClose(); };
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement;
+    document.body.style.overflow = 'hidden';
+    const focusable = () => dialogRef.current?.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])');
+    const items = focusable();
+    (items?.[0] || dialogRef.current)?.focus?.();
+    const key = (event) => {
+      if (event.key === 'Escape') { onClose(); return; }
+      if (event.key !== 'Tab') return;
+      const currentItems = focusable();
+      if (!currentItems?.length) { event.preventDefault(); dialogRef.current?.focus(); return; }
+      const first = currentItems[0];
+      const last = currentItems[currentItems.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialogRef.current?.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialogRef.current?.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener('keydown', key);
-    return () => document.removeEventListener('keydown', key);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', key);
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
   }, [onClose]);
   return <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <div className={`modal ${className}`} role="dialog" aria-modal="true">{children}</div>
+    <div ref={dialogRef} className={`modal ${className}`} role="dialog" aria-modal="true" aria-labelledby={labelId} tabIndex={-1}>{children}</div>
   </div>;
 }
 
@@ -418,7 +453,7 @@ function Footer({ showToast }) {
         {submitted && <div className="form-feedback" role="status">You’re on the list. Look out for a note from the studio.</div>}
       </div>
       <div className="footer-about">
-        <p>Vani Kabir Studio is a modern house for sacred ancient tools offering Evenrroo Lightcoded™ crystals and gemstones. These high-vibrational companions can help you clear your energy field and return to a path of abundance and possibility.</p>
+        <p>Vani Kabir Studio is a modern house for sacred and ancient tools offering Evernoon Lightcoded™ crystals and gemstones. These high-vibrational companions can help you clear your energy field and return to a path of abundance and possibility.</p>
         <div className="footer-links">
           <div><h3>Orders & Returns</h3><a href="#disclaimer">Shipping Policy</a><a href="#disclaimer">Exchange & Refund Policy</a><a href="#disclaimer">Cancellation Policy</a></div>
           <div><h3>Privacy</h3><a href="#disclaimer">Privacy Policy</a><a href="#disclaimer">Mobile App Privacy Policy</a><a href="#disclaimer">GDPR Policy</a><a href="#disclaimer">Do Not Sell My Personal Info</a></div>
@@ -437,59 +472,55 @@ function Footer({ showToast }) {
 }
 
 const directoryLinks = [
-  ['Blessing Of The Month', '/collections/whats-new'], ['Europe Collection Season - 3', '/collections/europe-season-3'],
-  ['Ancestry Manifestation Sheet - October', '/collections/e-studio'], ['New Lightcoded Mixels @1919', '/collections/whats-new'],
-  ['MVK Verified', '/collections/mvk-verified'], ['New Arrivals', '/collections/whats-new'],
-  ['Pure Bracelets', '/collections/bracelets'], ['Magic Mixel Bracelets', '/collections/bracelets'],
-  ['Know Your Gemstone Form', '/collections/crystals'], ['Gemstones', '/collections/crystals'],
-  ['E-Studio', '/collections/e-studio'], ['Learn About Crystals', '/collections/crystals'],
-  ['3 Sacred Rites Of A Shaman', '/pages/3-sacred-rites-of-a-shaman'], ['Daily Crystal Quiz', '/pages/daily-crystal-quiz']
+  ['Blessing Of The Month', 'https://www.vanikabirstudio.com/products/varicite-stone-of-hope?_pos=1&_psq=stone+of&_psid=24fa415d7&_ss=e'],
+  ['Europe Collection Season - 3', 'https://www.vanikabirstudio.com/pages/with-love-from-europe-season-3'],
+  ['Ancestry Manifestation Sheet - October', 'https://www.vanikabirstudio.com/collections/whats-new/products/october-ancestry-manifestation-sheet'],
+  ['New Lightcoded Mixels @1919', 'https://www.vanikabirstudio.com/collections/start-here'],
+  ['MVK Verified', 'https://www.vanikabirstudio.com/collections/mvk-picks'],
+  ['New Arrivals', 'https://www.vanikabirstudio.com/collections/whats-new'],
+  ['Pure Bracelets', 'https://www.vanikabirstudio.com/collections/pure-bracelet-2026'],
+  ['Magic Mixel Bracelets', 'https://www.vanikabirstudio.com/collections/magic-mixels-2026'],
+  ['Know Your Gemstone Form', 'https://pages.razorpay.com/know-your-gemstone'],
+  ['Gemstones', 'https://www.vanikabirstudio.com/collections/gemstones-2026'],
+  ['E-Studio', 'https://www.vanikabirstudio.com/collections/e-studio-2026'],
+  ['Learn About Crystals', 'https://www.vanikabirstudio.com/blogs/news']
 ];
 
 function DirectoryLinks() {
   return <>
-    <div className="directory-list">{directoryLinks.map(([label, path]) => <a key={label} className="directory-link" href={path}>{label}</a>)}</div>
-    <p className="directory-policy">By continuing, you acknowledge that you have read and agree to our <a href="#disclaimer"><u>Terms of Use</u></a> and <a href="#disclaimer"><u>Privacy Policy</u></a>.</p>
+    <div className="directory-list">{directoryLinks.map(([label, href]) => <a key={label} className="directory-link" href={href}>{label}</a>)}</div>
+    <p className="directory-policy">
+      <a href="https://www.vanikabirstudio.com/pages/terms-conditions" target="_blank" rel="noreferrer">Terms of Use</a>
+      <span>·</span>
+      <a href="https://www.vanikabirstudio.com/pages/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>
+    </p>
   </>;
 }
 
-function Home() {
-  const landingLinks = [
-    { title: 'Aumatrix 2.0', subtitle: 'Tools for a more intentional everyday', href: '/collections/aumatrix-2', image: '/attached_assets/generated_images/divine-diwali-stilllife.jpg' },
-    { title: 'Find your crystal of the day', subtitle: 'A small moment of reflection', href: '/pages/daily-crystal-quiz', image: '/attached_assets/generated_images/studio-altar.jpg' },
-    { title: 'Explore the studio', subtitle: 'Collections, learning and everyday rituals', href: '/links', image: '/attached_assets/generated_images/sanctuary-landscape.jpg' }
-  ];
-  return <main>
+function Home({ onOpenQuiz }) {
+  return <main className="link-home-page">
     <div className="link-home">
       <header className="link-home-intro">
         <Brand large />
-        <p>Vani Kabir Studio is a modern house for sacred ancient tools offering Evenrroo Lightcoded™ crystals and gemstones. Trusted in 104 countries since 2021.</p>
+        <p>Vani Kabir Studio is a modern house for sacred and ancient tools offering Evernoon Lightcoded™ crystals and gemstones. Trusted in 104 countries since 2021.</p>
         <div className="home-socials" aria-label="Studio social links">
-          <a href="https://instagram.com" aria-label="Instagram"><Camera size={19} strokeWidth={1.7} /></a>
-          <a href="/links" aria-label="Studio website"><Globe2 size={19} strokeWidth={1.7} /></a>
-          <a href="https://youtube.com" aria-label="YouTube"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
+          <a href="https://www.instagram.com/vanikabirstudio/" aria-label="Instagram" target="_blank" rel="noreferrer"><Camera size={19} strokeWidth={1.7} /></a>
+          <a href="https://www.vanikabirstudio.com/" aria-label="Studio website" target="_blank" rel="noreferrer"><Globe2 size={19} strokeWidth={1.7} /></a>
+          <a href="https://www.youtube.com/@mastervanikabir" aria-label="YouTube" target="_blank" rel="noreferrer"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
         </div>
+        <button className="home-quiz-trigger" onClick={onOpenQuiz} type="button">
+          <Sparkles size={15} aria-hidden="true" /> Take the 5-question crystal quiz
+        </button>
       </header>
       <div className="home-campaign-promos">
-        <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
+        <a className="home-campaign" href="https://www.vanikabirstudio.com/collections/divini-diwali-season-4" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
           <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
         </a>
-        <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
+        <a className="home-rite-card" href="https://vanikabir.com/masterclass/" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
           <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
         </a>
       </div>
-      <div className="link-home-cards">
-        {landingLinks.map((link) => <a className="home-link-card" href={link.href} key={link.title}>
-          <img src={link.image} alt="" />
-          <span className="home-link-overlay" />
-          <span className="home-link-copy"><span>{link.subtitle}</span><strong>{link.title}</strong><ArrowRight size={17} /></span>
-        </a>)}
-      </div>
-      <section className="home-directory-section" aria-labelledby="home-directory-title">
-        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
-        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
-        <DirectoryLinks />
-      </section>
+      <DirectoryLinks />
     </div>
   </main>;
 }
@@ -560,23 +591,36 @@ function DirectoryPage() {
   </main>;
 }
 
-function MasterclassPage({ showToast }) {
-  const [interest, setInterest] = useState(false);
+function MasterclassPage() {
   return <main>
     <section className="rite-hero">
-      <div className="rite-copy"><span className="eyebrow">A live learning experience</span><h1><em>3 sacred rites</em><br />of a shaman</h1><p>You do not have to be a shaman to learn them. Join Master Vani Kabir for a grounded, welcoming introduction to three traditional rites and the meaning behind them.</p><p className="small-label">Friday, 16 October 2026 · 7 pm–9 pm IST</p><button className="button button-dark" onClick={() => { setInterest(true); showToast('Interest noted for this demo. No booking has been created.'); }}>I’m interested <ArrowRight size={15} /></button>{interest && <div className="form-feedback" role="status">This sample page does not accept bookings or payments.</div>}</div>
+      <div className="rite-copy">
+        <span className="eyebrow">Masterclass with Master Vani Kabir</span>
+        <h1><em>3 Sacred Rites</em><br />of a Shaman</h1>
+        <p>You don’t have to be a Shaman to learn them.</p>
+        <p>Discover ancient shamanic ways of working with simple elements of the Earth: a stone, a plant and a thread. Through Body Stone, Plant Dita and Thread Work, learn to release, reconnect and consciously work with intentions, bonds and everyday life.</p>
+        <p className="small-label">Friday, 16 October 2026 · 7 pm to 9 pm IST</p>
+        <p className="rite-price">Energy exchange · ₹5,555</p>
+        <a className="button button-dark" href="https://vanikabir.com/masterclass/" target="_blank" rel="noreferrer">Book on the official site <ArrowRight size={15} /></a>
+      </div>
       <div className="rite-image" role="img" aria-label="Master Vani Kabir in a light editorial portrait from the shaman rites masterclass" />
     </section>
     <section className="rite-details">
-      <article className="rite-step"><span>01</span><h2>Arrive with curiosity</h2><p>Begin with context, lineage and a clear sense of what the rites mean. No prior experience is expected.</p></article>
-      <article className="rite-step"><span>02</span><h2>Learn the practice</h2><p>Explore three simple teachings through guided reflection, explanation and practical examples.</p></article>
-      <article className="rite-step"><span>03</span><h2>Carry it gently</h2><p>Leave with a personal way to revisit the learning, grounded in respect and everyday life.</p></article>
+      <article className="rite-step"><span>01</span><h2>DISPEL</h2><p>Fears and energies you no longer wish to carry.</p></article>
+      <article className="rite-step"><span>02</span><h2>REWIRE</h2><p>Patterns, blocks and intentions with the living Earth.</p></article>
+      <article className="rite-step"><span>03</span><h2>RECONNECT</h2><p>With the Great Mother, your inner wisdom and sacred everyday life.</p></article>
     </section>
-    <section className="rite-signup"><span className="eyebrow">Masterclass with Master Vani Kabir</span><h2>Make space for new understanding.</h2><p>16 October 2026 · 7 pm to 9 pm IST · Friday</p><button className="button button-dark" onClick={() => { setInterest(true); showToast('Demo interest noted — no payment or reservation was made.'); }}>Register your interest <ArrowRight size={15} /></button>{interest && <div className="form-feedback">This is a demo storefront. Registration is not active.</div>}</section>
+    <section className="rite-signup">
+      <span className="eyebrow">3 Sacred Rites of a Shaman</span>
+      <h2>Come closer to the living Earth.</h2>
+      <p>Friday, 16 October 2026 · 7 pm to 9 pm IST · Energy exchange ₹5,555</p>
+      <a className="button button-dark" href="https://vanikabir.com/masterclass/" target="_blank" rel="noreferrer">Book on the official site <ArrowRight size={15} /></a>
+    </section>
   </main>;
 }
 
-function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
+function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd, modal = false }) {
+  const Page = modal ? 'div' : 'main';
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
   const resultKey = useMemo(() => {
@@ -591,8 +635,8 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
   };
   const restart = () => { setStep(0); setAnswers([]); };
   const recommended = result.items.map((id) => products.find((product) => product.id === id)).filter(Boolean);
-  return <main className="quiz-page">
-    <div className="quiz-top"><span className="eyebrow">Daily crystal quiz</span><h1 className="quiz-title">Find your crystal of the day</h1><p>Choose the option that feels most aligned with you today and discover the crystal energy calling you right now.</p></div>
+  return <Page className="quiz-page">
+    <div className="quiz-top"><span className="eyebrow">Daily crystal quiz</span><h1 className="quiz-title" id={modal ? 'quiz-modal-title' : undefined}>Find your crystal of the day</h1><p>Choose the option that feels most aligned with you today and discover the crystal energy calling you right now.</p></div>
     <div className="quiz-progress"><span>{step < quizQuestions.length ? `Question ${step + 1} / ${quizQuestions.length}` : `${quizQuestions.length} questions complete`}</span><button onClick={restart}>Restart quiz</button></div>
     <div className="progress-track"><div className="progress-fill" style={{ transform: `scaleX(${Math.min(step, quizQuestions.length) / quizQuestions.length})` }} /></div>
     {step < quizQuestions.length ? <>
@@ -608,7 +652,7 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
       <div className="recommend-grid">{recommended.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}</div>
       <div className="quiz-result-actions"><button className="button button-text" onClick={restart}><RotateCcw size={14} /> Retake quiz</button><a className="button button-dark" href="/collections/crystals">Shop all crystals <ArrowRight size={15} /></a></div>
     </section>}
-  </main>;
+  </Page>;
 }
 
 function App() {
@@ -624,12 +668,21 @@ function App() {
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
-  const productDetail = path.startsWith('/products/') && !!product;
+  const productRoute = pathSegments[0] === 'products'
+    || (pathSegments[0] === 'collections' && pathSegments[2] === 'products');
+  const productSlug = productRoute ? pathSegments[pathSegments.length - 1] : null;
+  const product = productSlug ? products.find((item) => item.id === productSlug
+    || item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === productSlug) : null;
+  const productDetail = productRoute && !!product;
   const showStoreChrome = !home && !directory && !checkout;
   const [currency, setCurrency] = useState('INR');
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem('vani-studio-cart') || '{}'); }
+    catch { return {}; }
+  });
   const [favorites, setFavorites] = useState([]);
   const [drawer, setDrawer] = useState('');
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [quickProduct, setQuickProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
@@ -660,11 +713,38 @@ function App() {
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
+  useEffect(() => {
+    try { window.localStorage.setItem('vani-studio-cart', JSON.stringify(cart)); }
+    catch { /* Keep shopping functional for this visit if storage is disabled. */ }
+  }, [cart]);
+  useEffect(() => {
+    let alive = true;
+    getSession().then(({ data }) => { if (alive) setSession(data?.session || null); }).catch(() => {});
+    const listener = onAuthStateChange((_event, nextSession) => setSession(nextSession));
+    return () => {
+      alive = false;
+      listener?.data?.subscription?.unsubscribe();
+    };
+  }, []);
+  useEffect(() => {
+    if (!home) return undefined;
+    try {
+      if (window.sessionStorage.getItem('vani-crystal-quiz-skipped') === 'true') return undefined;
+    } catch { /* Continue without persistence if browser storage is disabled. */ }
+    const timer = window.setTimeout(() => setQuizModalOpen(true), 250);
+    return () => window.clearTimeout(timer);
+  }, [home]);
+  const closeQuizModal = () => {
+    setQuizModalOpen(false);
+    try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
+  };
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
-  const content = home ? <Home />
-    : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+  const content = home ? <Home onOpenQuiz={() => setQuizModalOpen(true)} />
+    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onQuickView={setQuickProduct} />
+      : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
+        : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-      : ['/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage showToast={showToast} />
+      : ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage />
           : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
             : <main className="directory-page"><span className="eyebrow">The studio</span><h1 className="directory-title">This path is still unfolding.</h1><p className="directory-intro">The page you’re looking for hasn’t been gathered here yet.</p><a className="button button-dark" href="/">Return to the beginning</a></main>;
   return <div className="app-shell">
@@ -677,6 +757,13 @@ function App() {
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
+    {home && quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
+      <div className="quiz-modal-toolbar">
+        <span className="eyebrow">A moment for you</span>
+        <button type="button" className="quiz-modal-skip" onClick={closeQuizModal}>Skip for now <X size={15} /></button>
+      </div>
+      <QuizPage modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={(item) => { closeQuizModal(); setQuickProduct(item); }} onAdd={addToCart} />
+    </Modal>}
     {toast && <div className="toast" role="status">{toast}</div>}
     {showStoreChrome && <button className="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><ArrowUp size={18} strokeWidth={1.5} /></button>}
   </div>;
