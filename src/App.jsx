@@ -234,7 +234,7 @@ function CartDrawer({ close, items, currency, onQuantity, onQuickView, session, 
       {entries.length > 0 && <div className="drawer-foot" style={{ display: 'block' }}>
         <div className="cart-total"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
         <p className="demo-note">Secure checkout powered by Razorpay. Sign in is required to place an order.</p>
-        <button className="button button-dark checkout-button" onClick={checkout}>Proceed to checkout <ArrowRight size={15} /></button>
+        <a className="button button-dark checkout-button" href="/checkout" onClick={(event) => { if (!entries.length) event.preventDefault(); }}>Proceed to checkout <ArrowRight size={15} /></a>
       </div>}
     </aside>
   </div>;
@@ -303,6 +303,28 @@ function AuthModal({ close, session, onSession, showToast }) {
       <button type="button" className="button button-text" onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}>{mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}</button>
     </form>}
   </Modal>;
+}
+
+function CheckoutPage({ items, currency, session, onQuantity, showToast }) {
+  const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
+  const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
+  const formatted = (value) => `${currencyData[currency].sign} ${(value * currencyData[currency].multiplier).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  const pay = async () => {
+    if (!session) { showToast('Please sign in before checkout.'); return; }
+    try { await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => showToast('Payment received. Thank you for your order.'), onFailure: () => showToast('Payment could not be completed. Please try again.') }); }
+    catch (error) { showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.'); }
+  };
+  return <main className="checkout-page">
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><span>Secure checkout · Vani Kabir Studio</span></div>
+    <div className="checkout-layout">
+      <section className="checkout-form-panel">
+        <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Your pieces are held with care. Add your details below and continue to a secure payment experience.</p>
+        <div className="checkout-form-grid"><label>First name<input placeholder="Your first name" /></label><label>Last name<input placeholder="Your last name" /></label><label className="full">Email address<input type="email" value={session?.user?.email || ''} placeholder="you@example.com" readOnly={!!session?.user?.email} /></label><label className="full">Delivery address<input placeholder="House number, street and area" /></label><label>City<input placeholder="City" /></label><label>Postal code<input placeholder="Postal code" /></label></div>
+        <div className="checkout-assurance"><span>✦</span><div><strong>Made for a meaningful moment</strong><p>Each order is packed intentionally and dispatched with care.</p></div></div>
+      </section>
+      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{entries.reduce((sum, entry) => sum + entry.quantity, 0)} items</span></div>{entries.length ? entries.map(({ product, quantity }) => <div className="summary-line" key={product.id}><ProductArtwork product={product} small /><div><strong>{product.name}</strong><span>Qty {quantity}</span><button onClick={() => onQuantity(product.id, -1)}>Remove</button></div><b>{formatted(product.price * quantity)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/whats-new">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatted(subtotal)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Complimentary</span></div><button className="button button-dark checkout-pay" onClick={pay} disabled={!entries.length}>Continue to secure payment <ArrowRight size={15} /></button><p className="payment-note">Payments are securely processed by Razorpay. Your card details never touch our studio.</p></aside>
+    </div>
+  </main>;
 }
 
 function Footer({ showToast }) {
@@ -518,7 +540,8 @@ function App() {
   const collection = collectionSlug ? getCollection(collectionSlug) : null;
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
-  const showStoreChrome = !home && !directory;
+  const checkout = path === '/checkout';
+  const showStoreChrome = !home && !directory && !checkout;
   const [currency, setCurrency] = useState('INR');
   const [cart, setCart] = useState({});
   const [favorites, setFavorites] = useState([]);
@@ -559,7 +582,8 @@ function App() {
     return () => subscription?.data?.subscription?.unsubscribe();
   }, []);
   const collectionValid = !!collection;
-  const content = home ? <Home />
+  const content = checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
+    : home ? <Home />
     : collectionValid ? <CollectionPage collection={collection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage showToast={showToast} />
