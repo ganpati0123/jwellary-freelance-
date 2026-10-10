@@ -12,6 +12,7 @@ Deno.serve(async (request) => {
     if (!Number.isInteger(amountInr) || amountInr <= 0) return new Response(JSON.stringify({ error: 'Invalid amount' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');
     const secret = Deno.env.get('RAZORPAY_KEY_SECRET');
+    if (!keyId || !secret) throw new Error('Razorpay payment setup is not configured');
     const razorResponse = await fetch('https://api.razorpay.com/v1/orders', { method: 'POST', headers: { Authorization: `Basic ${btoa(`${keyId}:${secret}`)}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: amountInr * 100, currency: 'INR', receipt: crypto.randomUUID() }) });
     if (!razorResponse.ok) throw new Error('Unable to create payment order');
     const razorOrder = await razorResponse.json();

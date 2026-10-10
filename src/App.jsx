@@ -5,7 +5,7 @@ import {
   Play
 } from 'lucide-react';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
-import { getSession, onAuthStateChange, signIn, signOut, signUp, hasSupabaseConfig } from './lib/supabase.js';
+import { getSession, onAuthStateChange, signIn, signOut, signUp, hasSupabaseConfig, startCheckout } from './lib/supabase.js';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -206,9 +206,17 @@ function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inSt
   </div>;
 }
 
-function CartDrawer({ close, items, currency, onQuantity, onQuickView }) {
+function CartDrawer({ close, items, currency, onQuantity, onQuickView, session, showToast }) {
   const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
   const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
+  const checkout = async () => {
+    if (!session) { showToast('Please sign in before checkout.'); return; }
+    try {
+      await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => { showToast('Payment received. Thank you for your order.'); close(); }, onFailure: () => showToast('Payment could not be completed. Please try again.') });
+    } catch (error) {
+      showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.');
+    }
+  };
   return <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
     <aside className="drawer drawer-right" role="dialog" aria-modal="true" aria-label="Shopping bag">
       <div className="drawer-head"><h2>Your bag <span style={{ font: '12px var(--sans)' }}>({entries.reduce((sum, entry) => sum + entry.quantity, 0)})</span></h2><button className="icon-button" aria-label="Close bag" onClick={close}><X size={19} /></button></div>
@@ -225,7 +233,8 @@ function CartDrawer({ close, items, currency, onQuantity, onQuickView }) {
       </div>
       {entries.length > 0 && <div className="drawer-foot" style={{ display: 'block' }}>
         <div className="cart-total"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
-        <p className="demo-note">Demo storefront only. Checkout and payment are not available; your sample bag stays in this browser session.</p>
+        <p className="demo-note">Secure checkout powered by Razorpay. Sign in is required to place an order.</p>
+        <button className="button button-dark checkout-button" onClick={checkout}>Proceed to checkout <ArrowRight size={15} /></button>
       </div>}
     </aside>
   </div>;
@@ -561,7 +570,7 @@ function App() {
     {content}
     {!home && <Footer showToast={showToast} />}
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}><option value="INR">INR⌄</option><option value="USD">USD⌄</option><option value="EUR">EUR⌄</option></select></div>}
-    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} session={session} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
