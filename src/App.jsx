@@ -125,7 +125,7 @@ function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onA
     </div>
     <div className="product-info">
       <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>Hand-finished</span></div>
-      <h3>{product.name}</h3>
+      <h3><a className="product-name-link" href={`/products/${product.id}`}>{product.name}</a></h3>
       <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
         <p className="product-price">{formatPrice(product.price, currency)}</p>
@@ -170,6 +170,17 @@ function ProductModal({ product, currency, onClose, onAdd }) {
       </div>
     </div>
   </Modal>;
+}
+
+function ProductPage({ product, currency, onAdd, onQuickView }) {
+  if (!product) return null;
+  return <main className="product-detail-page">
+    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><span>{product.collection.replaceAll('-', ' ')}</span><span>/</span><strong>{product.name}</strong></div>
+    <div className="product-detail-layout">
+      <section className="product-detail-gallery"><ProductArtwork product={product} /><div className="gallery-caption"><span>01 / 01</span><span>Studio still life · Small batch</span></div></section>
+      <section className="product-detail-copy"><span className="eyebrow">{product.productType || 'Studio piece'} · Vani Kabir Studio</span><h1>{product.name}</h1><div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>Complimentary shipping</span></div><p className="detail-intro">A considered piece for {product.intention.toLowerCase()}, made with {product.material.toLowerCase()} and chosen for its quiet, natural character.</p><div className="detail-divider" /><div className="detail-facts"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div><button className="button button-dark detail-add" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={15} /></button><button className="detail-secondary" onClick={() => onQuickView(product)}>View care & details <span>↓</span></button><div className="detail-accordions"><details open><summary>About this piece <span>+</span></summary><p>Every piece is selected for its own texture, tone and presence. Natural variation is part of what makes yours singular.</p></details><details><summary>Shipping & gifting <span>+</span></summary><p>Carefully packed, gift-ready and dispatched with complimentary shipping.</p></details></div></section>
+    </div>
+  </main>;
 }
 
 function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inStockOnly, setInStockOnly }) {
@@ -539,11 +550,14 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   const incomingCollectionSlug = path.startsWith('/collections/') ? path.split('/')[2] : null;
+  const productSlug = path.startsWith('/products/') ? path.split('/')[2] : null;
+  const product = productSlug ? products.find((item) => item.id === productSlug || item.slug === productSlug) : null;
   const collectionSlug = incomingCollectionSlug ? collectionAliases[incomingCollectionSlug] || incomingCollectionSlug : null;
   const collection = collectionSlug ? getCollection(collectionSlug) : null;
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
+  const productDetail = path.startsWith('/products/') && !!product;
   const showStoreChrome = !home && !directory && !checkout;
   const [currency, setCurrency] = useState('INR');
   const [cart, setCart] = useState({});
@@ -586,6 +600,7 @@ function App() {
   }, []);
   const collectionValid = !!collection;
   const content = checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
+    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onQuickView={setQuickProduct} />
     : home ? <Home />
     : collectionValid ? <CollectionPage collection={collection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
