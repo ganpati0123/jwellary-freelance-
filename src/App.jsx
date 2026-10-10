@@ -5,6 +5,7 @@ import {
   Play
 } from 'lucide-react';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
+import { getSession, onAuthStateChange, signIn, signOut, signUp, hasSupabaseConfig, startCheckout } from './lib/supabase.js';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -123,10 +124,12 @@ function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onA
       </div>
     </div>
     <div className="product-info">
-      <h3>{product.name}</h3>
+      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>Hand-finished</span></div>
+      <h3><a className="product-name-link" href={`/products/${product.id}`}>{product.name}</a></h3>
+      <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
         <p className="product-price">{formatPrice(product.price, currency)}</p>
-        <button className="add-small" onClick={() => onAdd(product)}>Add to bag</button>
+        <button className="add-small" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={13} /></button>
       </div>
     </div>
   </article>;
@@ -159,13 +162,25 @@ function ProductModal({ product, currency, onClose, onAdd }) {
         <span className="eyebrow">{product.collection.replaceAll('-', ' ')}</span>
         <h2>{product.name}</h2>
         <p>{formatPrice(product.price, currency)}</p>
-        <p>A thoughtful companion for {product.intention.toLowerCase()}. Made with {product.material.toLowerCase()} and chosen for its own natural character. Every piece arrives with space for your own practice.</p>
-        <p className="small-label">Stone · {product.crystalType} &nbsp; / &nbsp; Intention · {product.intention}</p>
-        <button className="button button-dark" onClick={() => { onAdd(product); onClose(); }}>Add to bag <ArrowRight size={15} /></button>
+        <p className="quick-description">A thoughtful companion for {product.intention.toLowerCase()}. Made with {product.material.toLowerCase()} and chosen for its own natural character. Every piece arrives with space for your own practice.</p>
+        <div className="product-spec-grid"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div>
+        <div className="quick-perks"><span>Complimentary shipping</span><span>Gift-ready packaging</span></div>
+        <button className="button button-dark quick-add" onClick={() => { onAdd(product); onClose(); }}>Add to bag <ArrowRight size={15} /></button>
         <p className="demo-note" style={{ marginTop: 17 }}>Demo storefront — this action adds the item to your local sample bag. No payment is taken.</p>
       </div>
     </div>
   </Modal>;
+}
+
+function ProductPage({ product, currency, onAdd, onQuickView }) {
+  if (!product) return null;
+  return <main className="product-detail-page">
+    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><span>{product.collection.replaceAll('-', ' ')}</span><span>/</span><strong>{product.name}</strong></div>
+    <div className="product-detail-layout">
+      <section className="product-detail-gallery"><ProductArtwork product={product} /><div className="gallery-caption"><span>01 / 01</span><span>Studio still life · Small batch</span></div></section>
+      <section className="product-detail-copy"><span className="eyebrow">{product.productType || 'Studio piece'} · Vani Kabir Studio</span><h1>{product.name}</h1><div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>Complimentary shipping</span></div><p className="detail-intro">A considered piece for {product.intention.toLowerCase()}, made with {product.material.toLowerCase()} and chosen for its quiet, natural character.</p><div className="detail-divider" /><div className="detail-facts"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div><button className="button button-dark detail-add" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={15} /></button><button className="detail-secondary" onClick={() => onQuickView(product)}>View care & details <span>↓</span></button><div className="detail-accordions"><details open><summary>About this piece <span>+</span></summary><p>Every piece is selected for its own texture, tone and presence. Natural variation is part of what makes yours singular.</p></details><details><summary>Shipping & gifting <span>+</span></summary><p>Carefully packed, gift-ready and dispatched with complimentary shipping.</p></details></div></section>
+    </div>
+  </main>;
 }
 
 function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inStockOnly, setInStockOnly }) {
@@ -205,9 +220,17 @@ function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inSt
   </div>;
 }
 
-function CartDrawer({ close, items, currency, onQuantity, onQuickView }) {
+function CartDrawer({ close, items, currency, onQuantity, onQuickView, session, showToast }) {
   const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
   const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
+  const checkout = async () => {
+    if (!session) { showToast('Please sign in before checkout.'); return; }
+    try {
+      await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => { showToast('Payment received. Thank you for your order.'); close(); }, onFailure: () => showToast('Payment could not be completed. Please try again.') });
+    } catch (error) {
+      showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.');
+    }
+  };
   return <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
     <aside className="drawer drawer-right" role="dialog" aria-modal="true" aria-label="Shopping bag">
       <div className="drawer-head"><h2>Your bag <span style={{ font: '12px var(--sans)' }}>({entries.reduce((sum, entry) => sum + entry.quantity, 0)})</span></h2><button className="icon-button" aria-label="Close bag" onClick={close}><X size={19} /></button></div>
@@ -224,7 +247,8 @@ function CartDrawer({ close, items, currency, onQuantity, onQuickView }) {
       </div>
       {entries.length > 0 && <div className="drawer-foot" style={{ display: 'block' }}>
         <div className="cart-total"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
-        <p className="demo-note">Demo storefront only. Checkout and payment are not available; your sample bag stays in this browser session.</p>
+        <p className="demo-note">Secure checkout powered by Razorpay. Sign in is required to place an order.</p>
+        <a className="button button-dark checkout-button" href="/checkout" onClick={(event) => { if (!entries.length) event.preventDefault(); }}>Proceed to checkout <ArrowRight size={15} /></a>
       </div>}
     </aside>
   </div>;
@@ -260,6 +284,61 @@ function SearchModal({ query, setQuery, close, onQuickView }) {
       {!query.trim() && <p className="demo-note">Begin with a product name, crystal or intention.</p>}
     </div>
   </Modal>;
+}
+
+function AuthModal({ close, session, onSession, showToast }) {
+  const [mode, setMode] = useState('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const submit = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      const result = mode === 'signin' ? await signIn(email, password) : await signUp(email, password, displayName);
+      if (result.error) throw result.error;
+      if (mode === 'signup' && !result.data?.session) showToast('Check your email to confirm your account.');
+      else { onSession(result.data?.session || null); close(); showToast('Welcome back to the studio.'); }
+    } catch (error) {
+      showToast(error.message?.toLowerCase().includes('invalid') ? 'Invalid email or password.' : 'We could not complete that request. Please try again.');
+    } finally { setBusy(false); }
+  };
+  return <Modal onClose={close} className="search-modal auth-modal">
+    <button className="modal-close" aria-label="Close account" onClick={close}><X size={17} /></button>
+    <span className="eyebrow">Your studio account</span>
+    <h2>{session ? 'Welcome back' : mode === 'signin' ? 'Sign in' : 'Create your account'}</h2>
+    {session ? <div className="auth-account"><p>{session.user.email}</p><button className="button button-dark" onClick={async () => { await signOut(); onSession(null); close(); showToast('You have been signed out.'); }}>Sign out</button></div> : <form className="auth-form" onSubmit={submit}>
+      {mode === 'signup' && <input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Your name" aria-label="Your name" />}
+      <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" aria-label="Email address" />
+      <input required minLength={6} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" aria-label="Password" />
+      <button className="button button-dark" disabled={busy || !hasSupabaseConfig()}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'} <ArrowRight size={15} /></button>
+      {!hasSupabaseConfig() && <p className="demo-note">Account access is not configured in this preview.</p>}
+      <button type="button" className="button button-text" onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}>{mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}</button>
+    </form>}
+  </Modal>;
+}
+
+function CheckoutPage({ items, currency, session, onQuantity, showToast }) {
+  const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
+  const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
+  const formatted = (value) => `${currencyData[currency].sign} ${(value * currencyData[currency].multiplier).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  const pay = async () => {
+    if (!session) { showToast('Please sign in before checkout.'); return; }
+    try { await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => showToast('Payment received. Thank you for your order.'), onFailure: () => showToast('Payment could not be completed. Please try again.') }); }
+    catch (error) { showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.'); }
+  };
+  return <main className="checkout-page">
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><span>Secure checkout · Vani Kabir Studio</span></div>
+    <div className="checkout-layout">
+      <section className="checkout-form-panel">
+        <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Your pieces are held with care. Add your details below and continue to a secure payment experience.</p>
+        <div className="checkout-form-grid"><label>First name<input placeholder="Your first name" /></label><label>Last name<input placeholder="Your last name" /></label><label className="full">Email address<input type="email" value={session?.user?.email || ''} placeholder="you@example.com" readOnly={!!session?.user?.email} /></label><label className="full">Delivery address<input placeholder="House number, street and area" /></label><label>City<input placeholder="City" /></label><label>Postal code<input placeholder="Postal code" /></label></div>
+        <div className="checkout-assurance"><span>✦</span><div><strong>Made for a meaningful moment</strong><p>Each order is packed intentionally and dispatched with care.</p></div></div>
+      </section>
+      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{entries.reduce((sum, entry) => sum + entry.quantity, 0)} items</span></div>{entries.length ? entries.map(({ product, quantity }) => <div className="summary-line" key={product.id}><ProductArtwork product={product} small /><div><strong>{product.name}</strong><span>Qty {quantity}</span><button onClick={() => onQuantity(product.id, -1)}>Remove</button></div><b>{formatted(product.price * quantity)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/whats-new">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatted(subtotal)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Complimentary</span></div><button className="button button-dark checkout-pay" onClick={pay} disabled={!entries.length}>Continue to secure payment <ArrowRight size={15} /></button><p className="payment-note">Payments are securely processed by Razorpay. Your card details never touch our studio.</p></aside>
+    </div>
+  </main>;
 }
 
 function Footer({ showToast }) {
@@ -471,11 +550,15 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   const incomingCollectionSlug = path.startsWith('/collections/') ? path.split('/')[2] : null;
+  const productSlug = path.startsWith('/products/') ? path.split('/')[2] : null;
+  const product = productSlug ? products.find((item) => item.id === productSlug || item.slug === productSlug) : null;
   const collectionSlug = incomingCollectionSlug ? collectionAliases[incomingCollectionSlug] || incomingCollectionSlug : null;
   const collection = collectionSlug ? getCollection(collectionSlug) : null;
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
-  const showStoreChrome = !home && !directory;
+  const checkout = path === '/checkout';
+  const productDetail = path.startsWith('/products/') && !!product;
+  const showStoreChrome = !home && !directory && !checkout;
   const [currency, setCurrency] = useState('INR');
   const [cart, setCart] = useState({});
   const [favorites, setFavorites] = useState([]);
@@ -483,6 +566,7 @@ function App() {
   const [quickProduct, setQuickProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
+  const [session, setSession] = useState(null);
   const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const showToast = (message) => {
     setToast(message);
@@ -494,7 +578,7 @@ function App() {
     if (action === 'search-query') setSearchQuery(value);
     if (action === 'cart') setDrawer('cart');
     if (action === 'wishlist') setDrawer('wishlist');
-    if (action === 'account') showToast('Account tools are not active in this demo storefront.');
+    if (action === 'account') setDrawer('account');
   };
   const addToCart = (product) => {
     setCart((old) => ({ ...old, [product.id]: (old[product.id] || 0) + 1 }));
@@ -509,8 +593,15 @@ function App() {
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
+  useEffect(() => {
+    getSession().then(({ data }) => setSession(data.session));
+    const subscription = onAuthStateChange?.((_event, nextSession) => setSession(nextSession));
+    return () => subscription?.data?.subscription?.unsubscribe();
+  }, []);
   const collectionValid = !!collection;
-  const content = home ? <Home />
+  const content = checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
+    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onQuickView={setQuickProduct} />
+    : home ? <Home />
     : collectionValid ? <CollectionPage collection={collection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage showToast={showToast} />
@@ -521,9 +612,10 @@ function App() {
     {content}
     {!home && <Footer showToast={showToast} />}
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}><option value="INR">INR⌄</option><option value="USD">USD⌄</option><option value="EUR">EUR⌄</option></select></div>}
-    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} session={session} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
     {toast && <div className="toast" role="status">{toast}</div>}
     {showStoreChrome && <button className="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><ArrowUp size={18} strokeWidth={1.5} /></button>}
