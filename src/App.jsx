@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowRight, ArrowUp, Camera, ChevronDown, Eye, Globe2, Heart, House, Menu,
+  ArrowRight, ArrowUp, Camera, ChevronDown, ChevronRight, Eye, Globe2, Heart, House, Menu,
   RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X,
   Play
 } from 'lucide-react';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
-import { getSession, onAuthStateChange, signIn, signOut, signUp, hasSupabaseConfig, startCheckout } from './lib/supabase.js';
+import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -69,13 +69,48 @@ function Brand({ large = false }) {
 function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+<<<<<<< HEAD
   const active = navCollections.find((item) => item.slug === routeSlug)?.slug;
   const menu = openMenu ? megaMenus[openMenu] : null;
   return <>
     <div className="announcement">Domestic shipping in 3–5 business days · A little more care in every parcel</div>
     <header className="site-header" onMouseLeave={() => setOpenMenu(null)}>
+=======
+  const headerRef = useRef(null);
+  const active = navCollections.find((item) => item.slug === routeSlug)?.slug;
+
+  useEffect(() => {
+    if (!openMenu && !mobileOpen) return undefined;
+    const dismiss = (event) => {
+      if (event.type === 'keydown' && event.key === 'Escape') {
+        setOpenMenu(null);
+        setMobileOpen(false);
+      }
+      if (event.type === 'pointerdown' && !headerRef.current?.contains(event.target)) {
+        setOpenMenu(null);
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener('keydown', dismiss);
+    document.addEventListener('pointerdown', dismiss);
+    return () => {
+      document.removeEventListener('keydown', dismiss);
+      document.removeEventListener('pointerdown', dismiss);
+    };
+  }, [openMenu, mobileOpen]);
+
+  const toggleMenu = (slug) => setOpenMenu((current) => current === slug ? null : slug);
+  const closeMenus = () => {
+    setOpenMenu(null);
+    setMobileOpen(false);
+  };
+
+  return <>
+    <div className="announcement">Domestic shipping in 3–5 business days · A little more care in every parcel</div>
+    <header className="site-header" ref={headerRef}>
+>>>>>>> origin/main
       <div className="header-main">
-        <button className="header-action mobile-nav-toggle" aria-label="Open menu" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="header-action mobile-nav-toggle" aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen} aria-controls="mobile-collections-menu" onClick={() => { setMobileOpen(!mobileOpen); setOpenMenu(null); }}>
           {mobileOpen ? <X size={19} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
         </button>
         <button className="header-action" aria-label="Search" onClick={() => onAction('search')}><Search size={19} strokeWidth={1.5} /></button>
@@ -86,6 +121,7 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
           <button className="header-action" aria-label={`Shopping bag, ${cartCount} items`} onClick={() => onAction('cart')}><ShoppingBag size={18} strokeWidth={1.5} /><span className="tool-count">{cartCount || ''}</span></button>
         </div>
       </div>
+<<<<<<< HEAD
       <nav className="desktop-nav" aria-label="Collections">
         {navCollections.map((item) => <div className="nav-item" key={item.slug} onMouseEnter={() => setOpenMenu(item.slug)}><a className={active === item.slug ? 'active' : ''} href={`/collections/${item.slug}`} onClick={() => setOpenMenu(null)}><span className="nav-star">+</span>{item.title.replace(' - Season 4', '')}</a></div>)}
       </nav>
@@ -95,6 +131,44 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
         <a href="/pages/daily-crystal-quiz" onClick={() => setMobileOpen(false)}>Daily crystal quiz</a>
         <a href="/pages/3-sacred-rites-of-a-shaman" onClick={() => setMobileOpen(false)}>3 sacred rites masterclass</a>
         <a href="/links" onClick={() => setMobileOpen(false)}>Explore all links</a>
+=======
+      <nav className="desktop-nav" aria-label="Collections" onMouseLeave={() => setOpenMenu(null)}>
+        {navigationMenus.map((item) => <div className={`desktop-nav-item ${active === item.slug ? 'active' : ''} ${openMenu === item.slug ? 'open' : ''}`} key={item.slug} onMouseEnter={() => setOpenMenu(item.slug)}>
+          <button type="button" className="desktop-nav-trigger" aria-expanded={openMenu === item.slug} aria-controls={`mega-menu-${item.slug}`} onFocus={() => setOpenMenu(item.slug)} onClick={() => setOpenMenu(item.slug)}>
+            <span className="nav-star" aria-hidden="true">✦</span>
+            <span>{item.title.replace(' - Season 4', '')}</span>
+            <ChevronDown className="nav-chevron" size={11} aria-hidden="true" />
+          </button>
+          {openMenu === item.slug && <div className="mega-menu" id={`mega-menu-${item.slug}`} onMouseEnter={() => setOpenMenu(item.slug)}>
+            <div className="mega-menu-heading">
+              <div>
+                <span className="mega-menu-kicker">Explore the studio</span>
+                <h2>{item.title.replace(' - Season 4', '')}</h2>
+              </div>
+              <a className="mega-menu-all" href={`/collections/${item.slug}`} onClick={closeMenus}>View all <ArrowRight size={14} /></a>
+            </div>
+            <div className={`mega-menu-links ${item.items.length > 8 ? 'many-links' : ''}`}>
+              {item.items.map((child) => <a key={child.slug} href={`/collections/${item.slug}/${child.slug}`} onClick={closeMenus}>
+                <span>{child.title}</span><ChevronRight size={13} aria-hidden="true" />
+              </a>)}
+            </div>
+          </div>}
+        </div>)}
+      </nav>
+      {mobileOpen && <nav className="mobile-menu" id="mobile-collections-menu" aria-label="Mobile collections">
+        {navigationMenus.map((item) => <div className="mobile-nav-group" key={item.slug}>
+          <button type="button" className={`mobile-nav-trigger ${openMenu === item.slug ? 'open' : ''}`} aria-expanded={openMenu === item.slug} aria-controls={`mobile-submenu-${item.slug}`} onClick={() => toggleMenu(item.slug)}>
+            <span>{item.title.replace(' - Season 4', '')}</span><ChevronDown size={14} aria-hidden="true" />
+          </button>
+          {openMenu === item.slug && <div className="mobile-submenu" id={`mobile-submenu-${item.slug}`}>
+            <a className="mobile-view-all" href={`/collections/${item.slug}`} onClick={closeMenus}>View all {item.title.replace(' - Season 4', '')}</a>
+            {item.items.map((child) => <a key={child.slug} href={`/collections/${item.slug}/${child.slug}`} onClick={closeMenus}>{child.title}</a>)}
+          </div>}
+        </div>)}
+        <a href="/pages/daily-crystal-quiz" onClick={closeMenus}>Daily crystal quiz</a>
+        <a href="/pages/3-sacred-rites-of-a-shaman" onClick={closeMenus}>3 sacred rites masterclass</a>
+        <a href="/links" onClick={closeMenus}>Explore all links</a>
+>>>>>>> origin/main
       </nav>}
     </header>
   </>;
@@ -430,35 +504,43 @@ function Home() {
           <a href="https://youtube.com" aria-label="YouTube"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
         </div>
       </header>
-      <section className="home-directory-section" aria-labelledby="home-directory-title">
-        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
-        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
-        <DirectoryLinks />
-      </section>
-      <div className="link-home-cards">
+      <div className="home-campaign-promos">
         <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
           <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
         </a>
         <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
           <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
         </a>
+      </div>
+      <div className="link-home-cards">
         {landingLinks.map((link) => <a className="home-link-card" href={link.href} key={link.title}>
           <img src={link.image} alt="" />
           <span className="home-link-overlay" />
           <span className="home-link-copy"><span>{link.subtitle}</span><strong>{link.title}</strong><ArrowRight size={17} /></span>
         </a>)}
       </div>
+      <section className="home-directory-section" aria-labelledby="home-directory-title">
+        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
+        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
+        <DirectoryLinks />
+      </section>
     </div>
   </main>;
 }
 
-function CollectionPage({ collection, currency, favorites, onFavorite, onQuickView, onAdd }) {
+function CollectionPage({ collection, subcollection, currency, favorites, onFavorite, onQuickView, onAdd }) {
   const [filters, setFilters] = useState({});
   const [filterOpen, setFilterOpen] = useState(false);
   const [sort, setSort] = useState('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [applied, setApplied] = useState(false);
-  const sourceItems = useMemo(() => getCollectionProducts(collection.slug), [collection.slug]);
+  const sourceItems = useMemo(() => subcollection
+    ? getSubcollectionProducts(collection.slug, subcollection.slug)
+    : getCollectionProducts(collection.slug), [collection.slug, subcollection?.slug]);
+  const pageTitle = subcollection?.title || collection.title;
+  const pageDescription = subcollection
+    ? `Explore ${subcollection.title} in the ${collection.title} edit. Browse related pieces from the studio, then refine by color, crystal, material and intention.`
+    : collection.description;
   const visible = useMemo(() => {
     let list = [...sourceItems];
     if (inStockOnly) list = list.filter((item) => item.inStock);
@@ -486,16 +568,16 @@ function CollectionPage({ collection, currency, favorites, onFavorite, onQuickVi
   const clearFilters = () => { setFilters({}); setInStockOnly(false); setApplied(false); };
   return <main>
     <section className="collection-heading">
-      <div className="crumbs"><a href="/" aria-label="Home"><House size={14} strokeWidth={1.5} /></a><span>/</span><span>Collections</span><span>/</span><span>{collection.title}</span></div>
-      <h1>{collection.title}</h1>
-      <p>{collection.description}</p>
+      <div className="crumbs"><a href="/" aria-label="Home"><House size={14} strokeWidth={1.5} /></a><span>/</span><a href={`/collections/${collection.slug}`}>Collections</a><span>/</span><a href={`/collections/${collection.slug}`}>{collection.title}</a>{subcollection && <><span>/</span><span>{subcollection.title}</span></>}</div>
+      <h1>{pageTitle}</h1>
+      <p>{pageDescription}</p>
     </section>
     <section className="collection-toolbar" aria-label="Collection tools">
       <div className="toolbar-start"><button className="toolbar-button" onClick={() => setFilterOpen(true)}><SlidersHorizontal size={14} /> Show filters</button><span className="result-count">{visible.length} pieces</span></div>
       <div className="toolbar-end"><span className="sort-label">Sort by:</span><select aria-label="Sort products" className="sort-select" value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Alphabetically</option></select></div>
     </section>
     {applied && (Object.keys(filters).length > 0 || inStockOnly) && <div style={{ padding: '9px 3.2%', fontSize: 10, color: 'var(--ink-soft)' }}>Filters applied · <button className="button-text" onClick={clearFilters}>Clear all</button></div>}
-    <section className="product-grid" aria-label={`${collection.title} products`}>
+    <section className="product-grid" aria-label={`${pageTitle} products`}>
       {visible.length ? visible.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />) :
         <div className="empty-state"><Sparkles size={23} strokeWidth={1.3} /><h2>Nothing in this particular light.</h2><p>Try widening your filters to see more of the collection.</p><button className="button button-light" onClick={clearFilters}>Reset filters</button></div>}
     </section>
@@ -565,11 +647,14 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
 
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  const incomingCollectionSlug = path.startsWith('/collections/') ? path.split('/')[2] : null;
-  const productSlug = path.startsWith('/products/') ? path.split('/')[2] : null;
-  const product = productSlug ? products.find((item) => item.id === productSlug || item.slug === productSlug) : null;
+  const pathSegments = path.split('/').filter(Boolean);
+  const incomingCollectionSlug = pathSegments[0] === 'collections' ? pathSegments[1] : null;
+  const incomingSubcollectionSlug = pathSegments[0] === 'collections' ? pathSegments[2] : null;
   const collectionSlug = incomingCollectionSlug ? collectionAliases[incomingCollectionSlug] || incomingCollectionSlug : null;
   const collection = collectionSlug ? getCollection(collectionSlug) : null;
+  const subcollection = collectionSlug && incomingSubcollectionSlug
+    ? getNavigationSubcollection(collectionSlug, incomingSubcollectionSlug)
+    : null;
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
@@ -609,16 +694,9 @@ function App() {
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
-  useEffect(() => {
-    getSession().then(({ data }) => setSession(data.session));
-    const subscription = onAuthStateChange?.((_event, nextSession) => setSession(nextSession));
-    return () => subscription?.data?.subscription?.unsubscribe();
-  }, []);
-  const collectionValid = !!collection;
-  const content = checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
-    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onQuickView={setQuickProduct} />
-    : home ? <Home />
-    : collectionValid ? <CollectionPage collection={collection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+  const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
+  const content = home ? <Home />
+    : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage showToast={showToast} />
           : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
