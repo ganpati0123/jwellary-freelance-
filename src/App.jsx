@@ -40,6 +40,20 @@ const collectionAliases = {
   'new-arrivals': 'whats-new'
 };
 
+const megaMenus = {
+  'whats-new': { featured: 'Freshly arrived', links: [['New arrivals', 'whats-new'], ['Lightcoded mixels', 'aumatrix-2'], ['Blessing of the month', 'divine-diwali'], ['MVK verified', 'mvk-verified']] },
+  'aumatrix-2': { featured: 'Sacred codes', links: [['Pure', 'aumatrix-2'], ['Rare bracelets', 'rare'], ['Magic Mixels', 'bracelets'], ['Numerology Mixels', 'whats-new'], ['Zodiac Mixels', 'aumatrix-2']] },
+  'divine-diwali': { featured: 'The festival of light', links: [['Season 4 edit', 'divine-diwali'], ['Ancestry manifestation', 'e-studio'], ['Abundance tools', 'ancient-tools'], ['Diwali digital sheets', 'e-studio']] },
+  'europe-season-3': { featured: 'Gathered across distances', links: [['Europe collection', 'europe-season-3'], ['Rare finds', 'rare'], ['Lapis bracelets', 'bracelets'], ['Crystal points', 'crystals']] },
+  'mvk-verified': { featured: 'Master Vani Kabir’s picks', links: [['Verified crystals', 'mvk-verified'], ['Verified bracelets', 'bracelets'], ['Know your gemstone', 'crystals'], ['Gemstones', 'crystals']] },
+  rare: { featured: 'Uncommon by nature', links: [['Rare crystals', 'rare'], ['Rare bracelets', 'rare'], ['Collector stones', 'mvk-verified'], ['One of a kind', 'rare']] },
+  bracelets: { featured: 'Wear your intention', links: [['Pure bracelets', 'bracelets'], ['Magic Mixel bracelets', 'aumatrix-2'], ['Numerology Mixels', 'whats-new'], ['Zodiac Mixels', 'aumatrix-2']] },
+  crystals: { featured: 'Earth’s ancient language', links: [['Idols', 'ancient-tools'], ['Tumbles', 'crystals'], ['Towers', 'crystals'], ['Free forms', 'crystals'], ['Clusters', 'crystals'], ['Geodes', 'crystals'], ['Trees', 'crystals'], ['Spheres', 'crystals'], ['Hearts', 'crystals'], ['Angels', 'ancient-tools'], ['Pocket stones', 'crystals'], ['Pendants', 'bracelets']] },
+  aromatherapy: { featured: 'Scent as medicine', links: [['Elixir', 'aromatherapy'], ['Fragrance', 'aromatherapy'], ['Salts', 'aromatherapy'], ['Body oils', 'aromatherapy'], ['Spell oils', 'aromatherapy'], ['Sage', 'aromatherapy']] },
+  'e-studio': { featured: 'Digital rituals', links: [['Wallpapers', 'e-studio'], ['Manifestation sheets', 'e-studio'], ['Wallet foldables', 'e-studio'], ['Know your gemstone', 'crystals']] },
+  'ancient-tools': { featured: 'Wisdom made tangible', links: [['Cheques', 'e-studio'], ['Wawoki', 'ancient-tools'], ['Evrenroo journals', 'e-studio'], ['Evrenroo pendants', 'bracelets'], ['Angel number pendants', 'bracelets'], ['Evrenroo stickers', 'e-studio'], ['Manifestation & prayer cards', 'aumatrix-2']] }
+};
+
 function Brand({ large = false }) {
   return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Vani Kabir Studio home">
     <svg className="brand-mark" viewBox="0 0 48 54" fill="none" aria-hidden="true">
@@ -54,10 +68,12 @@ function Brand({ large = false }) {
 
 function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   const active = navCollections.find((item) => item.slug === routeSlug)?.slug;
+  const menu = openMenu ? megaMenus[openMenu] : null;
   return <>
     <div className="announcement">Domestic shipping in 3–5 business days · A little more care in every parcel</div>
-    <header className="site-header">
+    <header className="site-header" onMouseLeave={() => setOpenMenu(null)}>
       <div className="header-main">
         <button className="header-action mobile-nav-toggle" aria-label="Open menu" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X size={19} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
@@ -71,11 +87,11 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
         </div>
       </div>
       <nav className="desktop-nav" aria-label="Collections">
-        {navCollections.slice(0, 9).map((item) => <a key={item.slug} className={active === item.slug ? 'active' : ''} href={`/collections/${item.slug}`}><span className="nav-star">+</span>{item.title.replace(' - Season 4', '')}</a>)}
-        {navCollections.slice(9).map((item) => <a key={item.slug} className={active === item.slug ? 'active' : ''} href={`/collections/${item.slug}`}><span className="nav-star">+</span>{item.title}</a>)}
+        {navCollections.map((item) => <div className="nav-item" key={item.slug} onMouseEnter={() => setOpenMenu(item.slug)}><a className={active === item.slug ? 'active' : ''} href={`/collections/${item.slug}`} onClick={() => setOpenMenu(null)}><span className="nav-star">+</span>{item.title.replace(' - Season 4', '')}</a></div>)}
       </nav>
+      {menu && <div className="mega-menu" onMouseEnter={() => setOpenMenu(openMenu)}><div className="mega-intro"><span className="mega-kicker">VANI KABIR STUDIO</span><h2>{menu.featured}</h2><p>Explore a considered edit of pieces, practices and objects chosen with intention.</p><a href={`/collections/${openMenu}`}>View the full collection <ArrowRight size={14} /></a></div><div className="mega-links">{menu.links.map(([label, slug]) => <a key={`${label}-${slug}`} href={`/collections/${slug}`} onClick={() => setOpenMenu(null)}><span className="mega-spark">✦</span>{label}<ArrowRight size={13} /></a>)}</div></div>}
       {mobileOpen && <nav className="mobile-menu" aria-label="Mobile collections">
-        {navCollections.map((item) => <a key={item.slug} href={`/collections/${item.slug}`} onClick={() => setMobileOpen(false)}>{item.title}</a>)}
+        {navCollections.map((item) => <div className="mobile-menu-group" key={item.slug}><a href={`/collections/${item.slug}`} onClick={() => setMobileOpen(false)}>{item.title}</a><div>{(megaMenus[item.slug]?.links || []).slice(0, 5).map(([label, slug]) => <a key={label} href={`/collections/${slug}`} onClick={() => setMobileOpen(false)}>{label}</a>)}</div></div>)}
         <a href="/pages/daily-crystal-quiz" onClick={() => setMobileOpen(false)}>Daily crystal quiz</a>
         <a href="/pages/3-sacred-rites-of-a-shaman" onClick={() => setMobileOpen(false)}>3 sacred rites masterclass</a>
         <a href="/links" onClick={() => setMobileOpen(false)}>Explore all links</a>
