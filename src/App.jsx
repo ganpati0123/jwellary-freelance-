@@ -335,18 +335,20 @@ function Home() {
           <a href="https://youtube.com" aria-label="YouTube"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
         </div>
       </header>
-      <section className="home-directory-section" aria-labelledby="home-directory-title">
-        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
-        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
-        <DirectoryLinks />
-      </section>
-      <div className="link-home-cards">
+      <div className="home-campaign-promos">
         <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
           <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
         </a>
         <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
           <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
         </a>
+      </div>
+      <section className="home-directory-section" aria-labelledby="home-directory-title">
+        <h1 className="directory-title" id="home-directory-title">A place for every path.</h1>
+        <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
+        <DirectoryLinks />
+      </section>
+      <div className="link-home-cards">
         {landingLinks.map((link) => <a className="home-link-card" href={link.href} key={link.title}>
           <img src={link.image} alt="" />
           <span className="home-link-overlay" />
