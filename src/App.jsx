@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight, ArrowUp, Camera, ChevronDown, ChevronRight, Eye, Globe2, Heart, House, Menu,
-  RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X,
-  Play
+  RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X, Play,
+  BriefcaseBusiness, Coins, GraduationCap, HeartHandshake, Moon, Plane, ShieldCheck, Sun
 } from 'lucide-react';
 import {
   getSession, hasSupabaseConfig, onAuthStateChange, signIn, signOut, signUp, startCheckout
@@ -36,6 +36,17 @@ const currencyData = {
   USD: { sign: '$', multiplier: 0.012 },
   EUR: { sign: '€', multiplier: 0.011 }
 };
+const intentionTiles = [
+  { slug: 'wealth', title: 'Wealth', icon: Coins, description: 'Pieces for abundance, opportunity and a steady relationship with your goals.', products: ['wealth-mixel', 'wealth-elixir', 'money-oil', 'money-cheque'] },
+  { slug: 'health', title: 'Health', icon: HeartHandshake, description: 'Gentle companions for grounding, reflection and everyday self-care rituals.', products: ['crystal-rose', 'circle-healing', 'spirit-deck'] },
+  { slug: 'career', title: 'Career', icon: BriefcaseBusiness, description: 'Meaningful reminders to stay focused as you build what comes next.', products: ['wealth-elixir', 'wealth-portal', 'money-cheque'] },
+  { slug: 'love', title: 'Love', icon: Heart, description: 'Thoughtful pieces for connection, kindness and a little more harmony.', products: ['rose-om', 'crystal-rose', 'spirit-dragon'] },
+  { slug: 'education', title: 'Education', icon: GraduationCap, description: 'Objects to accompany a clear, curious and consistent learning practice.', products: ['cards-fate', 'spirit-cards', 'crystal-quartz'] },
+  { slug: 'stress-anxiety', title: 'Stress & anxiety', icon: Moon, description: 'A quiet reminder to pause, breathe and return to the present moment.', products: ['crystal-rose', 'crystal-quartz', 'spirit-deck'] },
+  { slug: 'protection', title: 'Protection', icon: ShieldCheck, description: 'Wearable and tactile reminders to move through the day with intention.', products: ['evil-eye', 'nephrite-bracelet', 'obstacle-dori'] },
+  { slug: 'divine-connection', title: 'Divine connection', icon: Sun, description: 'Reflective tools for personal rituals and moments of spiritual connection.', products: ['spirit-deck', 'spirit-cards', 'lapis-om'] },
+  { slug: 'settle-abroad', title: 'Settle abroad', icon: Plane, description: 'A considered edit for new beginnings, travel and making somewhere feel like home.', products: ['europe-crystal', 'europe-bracelet', 'ametrine'] }
+];
 const collectionAliases = {
   'aumatrix-2-0': 'aumatrix-2',
   'aumatrix-2.0': 'aumatrix-2',
@@ -51,18 +62,18 @@ const collectionAliases = {
 };
 
 function Brand({ large = false }) {
-  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Vani Kabir Studio home">
+  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Open To See Your Future home">
     <svg className="brand-mark" viewBox="0 0 48 54" fill="none" aria-hidden="true">
       <path d="M9 6c4 3 8 3 15 0v42c-7-3-11-3-15 0M39 6c-4 3-8 3-15 0v42c7-3 11-3 15 0M8 13c4 4 8 4 16 1M40 13c-4 4-8 4-16 1M8 41c4-4 8-4 16-1M40 41c-4-4-8-4-16-1" stroke="currentColor" strokeWidth="1.45" />
       <path d="M17 5c0 9-4 12-4 22s4 13 4 22m14-44c0 9 4 12 4 22s-4 13-4 22M23 6v42M5 27h38M11 21l8 6-8 6m26-12-8 6 8 6" stroke="currentColor" strokeWidth="1.25" />
       <circle cx="24" cy="27" r="3.4" stroke="currentColor" strokeWidth="1.2" />
     </svg>
-    <span className="brand-name">Vani Kabir Studio</span>
-    <span className="brand-caption">Making spirituality simple</span>
+    <span className="brand-name">Open To See Your Future</span>
+    <span className="brand-caption">An open path for what comes next</span>
   </a>;
 }
 
-function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
+function Header({ routeSlug, cartCount, wishlistCount, onAction, onOpenQuiz }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const headerRef = useRef(null);
@@ -104,6 +115,7 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
         <button className="header-action" aria-label="Search" onClick={() => onAction('search')}><Search size={19} strokeWidth={1.5} /></button>
         <Brand />
         <div className="header-tools">
+          <button className="header-action quiz-header-action" aria-label="Take the daily crystal quiz" onClick={onOpenQuiz}><Sparkles size={17} strokeWidth={1.5} /></button>
           <button className="header-action" aria-label="Account information" onClick={() => onAction('account')}><UserRound size={18} strokeWidth={1.5} /></button>
           <button className="header-action" aria-label={`Wishlist, ${wishlistCount} saved`} onClick={() => onAction('wishlist')}><Heart size={19} strokeWidth={1.5} /><span className="tool-count">{wishlistCount || ''}</span></button>
           <button className="header-action" aria-label={`Shopping bag, ${cartCount} items`} onClick={() => onAction('cart')}><ShoppingBag size={18} strokeWidth={1.5} /><span className="tool-count">{cartCount || ''}</span></button>
@@ -143,6 +155,7 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction }) {
           </div>}
         </div>)}
         <a href="/pages/daily-crystal-quiz" onClick={closeMenus}>Daily crystal quiz</a>
+        <a href="/pages/explore-with-intention" onClick={closeMenus}>Explore with intention</a>
         <a href="/pages/3-sacred-rites-of-a-shaman" onClick={closeMenus}>3 sacred rites masterclass</a>
         <a href="/links" onClick={closeMenus}>Explore all links</a>
       </nav>}
@@ -195,7 +208,7 @@ function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onA
       <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
         <p className="product-price">{formatPrice(product.price, currency)}</p>
-        <button className="add-small" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={13} /></button>
+         <button className="add-small" disabled={!product.inStock} onClick={() => onAdd(product)}>{product.inStock ? <>Add to bag <ArrowRight size={13} /></> : 'Unavailable'}</button>
       </div>
     </div>
   </article>;
@@ -253,23 +266,52 @@ function ProductModal({ product, currency, onClose, onAdd }) {
         <span className="eyebrow">{product.collection.replaceAll('-', ' ')}</span>
         <h2>{product.name}</h2>
         <p>{formatPrice(product.price, currency)}</p>
-        <p className="quick-description">A thoughtful companion for {product.intention.toLowerCase()}. Made with {product.material.toLowerCase()} and chosen for its own natural character. Every piece arrives with space for your own practice.</p>
+        <p className="quick-description">{product.description}</p>
         <div className="product-spec-grid"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div>
         <div className="quick-perks"><span>Complimentary shipping</span><span>Gift-ready packaging</span></div>
-        <button className="button button-dark quick-add" onClick={() => { onAdd(product); onClose(); }}>Add to bag <ArrowRight size={15} /></button>
+         <button className="button button-dark quick-add" disabled={!product.inStock} onClick={() => { onAdd(product); onClose(); }}>{product.inStock ? 'Add to bag' : 'Unavailable'} <ArrowRight size={15} /></button>
         <p className="demo-note" style={{ marginTop: 17 }}>Demo storefront — this action adds the item to your local sample bag. No payment is taken.</p>
       </div>
     </div>
   </Modal>;
 }
 
-function ProductPage({ product, currency, onAdd, onQuickView }) {
+function ProductPage({ product, currency, onAdd, onBuyNow, onQuickView }) {
+  const [quantity, setQuantity] = useState(1);
   if (!product) return null;
   return <main className="product-detail-page">
-    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><span>{product.collection.replaceAll('-', ' ')}</span><span>/</span><strong>{product.name}</strong></div>
+    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><a href={`/collections/${product.collection}`}>{product.collection.replaceAll('-', ' ')}</a><span>/</span><strong>{product.name}</strong></div>
     <div className="product-detail-layout">
       <section className="product-detail-gallery"><ProductArtwork product={product} /><div className="gallery-caption"><span>01 / 01</span><span>Studio still life · Small batch</span></div></section>
-      <section className="product-detail-copy"><span className="eyebrow">{product.productType || 'Studio piece'} · Vani Kabir Studio</span><h1>{product.name}</h1><div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>Complimentary shipping</span></div><p className="detail-intro">A considered piece for {product.intention.toLowerCase()}, made with {product.material.toLowerCase()} and chosen for its quiet, natural character.</p><div className="detail-divider" /><div className="detail-facts"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div><button className="button button-dark detail-add" onClick={() => onAdd(product)}>Add to bag <ArrowRight size={15} /></button><button className="detail-secondary" onClick={() => onQuickView(product)}>View care & details <span>↓</span></button><div className="detail-accordions"><details open><summary>About this piece <span>+</span></summary><p>Every piece is selected for its own texture, tone and presence. Natural variation is part of what makes yours singular.</p></details><details><summary>Shipping & gifting <span>+</span></summary><p>Carefully packed, gift-ready and dispatched with complimentary shipping.</p></details></div></section>
+      <section className="product-detail-copy">
+        <span className="eyebrow">{product.productType || 'Studio piece'} · Open To See Your Future</span>
+        <h1>{product.name}</h1>
+        <div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>{product.inStock ? 'Complimentary domestic shipping' : 'Currently unavailable'}</span></div>
+        <p className="detail-intro">{product.description}</p>
+        <div className="detail-divider" />
+        <div className="detail-facts">
+          <div><span>Crystal</span><strong>{product.crystalType || 'Not specified'}</strong></div>
+          <div><span>Intention</span><strong>{product.intention}</strong></div>
+          <div><span>Material</span><strong>{product.material}</strong></div>
+          <div><span>Product type</span><strong>{product.productType}</strong></div>
+        </div>
+        <div className="detail-purchase-row">
+          <div className="detail-quantity" aria-label="Quantity">
+            <button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button>
+            <span>{quantity}</span>
+            <button type="button" aria-label="Increase quantity" onClick={() => setQuantity((value) => Math.min(20, value + 1))}>+</button>
+          </div>
+          <button className="button button-dark detail-add" disabled={!product.inStock} onClick={() => onAdd(product, quantity)}>Add to bag <ArrowRight size={15} /></button>
+        </div>
+        <button className="button detail-buy-now" disabled={!product.inStock} onClick={() => onBuyNow(product, quantity)}>Buy now</button>
+        {!product.inStock && <p className="product-unavailable" role="status">This edition is currently unavailable.</p>}
+        <div className="detail-accordions">
+          <details open><summary>About this piece <span>+</span></summary><p>{product.description}</p></details>
+          <details><summary>A moment of intention <span>+</span></summary><p>{product.practice}</p></details>
+          <details><summary>Materials & care <span>+</span></summary><p>{product.care}</p></details>
+          <details><summary>Shipping & gifting <span>+</span></summary><p>Domestic deliveries are estimated at 3–5 business days. Shipping and availability are shown here for preview; confirm current details before a live purchase.</p></details>
+        </div>
+      </section>
     </div>
   </main>;
 }
@@ -410,25 +452,65 @@ function AuthModal({ close, session, onSession, showToast }) {
   </Modal>;
 }
 
-function CheckoutPage({ items, currency, session, onQuantity, showToast }) {
+function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoOrder, onOpenAccount, onOpenQuiz }) {
   const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
   const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
   const formatted = (value) => `${currencyData[currency].sign} ${(value * currencyData[currency].multiplier).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
-  const pay = async () => {
-    if (!session) { showToast('Please sign in before checkout.'); return; }
-    try { await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => showToast('Payment received. Thank you for your order.'), onFailure: () => showToast('Payment could not be completed. Please try again.') }); }
-    catch (error) { showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.'); }
+  const [orderComplete, setOrderComplete] = useState(false);
+  const completePreviewOrder = () => {
+    setOrderComplete(true);
+    onDemoOrder();
   };
+  const submitOrder = async (event) => {
+    event.preventDefault();
+    if (!entries.length) return;
+    if (!hasSupabaseConfig()) {
+      completePreviewOrder();
+      return;
+    }
+    if (!session) {
+      showToast('Sign in to continue to secure payment.');
+      onOpenAccount();
+      return;
+    }
+    try {
+      await startCheckout({
+        amountInr: subtotal,
+        user: session.user,
+        onSuccess: completePreviewOrder,
+        onFailure: () => showToast('Payment could not be completed. Please try again.')
+      });
+    } catch (error) {
+      showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.');
+    }
+  };
+  if (orderComplete) return <main className="checkout-page checkout-complete-page">
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Open To See Your Future</span></div>
+    <section className="order-complete" role="status">
+      <span className="order-complete-mark"><Sparkles size={25} /></span>
+      <span className="eyebrow">Thank you</span>
+      <h1>Your next chapter starts here.</h1>
+      <p>{hasSupabaseConfig() ? 'Your payment was confirmed.' : 'Your preview order is complete. No payment was taken and no personal details were saved.'}</p>
+      <a className="button button-dark" href="/collections/whats-new">Continue exploring <ArrowRight size={15} /></a>
+    </section>
+  </main>;
   return <main className="checkout-page">
-    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><span>Secure checkout · Vani Kabir Studio</span></div>
-    <div className="checkout-layout">
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open To See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
+    <form className="checkout-layout" onSubmit={submitOrder}>
       <section className="checkout-form-panel">
-        <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Your pieces are held with care. Add your details below and continue to a secure payment experience.</p>
-        <div className="checkout-form-grid"><label>First name<input placeholder="Your first name" /></label><label>Last name<input placeholder="Your last name" /></label><label className="full">Email address<input type="email" value={session?.user?.email || ''} placeholder="you@example.com" readOnly={!!session?.user?.email} /></label><label className="full">Delivery address<input placeholder="House number, street and area" /></label><label>City<input placeholder="City" /></label><label>Postal code<input placeholder="Postal code" /></label></div>
-        <div className="checkout-assurance"><span>✦</span><div><strong>Made for a meaningful moment</strong><p>Each order is packed intentionally and dispatched with care.</p></div></div>
+        <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Review your pieces and add delivery details. This preview never stores your address or contact information.</p>
+        <div className="checkout-form-grid">
+          <label>First name<input name="firstName" autoComplete="given-name" required placeholder="Your first name" /></label>
+          <label>Last name<input name="lastName" autoComplete="family-name" required placeholder="Your last name" /></label>
+          <label className="full">Email address<input name="email" type="email" autoComplete="email" required value={session?.user?.email || undefined} placeholder="you@example.com" readOnly={!!session?.user?.email} /></label>
+          <label className="full">Delivery address<input name="address" autoComplete="street-address" required placeholder="House number, street and area" /></label>
+          <label>City<input name="city" autoComplete="address-level2" required placeholder="City" /></label>
+          <label>Postal code<input name="postalCode" autoComplete="postal-code" required inputMode="numeric" pattern="[0-9A-Za-z -]{4,10}" placeholder="Postal code" /></label>
+        </div>
+        <div className="checkout-assurance"><span>✦</span><div><strong>Made for a meaningful moment</strong><p>Domestic delivery estimates are 3–5 business days. Live order fulfilment is not enabled in this preview.</p></div></div>
       </section>
-      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{entries.reduce((sum, entry) => sum + entry.quantity, 0)} items</span></div>{entries.length ? entries.map(({ product, quantity }) => <div className="summary-line" key={product.id}><ProductArtwork product={product} small /><div><strong>{product.name}</strong><span>Qty {quantity}</span><button onClick={() => onQuantity(product.id, -1)}>Remove</button></div><b>{formatted(product.price * quantity)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/whats-new">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatted(subtotal)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Complimentary</span></div><button className="button button-dark checkout-pay" onClick={pay} disabled={!entries.length}>Continue to secure payment <ArrowRight size={15} /></button><p className="payment-note">Payments are securely processed by Razorpay. Your card details never touch our studio.</p></aside>
-    </div>
+      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{entries.reduce((sum, entry) => sum + entry.quantity, 0)} items</span></div>{entries.length ? entries.map(({ product, quantity }) => <div className="summary-line" key={product.id}><ProductArtwork product={product} small /><div><strong>{product.name}</strong><span>Qty {quantity}</span><button type="button" onClick={() => onQuantity(product.id, -1)}>Remove</button></div><b>{formatted(product.price * quantity)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/whats-new">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatted(subtotal)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Complimentary</span></div><button type="submit" className="button button-dark checkout-pay" disabled={!entries.length}>{hasSupabaseConfig() && session ? 'Continue to secure payment' : 'Place preview order'} <ArrowRight size={15} /></button><p className="payment-note">{hasSupabaseConfig() && session ? 'Payments are securely processed by Razorpay. Your card details never touch our studio.' : 'Preview only: no payment is taken and no personal details are stored.'}</p></aside>
+    </form>
   </main>;
 }
 
@@ -453,7 +535,7 @@ function Footer({ showToast }) {
         {submitted && <div className="form-feedback" role="status">You’re on the list. Look out for a note from the studio.</div>}
       </div>
       <div className="footer-about">
-        <p>Vani Kabir Studio is a modern house for sacred and ancient tools offering Evernoon Lightcoded™ crystals and gemstones. These high-vibrational companions can help you clear your energy field and return to a path of abundance and possibility.</p>
+        <p>Open To See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="footer-links">
           <div><h3>Orders & Returns</h3><a href="#disclaimer">Shipping Policy</a><a href="#disclaimer">Exchange & Refund Policy</a><a href="#disclaimer">Cancellation Policy</a></div>
           <div><h3>Privacy</h3><a href="#disclaimer">Privacy Policy</a><a href="#disclaimer">Mobile App Privacy Policy</a><a href="#disclaimer">GDPR Policy</a><a href="#disclaimer">Do Not Sell My Personal Info</a></div>
@@ -463,36 +545,36 @@ function Footer({ showToast }) {
     </div>
     <div className="disclaimer" id="disclaimer">
       <h3>*Intellectual Property Disclaimer</h3>
-      <p>All trademarks, product names, concepts, formulations, designs and associated creative elements featured on this website are the intellectual property of Vani Kabir Multiverse and/or are protected under applicable intellectual property laws. They have been independently created and developed by us. Any unauthorized use, imitation, reproduction, adaptation, or sale, in whole or in part, by any individual, company, or entity is strictly prohibited and may constitute a violation of our intellectual property rights.</p>
+      <p>All trademarks, product names, concepts, designs and creative elements featured on this website are presented as part of the Open To See Your Future storefront preview. Any live intellectual-property notices should be confirmed by the site owner before launch.</p>
     </div>
     <div className="landscape-footer" role="img" aria-label="Illustrated mountain sanctuary with waterfalls, temples and a lake" />
     <img className="footer-trust-strip" src="/attached_assets/generated_images/trust-strip.jpg" alt="Authenticity and quality assurance marks" />
-    <div className="footer-bottom"><span>© 2026 Vani Kabir Studio. Making spirituality simple.</span><div className="socials"><a aria-label="Instagram" href="https://instagram.com"><Camera size={13} /></a><a aria-label="Studio website" href="/links"><Globe2 size={13} /></a><a aria-label="YouTube" href="https://youtube.com"><Play size={13} /></a></div></div>
+    <div className="footer-bottom"><span>© 2026 Open To See Your Future. An open path for what comes next.</span><div className="socials"><a aria-label="Instagram" href="https://instagram.com"><Camera size={13} /></a><a aria-label="Studio website" href="/links"><Globe2 size={13} /></a><a aria-label="YouTube" href="https://youtube.com"><Play size={13} /></a></div></div>
   </footer>;
 }
 
 const directoryLinks = [
-  ['Blessing Of The Month', 'https://www.vanikabirstudio.com/products/varicite-stone-of-hope?_pos=1&_psq=stone+of&_psid=24fa415d7&_ss=e'],
-  ['Europe Collection Season - 3', 'https://www.vanikabirstudio.com/pages/with-love-from-europe-season-3'],
-  ['Ancestry Manifestation Sheet - October', 'https://www.vanikabirstudio.com/collections/whats-new/products/october-ancestry-manifestation-sheet'],
-  ['New Lightcoded Mixels @1919', 'https://www.vanikabirstudio.com/collections/start-here'],
-  ['MVK Verified', 'https://www.vanikabirstudio.com/collections/mvk-picks'],
-  ['New Arrivals', 'https://www.vanikabirstudio.com/collections/whats-new'],
-  ['Pure Bracelets', 'https://www.vanikabirstudio.com/collections/pure-bracelet-2026'],
-  ['Magic Mixel Bracelets', 'https://www.vanikabirstudio.com/collections/magic-mixels-2026'],
-  ['Know Your Gemstone Form', 'https://pages.razorpay.com/know-your-gemstone'],
-  ['Gemstones', 'https://www.vanikabirstudio.com/collections/gemstones-2026'],
-  ['E-Studio', 'https://www.vanikabirstudio.com/collections/e-studio-2026'],
-  ['Learn About Crystals', 'https://www.vanikabirstudio.com/blogs/news']
+  ['Blessing Of The Month', '/collections/whats-new'],
+  ['Europe Collection Season - 3', '/collections/europe-season-3'],
+  ['Ancestry Manifestation Sheet - October', '/products/ancestry-october'],
+  ['New Lightcoded Mixels @1919', '/collections/bracelets/magic-mixels'],
+  ['MVK Verified', '/collections/mvk-verified'],
+  ['New Arrivals', '/collections/whats-new'],
+  ['Pure Bracelets', '/collections/bracelets/pure'],
+  ['Magic Mixel Bracelets', '/collections/bracelets/magic-mixels'],
+  ['Know Your Gemstone Form', '/pages/daily-crystal-quiz'],
+  ['Gemstones', '/collections/crystals'],
+  ['E-Studio', '/collections/e-studio'],
+  ['Learn About Crystals', '/pages/explore-with-intention']
 ];
 
 function DirectoryLinks() {
   return <>
     <div className="directory-list">{directoryLinks.map(([label, href]) => <a key={label} className="directory-link" href={href}>{label}</a>)}</div>
     <p className="directory-policy">
-      <a href="https://www.vanikabirstudio.com/pages/terms-conditions" target="_blank" rel="noreferrer">Terms of Use</a>
+      <a href="/links#disclaimer">Terms of Use</a>
       <span>·</span>
-      <a href="https://www.vanikabirstudio.com/pages/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>
+      <a href="/links#disclaimer">Privacy Policy</a>
     </p>
   </>;
 }
@@ -502,26 +584,54 @@ function Home({ onOpenQuiz }) {
     <div className="link-home">
       <header className="link-home-intro">
         <Brand large />
-        <p>Vani Kabir Studio is a modern house for sacred and ancient tools offering Evernoon Lightcoded™ crystals and gemstones. Trusted in 104 countries since 2021.</p>
+        <p>Open To See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="home-socials" aria-label="Studio social links">
           <a href="https://www.instagram.com/vanikabirstudio/" aria-label="Instagram" target="_blank" rel="noreferrer"><Camera size={19} strokeWidth={1.7} /></a>
-          <a href="https://www.vanikabirstudio.com/" aria-label="Studio website" target="_blank" rel="noreferrer"><Globe2 size={19} strokeWidth={1.7} /></a>
+          <a href="/collections/whats-new" aria-label="Explore the website"><Globe2 size={19} strokeWidth={1.7} /></a>
           <a href="https://www.youtube.com/@mastervanikabir" aria-label="YouTube" target="_blank" rel="noreferrer"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
         </div>
-        <button className="home-quiz-trigger" onClick={onOpenQuiz} type="button">
-          <Sparkles size={15} aria-hidden="true" /> Take the 5-question crystal quiz
-        </button>
       </header>
       <div className="home-campaign-promos">
-        <a className="home-campaign" href="https://www.vanikabirstudio.com/collections/divini-diwali-season-4" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
+        <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
           <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
         </a>
-        <a className="home-rite-card" href="https://vanikabir.com/masterclass/" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
+        <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
           <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
         </a>
       </div>
       <DirectoryLinks />
+      <button className="home-quiz-trigger home-quiz-trigger-bottom" onClick={onOpenQuiz} type="button">
+        <Sparkles size={14} aria-hidden="true" /> Take the 5-question crystal quiz
+      </button>
     </div>
+  </main>;
+}
+
+function IntentionPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
+  const selected = intentionTiles.find((tile) => tile.slug === new URLSearchParams(window.location.search).get('intention'));
+  const recommendations = selected?.products.map((id) => products.find((product) => product.id === id)).filter(Boolean) || [];
+  return <main className="intention-page">
+    <section className="intention-heading">
+      <span className="eyebrow">A personal place to begin</span>
+      <h1>Explore with intention</h1>
+      <p>Choose the focus that feels closest to you today. Explore a small edit of ritual tools and crystal companions selected from that intention.</p>
+    </section>
+    <section className="intention-grid" aria-label="Choose an intention">
+      {intentionTiles.map(({ slug, title, icon: Icon }) => <a className={`intention-card ${selected?.slug === slug ? 'selected' : ''}`} key={slug} href={`/pages/explore-with-intention?intention=${slug}`} aria-current={selected?.slug === slug ? 'page' : undefined}>
+        <Icon size={28} strokeWidth={1.15} aria-hidden="true" />
+        <span>{title}</span>
+      </a>)}
+    </section>
+    {selected ? <section className="intention-results">
+      <div className="intention-results-heading">
+        <span className="eyebrow">A considered edit</span>
+        <h2>{selected.title}</h2>
+        <p>{selected.description}</p>
+      </div>
+      <section className="product-grid" aria-label={`${selected.title} product recommendations`}>
+        {recommendations.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}
+      </section>
+    </section> : <p className="intention-hint">Select a focus to reveal a small, relevant edit from the collection.</p>}
   </main>;
 }
 
@@ -585,8 +695,8 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
 function DirectoryPage() {
   return <main className="directory-page">
     <Brand large />
-    <h1 className="directory-title">A place for every path.</h1>
-    <p className="directory-intro">Explore our collections, learning spaces and everyday rituals. Follow what feels right for you.</p>
+    <h1 className="directory-title">Open a path to what comes next.</h1>
+    <p className="directory-intro">Explore collections, learning spaces and everyday rituals. Follow what feels right for your next chapter.</p>
     <DirectoryLinks />
   </main>;
 }
@@ -601,7 +711,7 @@ function MasterclassPage() {
         <p>Discover ancient shamanic ways of working with simple elements of the Earth: a stone, a plant and a thread. Through Body Stone, Plant Dita and Thread Work, learn to release, reconnect and consciously work with intentions, bonds and everyday life.</p>
         <p className="small-label">Friday, 16 October 2026 · 7 pm to 9 pm IST</p>
         <p className="rite-price">Energy exchange · ₹5,555</p>
-        <a className="button button-dark" href="https://vanikabir.com/masterclass/" target="_blank" rel="noreferrer">Book on the official site <ArrowRight size={15} /></a>
+        <a className="button button-dark" href="/collections/e-studio">Explore learning experiences <ArrowRight size={15} /></a>
       </div>
       <div className="rite-image" role="img" aria-label="Master Vani Kabir in a light editorial portrait from the shaman rites masterclass" />
     </section>
@@ -614,7 +724,7 @@ function MasterclassPage() {
       <span className="eyebrow">3 Sacred Rites of a Shaman</span>
       <h2>Come closer to the living Earth.</h2>
       <p>Friday, 16 October 2026 · 7 pm to 9 pm IST · Energy exchange ₹5,555</p>
-      <a className="button button-dark" href="https://vanikabir.com/masterclass/" target="_blank" rel="noreferrer">Book on the official site <ArrowRight size={15} /></a>
+      <a className="button button-dark" href="/collections/e-studio">Explore learning experiences <ArrowRight size={15} /></a>
     </section>
   </main>;
 }
@@ -668,6 +778,7 @@ function App() {
   const home = path === '/';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
+  const intentionPage = path === '/pages/explore-with-intention';
   const productRoute = pathSegments[0] === 'products'
     || (pathSegments[0] === 'collections' && pathSegments[2] === 'products');
   const productSlug = productRoute ? pathSegments[pathSegments.length - 1] : null;
@@ -700,9 +811,16 @@ function App() {
     if (action === 'wishlist') setDrawer('wishlist');
     if (action === 'account') setDrawer('account');
   };
-  const addToCart = (product) => {
-    setCart((old) => ({ ...old, [product.id]: (old[product.id] || 0) + 1 }));
+  const addToCart = (product, quantity = 1) => {
+    setCart((old) => ({ ...old, [product.id]: (old[product.id] || 0) + quantity }));
     showToast(`${product.name} added to your demo bag.`);
+  };
+  const buyNow = (product, quantity = 1) => {
+    const nextCart = { ...cart, [product.id]: (cart[product.id] || 0) + quantity };
+    setCart(nextCart);
+    try { window.localStorage.setItem('vani-studio-cart', JSON.stringify(nextCart)); }
+    catch { showToast('Browser storage is unavailable, so your bag cannot be carried into checkout.'); return; }
+    window.location.assign('/checkout');
   };
   const quantityChange = (id, delta) => setCart((old) => {
     const next = Math.max(0, (old[id] || 0) + delta);
@@ -727,28 +845,28 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    if (!home) return undefined;
     try {
       if (window.sessionStorage.getItem('vani-crystal-quiz-skipped') === 'true') return undefined;
     } catch { /* Continue without persistence if browser storage is disabled. */ }
     const timer = window.setTimeout(() => setQuizModalOpen(true), 250);
     return () => window.clearTimeout(timer);
-  }, [home]);
+  }, []);
   const closeQuizModal = () => {
     setQuizModalOpen(false);
     try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
   };
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
   const content = home ? <Home onOpenQuiz={() => setQuizModalOpen(true)} />
-    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onQuickView={setQuickProduct} />
-      : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} />
+    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
+      : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
         : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-      : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+      : intentionPage ? <IntentionPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+        : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage />
           : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
             : <main className="directory-page"><span className="eyebrow">The studio</span><h1 className="directory-title">This path is still unfolding.</h1><p className="directory-intro">The page you’re looking for hasn’t been gathered here yet.</p><a className="button button-dark" href="/">Return to the beginning</a></main>;
   return <div className="app-shell">
-    {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} />}
+    {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
     {content}
     {!home && <Footer showToast={showToast} />}
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}><option value="INR">INR⌄</option><option value="USD">USD⌄</option><option value="EUR">EUR⌄</option></select></div>}
@@ -757,11 +875,8 @@ function App() {
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
-    {home && quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
-      <div className="quiz-modal-toolbar">
-        <span className="eyebrow">A moment for you</span>
-        <button type="button" className="quiz-modal-skip" onClick={closeQuizModal}>Skip for now <X size={15} /></button>
-      </div>
+    {quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
+      <button type="button" className="modal-close" aria-label="Close quiz" onClick={closeQuizModal}><X size={17} /></button>
       <QuizPage modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={(item) => { closeQuizModal(); setQuickProduct(item); }} onAdd={addToCart} />
     </Modal>}
     {toast && <div className="toast" role="status">{toast}</div>}

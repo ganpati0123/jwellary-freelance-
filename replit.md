@@ -1,4 +1,4 @@
-# Vani Kabir Studio storefront
+# Open To See Your Future storefront
 
 ## Run locally
 
@@ -8,8 +8,8 @@
 
 ## Project notes
 
-- The home page recreates the Vani Kabir Studio bio-link layout with the two campaign cards and its 12 original destinations.
-- The existing five-question crystal quiz opens as a first-visit popup on the home page. Visitors can skip it, dismiss it with Escape or the backdrop, and reopen it from the home-page button.
-- Collection, product, checkout, link-directory, masterclass, and quiz routes are handled by the client app.
-- The storefront uses local demo catalog data. Supabase and Razorpay code paths are optional and need project configuration; no live inventory or booking data is bundled.
+- The home page follows the supplied centered bio-link reference, with two campaign cards and 12 destinations that lead to routes within this storefront.
+- The five-question quiz opens on a first visit to any route in a browser tab. Visitors can dismiss it with the close button, Escape or the backdrop, and reopen it from the store header or the landing-page link.
+- Collection, product-detail, checkout, link-directory, intention guide, masterclass, and quiz pages are handled by the client app.
+- The catalog is local preview data. Without Supabase and Razorpay configuration, checkout is an explicitly labelled preview and does not take payment or save delivery details. Configure the optional providers before accepting live orders.
 - The homepage intentionally omits the shared footer; other routes include it.

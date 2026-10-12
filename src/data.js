@@ -23,10 +23,18 @@ const referencePhotos = {
   'nephrite-bracelet': 'nephrite-bracelet.jpg',
   'spirit-deck': 'spirit-deck.jpg'
 };
-const p = (id, name, price, collection, image, color, material, crystalType, productType, intention, inStock = true) => ({
-  id, name, price, collection, image, color, material, crystalType, productType, intention, inStock,
-  asset: referencePhotos[id] ? `/attached_assets/generated_images/${referencePhotos[id]}` : null
-});
+const p = (id, name, price, collection, image, color, material, crystalType, productType, intention, inStock = true) => {
+  const digital = /digital/i.test(productType) || /digital/i.test(material);
+  return {
+    id, name, price, collection, image, color, material, crystalType, productType, intention, inStock,
+    asset: referencePhotos[id] ? `/attached_assets/generated_images/${referencePhotos[id]}` : null,
+    description: `${name} is a ${productType.toLowerCase()} made with ${material.toLowerCase()}${crystalType ? ` and centred around ${crystalType.toLowerCase()}` : ''}. Its ${intention.toLowerCase()} focus makes it a thoughtful companion for a personal ritual, a quiet moment of reflection or a considered gift. ${digital ? 'This listing is marked as a digital practice.' : 'Natural materials can vary in tone and pattern, so each piece has its own character.'}`,
+    practice: `Set one personal intention for ${intention.toLowerCase()} and use this piece as a gentle reminder to return to it. Spiritual and ritual practices are personal; this product does not promise a particular outcome.`,
+    care: digital
+      ? 'This product is listed as a digital practice. Delivery format and access details should be confirmed before a live purchase.'
+      : `The listed materials are ${material.toLowerCase()}. Keep the piece in a safe place between uses; ask the studio about material-specific care or fit before ordering.`
+  };
+};
 
 export const products = [
   p('diya-infinite', 'First Diya Of Infinite Abundance', 1919, 'divine-diwali', 'diya', 'Terracotta', 'Terracotta & brass', 'Citrine', 'Ritual object', 'Abundance'),

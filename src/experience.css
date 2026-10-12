@@ -1,0 +1,607 @@
+/* Reference-matched link landing page */
+.link-home-page {
+  min-height: 100vh;
+  background: #f0f0ee;
+}
+
+.link-home {
+  width: min(468px, calc(100% - 32px));
+  padding-top: 27px;
+}
+
+.link-home-intro .brand-large {
+  gap: 6px;
+  margin-bottom: 11px;
+}
+
+.link-home-intro .brand-large .brand-mark {
+  width: 70px;
+  height: 70px;
+  padding: 12px;
+  color: #f3f1ed;
+  background: #252723;
+  border-radius: 50%;
+}
+
+.link-home-intro .brand-large .brand-name {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.link-home-intro .brand-caption {
+  display: none;
+}
+
+.link-home-intro > p {
+  max-width: 455px;
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.home-socials {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.home-socials a {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  color: var(--ink);
+  transition: color .2s ease, transform .2s ease;
+}
+
+.home-socials a:hover {
+  color: #9b693f;
+  transform: translateY(-2px);
+}
+
+.home-campaign-promos {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.home-campaign,
+.home-rite-card {
+  border-color: #989791;
+  border-radius: 11px;
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+
+.home-campaign img,
+.home-rite-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform .55s cubic-bezier(.2,.65,.3,1);
+}
+
+.home-campaign img {
+  aspect-ratio: 1.98;
+  object-fit: cover;
+}
+
+.home-rite-card img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.home-campaign:hover,
+.home-rite-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px #2527231c;
+}
+
+.home-campaign:hover img,
+.home-rite-card:hover img {
+  transform: scale(1.015);
+}
+
+.link-home .directory-list {
+  gap: 7px;
+}
+
+.link-home .directory-link {
+  min-height: 39px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.link-home .directory-link::before {
+  left: 8px;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+}
+
+.home-quiz-trigger-bottom {
+  margin: 16px 0 0;
+  font-size: 10px;
+}
+
+/* A compact, accessible quiz panel over whichever page was opened. */
+.modal-backdrop {
+  background: rgb(23 23 21 / 48%);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.quiz-modal {
+  width: min(850px, 100%);
+  max-height: min(86dvh, 850px);
+  overflow-y: auto;
+  padding: 24px clamp(22px, 4vw, 42px) 30px;
+  border: 1px solid rgb(255 255 255 / 68%);
+  border-radius: 21px;
+  background: #f0efed;
+  box-shadow: 0 28px 90px rgb(15 15 14 / 28%);
+}
+
+.quiz-modal .modal-close {
+  top: 13px;
+  right: 13px;
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  box-shadow: 0 5px 18px rgb(0 0 0 / 8%);
+}
+
+.quiz-modal .quiz-top {
+  padding: 3px 12px 25px;
+}
+
+.quiz-modal .quiz-title {
+  font-size: clamp(30px, 4.3vw, 48px);
+  line-height: 1.04;
+}
+
+.quiz-modal .quiz-progress {
+  margin-top: 8px;
+}
+
+.quiz-modal .progress-track {
+  height: 7px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.quiz-modal .progress-fill {
+  border-radius: inherit;
+}
+
+.quiz-modal .quiz-question {
+  margin: 20px 0;
+}
+
+.quiz-modal .answer-list {
+  gap: 11px;
+}
+
+.quiz-modal .answer-option {
+  min-height: 60px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgb(36 35 35 / 4%);
+  transition: border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.quiz-modal .answer-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgb(36 35 35 / 8%);
+}
+
+.quiz-modal .answer-option.chosen {
+  border-color: #343431;
+  background: #fff;
+}
+
+.quiz-modal .quiz-nav {
+  margin: 16px 0 4px;
+}
+
+.quiz-modal .quiz-nav .button-dark {
+  min-width: 76px;
+  min-height: 48px;
+  justify-content: center;
+  padding: 0 17px;
+  border-radius: 28px;
+  background: #92918f;
+  font-size: 9px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.quiz-modal .quiz-nav .button-dark:hover:not(:disabled) {
+  background: #373735;
+}
+
+.quiz-modal .quiz-nav .button-dark:disabled {
+  background: #c7c6c3;
+  color: #777672;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.quiz-modal .recommend-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quiz-modal .quiz-result-actions {
+  padding: 8px 0 10px;
+}
+
+/* Intention discovery page */
+.intention-page {
+  min-height: 70vh;
+  padding: clamp(56px, 9vw, 118px) clamp(20px, 5.3vw, 78px) 92px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / 82%), transparent 56%),
+    #f0efec;
+}
+
+.intention-heading {
+  max-width: 740px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.intention-heading h1 {
+  margin: 13px 0 15px;
+  font: 400 clamp(34px, 4.5vw, 54px)/1.05 var(--serif);
+  text-transform: uppercase;
+}
+
+.intention-heading p,
+.intention-results-heading p {
+  max-width: 650px;
+  margin: 0 auto;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.intention-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 11px;
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.intention-card {
+  display: flex;
+  min-height: 124px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: 1px solid #dedbd3;
+  border-radius: 17px;
+  background: #faf9f6;
+  text-align: center;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.intention-card svg {
+  color: #55594c;
+  transition: transform .3s ease, color .3s ease;
+}
+
+.intention-card span {
+  max-width: 100%;
+  padding: 0 5px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.intention-card:hover,
+.intention-card.selected {
+  transform: translateY(-3px);
+  border-color: #b49c76;
+  background: #fff;
+  box-shadow: 0 12px 28px rgb(43 38 27 / 8%);
+}
+
+.intention-card:hover svg,
+.intention-card.selected svg {
+  color: #a77a45;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.intention-hint {
+  margin: 32px auto 0;
+  color: var(--ink-soft);
+  font: italic 18px var(--serif);
+  text-align: center;
+}
+
+.intention-results {
+  max-width: 1320px;
+  margin: 74px auto 0;
+}
+
+.intention-results-heading {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.intention-results-heading h2 {
+  margin: 10px 0;
+  font: 400 clamp(32px, 4vw, 48px)/1.05 var(--serif);
+  text-transform: uppercase;
+}
+
+/* More complete product and checkout actions */
+.detail-purchase-row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 11px;
+  margin-top: 4px;
+}
+
+.detail-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 50px;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+}
+
+.detail-quantity button {
+  display: grid;
+  width: 33px;
+  height: 44px;
+  place-items: center;
+  color: var(--ink-soft);
+  font-size: 17px;
+}
+
+.detail-quantity span {
+  min-width: 17px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.detail-buy-now {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 28px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.detail-buy-now:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.detail-buy-now:disabled,
+.detail-add:disabled,
+.add-small:disabled {
+  cursor: not-allowed;
+  opacity: .48;
+}
+
+.product-unavailable {
+  margin: 10px 0 0;
+  color: #8e463c;
+  font-size: 11px;
+}
+
+.checkout-layout {
+  align-items: start;
+}
+
+.checkout-summary {
+  position: sticky;
+  top: 22px;
+}
+
+.checkout-form-grid input:focus-visible {
+  outline: 2px solid #b49c76;
+  outline-offset: 3px;
+}
+
+.checkout-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.checkout-quiz-link {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.checkout-quiz-link:hover {
+  border-color: var(--saffron);
+  color: #9b693f;
+}
+
+.order-complete {
+  display: flex;
+  min-height: min(70vh, 680px);
+  max-width: 680px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.order-complete-mark {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  margin-bottom: 24px;
+  border: 1px solid #d8d3c9;
+  border-radius: 50%;
+  color: #887a60;
+}
+
+.order-complete h1 {
+  margin: 14px 0 12px;
+  font: 400 clamp(42px, 6vw, 72px)/.98 var(--serif);
+}
+
+.order-complete p {
+  max-width: 490px;
+  margin: 0 0 26px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+@media (max-width: 1000px) {
+  .intention-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .intention-card {
+    min-height: 112px;
+  }
+}
+
+@media (max-width: 650px) {
+  .link-home {
+    width: min(468px, calc(100% - 28px));
+    padding-top: 24px;
+  }
+
+  .link-home-intro .brand-large .brand-mark {
+    width: 62px;
+    height: 62px;
+    padding: 10px;
+  }
+
+  .link-home-intro .brand-large .brand-name {
+    font-size: 15px;
+  }
+
+  .link-home-intro > p {
+    font-size: 9px;
+  }
+
+  .link-home .directory-link {
+    min-height: 39px;
+  }
+
+  .quiz-modal {
+    width: 100%;
+    max-height: 92dvh;
+    padding: 17px 17px 22px;
+    border-radius: 17px;
+  }
+
+  .quiz-modal .quiz-title {
+    font-size: clamp(27px, 8vw, 38px);
+  }
+
+  .quiz-modal .quiz-top {
+    padding: 4px 10px 20px;
+  }
+
+  .quiz-modal .quiz-question {
+    font-size: clamp(24px, 6.4vw, 31px);
+  }
+
+  .quiz-modal .answer-option {
+    min-height: 53px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .quiz-modal .recommend-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .intention-page {
+    padding: 58px 18px 66px;
+  }
+
+  .intention-heading {
+    margin-bottom: 30px;
+  }
+
+  .intention-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .intention-card {
+    min-height: 103px;
+    gap: 9px;
+    border-radius: 13px;
+  }
+
+  .intention-card svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .intention-card span {
+    font-size: 8px;
+  }
+
+  .intention-results {
+    margin-top: 48px;
+  }
+
+  .checkout-top-actions {
+    gap: 0;
+  }
+
+  .checkout-top-actions > span {
+    display: none;
+  }
+
+  .checkout-quiz-link {
+    font-size: 8px;
+  }
+
+  .checkout-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 380px) {
+  .intention-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-purchase-row {
+    grid-template-columns: 90px minmax(0, 1fr);
+  }
+}
