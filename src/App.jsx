@@ -839,12 +839,12 @@ function CollectionPage({ collection, subcollection, products: catalogProducts, 
   const sourceItems = useMemo(() => {
     if (collection.slug === 'all') return catalogProducts;
     if (subcollection) {
-      return catalogProducts.filter((item) => item.shopifyCollections.some((entry) =>
+      return catalogProducts.filter((item) => item.shopifyCollections?.some((entry) =>
         entry.handle === subcollection.slug || slugifyProduct(entry.title) === subcollection.slug
       ));
     }
     return catalogProducts.filter((item) => item.collection === collection.slug
-      || item.shopifyCollections.some((entry) => entry.handle === collection.slug));
+      || item.shopifyCollections?.some((entry) => entry.handle === collection.slug));
   }, [catalogProducts, collection.slug, subcollection?.slug]);
   const filterGroups = {
     Color: optionList(catalogProducts, 'color'),
@@ -1101,7 +1101,7 @@ function App() {
   const dynamicCollection = catalogProducts.flatMap((item) => item.shopifyCollections)
     .find((item) => item.handle === collectionSlug);
   const collection = collectionSlug === 'all'
-    ? { title: 'All products', slug: 'all', description: 'Browse products currently available in the Shopify store.' }
+    ? { title: 'All products', slug: 'all', description: 'Explore live products and studio previews. Listings marked “Preview only” are not available to order yet.' }
     : collectionSlug
       ? getCollection(collectionSlug) || (dynamicCollection && {
         title: dynamicCollection.title,
@@ -1238,16 +1238,16 @@ function App() {
   }, [product, productDetail]);
   const closeQuizModal = () => setQuizModalOpen(false);
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
-  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} products={catalogProducts} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
-  const catalogSection = catalogProducts.length
-    ? <HomeProductSection title="Shop all products" ids={catalogProducts.map((item) => item.id)} products={catalogProducts} href="/collections/all" currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} products={browsableProducts} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
+  const catalogSection = browsableProducts.length
+    ? <HomeProductSection title="Shop all products" ids={browsableProducts.map((item) => item.id)} products={browsableProducts} href="/collections/all" currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
     : null;
   const content = home ? <Home />
     : shopHome ? <StoreHome productSection={productSection} catalogSection={catalogSection} />
-    : productDetail ? <ProductPage product={product} products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
+    : productDetail ? <ProductPage product={product} products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
       : checkout ? <CheckoutPage items={cart} products={browsableProducts} currency={currency} onQuantity={quantityChange} showToast={showToast} onOpenQuiz={() => setQuizModalOpen(true)} />
-        : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-      : intentionPage ? <IntentionPage products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+        : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+      : intentionPage ? <IntentionPage products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
         : journalPage ? <JournalPage pathname={path} />
           : gemstonePage ? <GemstonesPage />
             : studioPage ? <StudioPage />
@@ -1275,7 +1275,7 @@ function App() {
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>{Object.keys(currencyData).map((code) => <option key={code} value={code}>{code}</option>)}</select><ChevronDown size={13} aria-hidden="true" /></div>}
     {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} products={browsableProducts} currency={currency} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} products={browsableProducts} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
-    {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} products={catalogProducts} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} products={browsableProducts} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
     {quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
