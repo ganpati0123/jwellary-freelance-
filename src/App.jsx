@@ -649,7 +649,7 @@ function Home() {
         <p>Open to See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="home-socials" aria-label="Studio social links">
           <a href="/shop" aria-label="Explore the full website"><Globe2 size={19} strokeWidth={1.7} /></a>
-          <a href="/pages/contact" aria-label="Contact the studio"><ArrowRight size={18} strokeWidth={1.7} /></a>
+          <a href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass"><ArrowRight size={18} strokeWidth={1.7} /></a>
         </div>
       </header>
       <div className="home-campaign-promos">
