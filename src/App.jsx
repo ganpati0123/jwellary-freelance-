@@ -118,7 +118,7 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction, onOpenQuiz }) {
         <button className="header-action" aria-label="Search" onClick={() => onAction('search')}><Search size={19} strokeWidth={1.5} /></button>
         <Brand />
         <div className="header-tools">
-          <button className="header-action quiz-header-action" aria-label="Take the daily crystal quiz" onClick={onOpenQuiz}><Sparkles size={17} strokeWidth={1.5} /></button>
+          <button type="button" className="header-action quiz-header-action" aria-label="Take the daily crystal quiz" onClick={onOpenQuiz}><Sparkles size={17} strokeWidth={1.5} /></button>
           <button className="header-action" aria-label="Account information" onClick={() => onAction('account')}><UserRound size={18} strokeWidth={1.5} /></button>
           <button className="header-action" aria-label={`Wishlist, ${wishlistCount} saved`} onClick={() => onAction('wishlist')}><Heart size={19} strokeWidth={1.5} /><span className="tool-count">{wishlistCount || ''}</span></button>
           <button className="header-action" aria-label={`Shopping bag, ${cartCount} items`} onClick={() => onAction('cart')}><ShoppingBag size={18} strokeWidth={1.5} /><span className="tool-count">{cartCount || ''}</span></button>
@@ -558,7 +558,7 @@ function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoO
     </section>
   </main>;
   return <main className="checkout-page">
-    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open to See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
+    <div className="checkout-topline"><a href="/shop" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open to See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
     <form className="checkout-layout" onSubmit={submitOrder}>
       <section className="checkout-form-panel">
         <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Review your pieces and add delivery details. This preview never stores your address or contact information.</p>
@@ -641,29 +641,26 @@ function DirectoryLinks() {
   </>;
 }
 
-function Home({ onOpenQuiz }) {
+function Home() {
   return <main className="link-home-page">
     <div className="link-home">
       <header className="link-home-intro">
         <Brand large />
         <p>Open to See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="home-socials" aria-label="Studio social links">
-          <a href="/collections/whats-new" aria-label="Explore the website"><Globe2 size={19} strokeWidth={1.7} /></a>
+          <a href="/shop" aria-label="Explore the full website"><Globe2 size={19} strokeWidth={1.7} /></a>
           <a href="/pages/contact" aria-label="Contact the studio"><ArrowRight size={18} strokeWidth={1.7} /></a>
         </div>
       </header>
       <div className="home-campaign-promos">
         <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
-          <img src="/images/open-to-see-your-future.webp" alt="A celestial figure, gemstones and a luminous crystal orb" />
+          <img src="/images/link-divine-diwali.jpg" alt="Divine Diwali collection campaign artwork" />
         </a>
-        <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
-          <img src="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
+        <a className="home-rite-card" href="/shop" aria-label="Open the full website from the featured masterclass">
+          <img src="/images/link-masterclass.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir" />
         </a>
       </div>
       <DirectoryLinks />
-      <button className="home-quiz-trigger home-quiz-trigger-bottom" onClick={onOpenQuiz} type="button">
-        <Sparkles size={14} aria-hidden="true" /> Take the 5-question crystal quiz
-      </button>
     </div>
   </main>;
 }
@@ -895,6 +892,7 @@ function App() {
     ? getNavigationSubcollection(collectionSlug, incomingSubcollectionSlug)
     : null;
   const home = path === '/';
+  const studioHomePage = path === '/pages/studio-home';
   const shopHome = path === '/shop';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
@@ -907,7 +905,7 @@ function App() {
   const libraryCategoryPage = path.startsWith('/pages/library/category/');
   const libraryDetailPage = path.startsWith('/pages/library/') && !libraryCategoryPage;
   const contactPage = path === '/pages/contact';
-  const spiritualSitePage = home || masterclassPage || studioAboutPage || privateReadingsPage || soulpathResetPage || celebrityPage || libraryOverviewPage || libraryCategoryPage || libraryDetailPage || contactPage;
+  const spiritualSitePage = studioHomePage || masterclassPage || studioAboutPage || privateReadingsPage || soulpathResetPage || celebrityPage || libraryOverviewPage || libraryCategoryPage || libraryDetailPage || contactPage;
   const intentionPage = path === '/pages/explore-with-intention';
   const journalPage = ['/blogs', '/pages/blogs', '/pages/journal', '/journal'].includes(path) || path.startsWith('/blogs/');
   const gemstonePage = ['/pages/gemstones', '/pages/studio-gems', '/pages/precious-gemstones'].includes(path);
@@ -918,7 +916,7 @@ function App() {
   const product = productSlug ? products.find((item) => item.id === productSlug
     || item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === productSlug) : null;
   const productDetail = productRoute && !!product;
-  const showStoreChrome = !directory && !checkout && !spiritualSitePage;
+  const showStoreChrome = !home && !directory && !checkout && !spiritualSitePage;
   const [currency, setCurrency] = useState(() => {
     try {
       const saved = window.localStorage.getItem('vani-studio-currency');
@@ -1002,13 +1000,10 @@ function App() {
       ? `${product.name} | Open to See Your Future`
       : 'Open to See Your Future';
   }, [product, productDetail]);
-  const closeQuizModal = () => {
-    setQuizModalOpen(false);
-    try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
-  };
+  const closeQuizModal = () => setQuizModalOpen(false);
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
   const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
-  const content = home ? <SpiritualHomePage productSection={productSection} />
+  const content = home ? <Home />
     : shopHome ? <StoreHome productSection={productSection} />
     : productDetail ? <ProductPage product={product} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
       : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
@@ -1018,7 +1013,8 @@ function App() {
           : gemstonePage ? <GemstonesPage />
             : studioPage ? <StudioPage />
         : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-       : studioAboutPage ? <StudioAboutPage />
+        : studioHomePage ? <SpiritualHomePage productSection={productSection} />
+          : studioAboutPage ? <StudioAboutPage />
          : privateReadingsPage ? <PrivateReadingsPage />
            : soulpathResetPage ? <SoulpathResetPage />
              : celebrityPage ? <CelebrityPage />
@@ -1033,7 +1029,7 @@ function App() {
     {spiritualSitePage && <SpiritualSiteHeader />}
     {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
     {content}
-    {!checkout && <Footer showToast={showToast} />}
+    {!checkout && !home && <Footer showToast={showToast} />}
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>{Object.keys(currencyData).map((code) => <option key={code} value={code}>{code}</option>)}</select><ChevronDown size={13} aria-hidden="true" /></div>}
     {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} session={session} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
