@@ -5,7 +5,7 @@ import {
   BriefcaseBusiness, Coins, GraduationCap, HeartHandshake, Moon, Plane, ShieldCheck, Sun
 } from 'lucide-react';
 import {
-  getSession, hasSupabaseConfig, onAuthStateChange, signIn, signOut, signUp, startCheckout
+  getSession, hasSupabaseConfig, onAuthStateChange, signIn, signOut, signUp
 } from './lib/supabase.js';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
 import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
@@ -194,7 +194,7 @@ function ProductArtwork({ product, small = false }) {
         <div className="art-halo" />
         <div className={`art-object ${shape}`} style={{ '--stone': stone }} />
       </>}
-    {!small && <span className="product-badge">{product.digital ? 'Digital' : product.inStock ? 'Studio selection' : 'Sold out'}</span>}
+    {!small && <span className="product-badge">{product.previewOnly ? 'Preview' : product.digital ? 'Digital' : product.inStock ? 'Studio selection' : 'Sold out'}</span>}
   </div>;
 }
 
@@ -210,12 +210,12 @@ function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onA
       </div>
     </div>
     <div className="product-info">
-      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>{product.inStock ? 'Available' : 'Sold out'}</span></div>
+      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>{product.previewOnly ? 'Preview only' : product.inStock ? 'Available' : 'Sold out'}</span></div>
       <h3><a className="product-name-link" href={`/products/${product.id}`}>{product.name}</a></h3>
       <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
-        <p className="product-price">{formatPrice(product.price, currency)}</p>
-         <button className="add-small" disabled={!product.inStock} onClick={() => onAdd(product)}>{product.inStock ? <>Add to bag <ArrowRight size={13} /></> : 'Unavailable'}</button>
+        <p className="product-price">{formatProductPrice(product, currency)}</p>
+         <button className="add-small" disabled={!product.inStock || !product.shopifyVariantId} onClick={() => onAdd(product)}>{product.inStock && product.shopifyVariantId ? <>Add to bag <ArrowRight size={13} /></> : 'Unavailable'}</button>
       </div>
     </div>
   </article>;
@@ -225,6 +225,69 @@ function formatPrice(price, currency) {
   const { sign, multiplier } = currencyData[currency] || currencyData.INR;
   const value = Math.round(price * multiplier);
   return `${sign}${currency === 'INR' ? value.toLocaleString('en-IN') : value.toLocaleString('en-US')}`;
+}
+
+function formatProductPrice(product, currency) {
+  if (product?.shopifyCurrency) {
+    try {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: product.shopifyCurrency
+      }).format(product.price);
+    } catch { /* Use the selected display currency for an unsupported code. */ }
+  }
+  return formatPrice(product?.price || 0, currency);
+}
+
+function slugifyProduct(value) {
+  return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function normalizeShopifyProducts(remoteProducts) {
+  const localBySlug = new Map();
+  products.forEach((product) => {
+    localBySlug.set(product.id, product);
+    localBySlug.set(slugifyProduct(product.name), product);
+  });
+
+  return remoteProducts.map((remote) => {
+    const local = localBySlug.get(remote.handle) || localBySlug.get(productSlug(remote.title));
+    const variants = remote.variants?.nodes || [];
+    const availableVariants = variants.filter((variant) => variant.availableForSale);
+    const defaultVariant = availableVariants[0] || variants[0] || null;
+    const price = defaultVariant?.price || remote.priceRange?.minVariantPrice;
+    const firstCollection = remote.collections?.nodes?.[0];
+    const digital = /digital|download|online class|masterclass/i.test(
+      `${remote.productType || ''} ${remote.title} ${(remote.tags || []).join(' ')}`
+    );
+
+    return {
+      id: local?.id || remote.handle,
+      shopifyHandle: remote.handle,
+      shopifyProductId: remote.id,
+      shopifyVariantId: defaultVariant?.id || null,
+      shopifyVariants: variants,
+      shopifyCollections: remote.collections?.nodes || [],
+      shopifyCurrency: price?.currencyCode || 'INR',
+      name: remote.title,
+      collection: firstCollection?.handle || local?.collection || 'all',
+      image: local?.image || 'crystal',
+      color: 'See product image',
+      material: remote.productType || 'Not specified',
+      crystalType: '',
+      productType: remote.productType || 'Studio piece',
+      intention: 'your personal practice',
+      price: Number(price?.amount || 0),
+      inStock: Boolean(remote.availableForSale && availableVariants.length),
+      digital,
+      asset: remote.featuredImage?.url || null,
+      description: remote.description || 'Product information has not been added to the Shopify listing.',
+      practice: 'Use this item as you personally choose. No therapeutic or guaranteed outcome is implied.',
+      care: 'Follow the material-specific care guidance supplied by the studio.',
+      previewOnly: false
+    };
+  });
 }
 
 function Modal({ children, onClose, className = '', labelId }) {
@@ -272,25 +335,41 @@ function ProductModal({ product, currency, onClose, onAdd }) {
       <div className="quick-copy">
         <span className="eyebrow">{product.collection.replaceAll('-', ' ')}</span>
         <h2>{product.name}</h2>
-        <p>{formatPrice(product.price, currency)}</p>
+        <p>{formatProductPrice(product, currency)}</p>
         <p className="quick-description">{product.description}</p>
         <div className="product-spec-grid"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div>
         <div className="quick-perks"><span>Complimentary shipping</span><span>Gift-ready packaging</span></div>
-         <button className="button button-dark quick-add" disabled={!product.inStock} onClick={() => { onAdd(product); onClose(); }}>{product.inStock ? 'Add to bag' : 'Unavailable'} <ArrowRight size={15} /></button>
+         <button className="button button-dark quick-add" disabled={!product.inStock || !product.shopifyVariantId} onClick={() => { onAdd(product); onClose(); }}>{product.inStock && product.shopifyVariantId ? 'Add to bag' : 'Unavailable'} <ArrowRight size={15} /></button>
          <a className="quick-details-link" href={`/products/${product.id}`} onClick={onClose}>View full product details <ArrowRight size={14} /></a>
-        <p className="demo-note" style={{ marginTop: 17 }}>Demo storefront — this action adds the item to your local sample bag. No payment is taken.</p>
+        <p className="demo-note" style={{ marginTop: 17 }}>{product.shopifyVariantId ? 'Stock and payment are confirmed in Shopify checkout.' : 'This preview item is not listed in Shopify and cannot be purchased yet.'}</p>
       </div>
     </div>
   </Modal>;
 }
 
-function ProductPage({ product, currency, favorites, onFavorite, onAdd, onBuyNow, onQuickView }) {
+function ProductPage({ product, products: catalogProducts, currency, favorites, onFavorite, onAdd, onBuyNow, onQuickView }) {
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariantId, setSelectedVariantId] = useState(product?.shopifyVariantId || '');
+  useEffect(() => {
+    setSelectedVariantId(product?.shopifyVariantId || '');
+    setQuantity(1);
+  }, [product?.id]);
   if (!product) return null;
   const collection = getCollection(product.collection);
-  const relatedProducts = products
+  const relatedProducts = catalogProducts
     .filter((item) => item.collection === product.collection && item.id !== product.id)
     .slice(0, 4);
+  const variants = product.shopifyVariants || [];
+  const selectedVariant = variants.find((variant) => variant.id === selectedVariantId)
+    || variants.find((variant) => variant.availableForSale)
+    || null;
+  const purchaseProduct = selectedVariant ? {
+    ...product,
+    shopifyVariantId: selectedVariant.id,
+    price: Number(selectedVariant.price.amount),
+    shopifyCurrency: selectedVariant.price.currencyCode,
+    inStock: selectedVariant.availableForSale
+  } : product;
   const digitalProduct = /digital/i.test(`${product.material} ${product.productType}`);
   return <main className="product-detail-page">
     <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><a href={`/collections/${product.collection}`}>{collection?.title || product.collection.replaceAll('-', ' ')}</a><span>/</span><strong>{product.name}</strong></div>
@@ -302,8 +381,15 @@ function ProductPage({ product, currency, favorites, onFavorite, onAdd, onBuyNow
       <section className="product-detail-copy">
         <span className="eyebrow">{collection?.title || 'Studio collection'} · {product.productType || 'Studio piece'}</span>
         <h1>{product.name}</h1>
-        <div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>{product.inStock ? (digitalProduct ? 'Available as a digital listing' : 'Available to order') : 'Currently unavailable'}</span></div>
+        <div className="detail-price-row"><strong>{formatProductPrice(purchaseProduct, currency)}</strong><span>{purchaseProduct.inStock && purchaseProduct.shopifyVariantId ? (digitalProduct ? 'Available as a digital listing' : 'Available to order') : product.previewOnly ? 'Preview only' : 'Currently unavailable'}</span></div>
         <p className="detail-intro">{product.description}</p>
+        {variants.length > 1 && <label className="detail-variant-field">Choose an option
+          <select value={selectedVariant?.id || ''} onChange={(event) => setSelectedVariantId(event.target.value)}>
+            {variants.map((variant) => <option key={variant.id} value={variant.id} disabled={!variant.availableForSale}>
+              {variant.title}{variant.availableForSale ? '' : ' — Sold out'}
+            </option>)}
+          </select>
+        </label>}
         <div className="detail-divider" />
         <div className="detail-facts">
           <div><span>Crystal</span><strong>{product.crystalType || 'Not specified'}</strong></div>
@@ -313,26 +399,26 @@ function ProductPage({ product, currency, favorites, onFavorite, onAdd, onBuyNow
           <div><span>Colour</span><strong>{product.color}</strong></div>
           <div><span>Format</span><strong>{digitalProduct ? 'Digital' : 'Physical'}</strong></div>
         </div>
-        <div className="detail-stock-note"><span className={product.inStock ? 'stock-dot' : 'stock-dot unavailable'} />{product.inStock ? 'In stock for preview ordering' : 'Currently unavailable'}</div>
+        <div className="detail-stock-note"><span className={purchaseProduct.inStock && purchaseProduct.shopifyVariantId ? 'stock-dot' : 'stock-dot unavailable'} />{purchaseProduct.inStock && purchaseProduct.shopifyVariantId ? 'Availability confirmed by Shopify' : product.previewOnly ? 'Preview item — not listed in Shopify' : 'Currently unavailable in Shopify'}</div>
         <div className="detail-purchase-row">
           <div className="detail-quantity" aria-label="Quantity">
             <button type="button" aria-label={`Decrease quantity of ${product.name}`} onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button>
             <span>{quantity}</span>
             <button type="button" aria-label={`Increase quantity of ${product.name}`} onClick={() => setQuantity((value) => Math.min(20, value + 1))}>+</button>
           </div>
-          <button className="button button-dark detail-add" disabled={!product.inStock} onClick={() => onAdd(product, quantity)}>Add to bag <ArrowRight size={15} /></button>
+          <button className="button button-dark detail-add" disabled={!purchaseProduct.inStock || !purchaseProduct.shopifyVariantId} onClick={() => onAdd(purchaseProduct, quantity)}>Add to bag <ArrowRight size={15} /></button>
         </div>
-        <button className="button detail-buy-now" disabled={!product.inStock} onClick={() => onBuyNow(product, quantity)}>Buy now</button>
-        {!product.inStock && <p className="product-unavailable" role="status">This edition is currently unavailable.</p>}
+        <button className="button detail-buy-now" disabled={!purchaseProduct.inStock || !purchaseProduct.shopifyVariantId} onClick={() => onBuyNow(purchaseProduct, quantity)}>Buy now</button>
+        {(!purchaseProduct.inStock || !purchaseProduct.shopifyVariantId) && <p className="product-unavailable" role="status">{product.previewOnly ? 'This preview listing cannot be bought. It must first be listed in Shopify.' : 'This edition is currently unavailable in Shopify.'}</p>}
         <button type="button" className={`detail-save ${favorites.includes(product.id) ? 'is-favorite' : ''}`} aria-pressed={favorites.includes(product.id)} onClick={() => onFavorite(product.id)}>
           <Heart size={16} fill={favorites.includes(product.id) ? 'currentColor' : 'none'} />{favorites.includes(product.id) ? 'Saved to your wishlist' : 'Save to wishlist'}
         </button>
-        <p className="product-preview-note">Preview storefront. Product availability, delivery details and checkout are confirmed before live launch.</p>
+        <p className="product-preview-note">{product.previewOnly ? 'Preview listing only. No payment can be taken for this item.' : 'Shopify confirms final price, stock, delivery and payment at secure checkout.'}</p>
         <div className="detail-accordions">
           <details open><summary>About this piece <span>+</span></summary><p>{product.description}</p></details>
           <details><summary>Make it part of your practice <span>+</span></summary><p>{product.practice}</p></details>
           <details><summary>Materials & care <span>+</span></summary><p>{product.care}</p></details>
-          <details><summary>Availability & delivery <span>+</span></summary><p>{digitalProduct ? 'This listing is marked as a digital item. The file format, access instructions and delivery timing are not configured for live orders yet.' : 'The preview suggests domestic delivery in 3–5 business days. Confirm current shipping, packaging and return terms with the studio before accepting live orders.'}</p></details>
+          <details><summary>Availability & delivery <span>+</span></summary><p>{product.previewOnly ? 'This preview item is not available for purchase. Availability and shipping must be confirmed in Shopify before it can be ordered.' : 'Shopify checkout displays the current availability, applicable shipping and final order total.'}</p></details>
         </div>
       </section>
     </div>
@@ -416,42 +502,45 @@ function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inSt
   </div>;
 }
 
-function CartDrawer({ close, items, currency, onQuantity, onQuickView, session, showToast }) {
-  const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
-  const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
-  const checkout = async () => {
-    if (!session) { showToast('Please sign in before checkout.'); return; }
-    try {
-      await startCheckout({ amountInr: subtotal, user: session.user, onSuccess: () => { showToast('Payment received. Thank you for your order.'); close(); }, onFailure: () => showToast('Payment could not be completed. Please try again.') });
-    } catch (error) {
-      showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.');
-    }
-  };
+function CartDrawer({ close, items, products: catalogProducts, currency, onQuantity, onQuickView, showToast }) {
+  const entries = items.map((line) => {
+    const product = catalogProducts.find((item) => item.id === line.productId);
+    const variant = product?.shopifyVariants?.find((item) => item.id === line.variantId);
+    return product ? {
+      product,
+      variant,
+      quantity: line.quantity,
+      available: Boolean(variant?.availableForSale),
+      priceProduct: variant ? { ...product, price: Number(variant.price.amount), shopifyCurrency: variant.price.currencyCode } : product
+    } : null;
+  }).filter(Boolean);
+  const subtotal = entries.reduce((total, entry) => total + entry.priceProduct.price * entry.quantity, 0);
+  const canCheckout = entries.length > 0 && entries.every((entry) => entry.available);
   return <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
     <aside className="drawer drawer-right" role="dialog" aria-modal="true" aria-label="Shopping bag">
       <div className="drawer-head"><h2>Your bag <span style={{ font: '12px var(--sans)' }}>({entries.reduce((sum, entry) => sum + entry.quantity, 0)})</span></h2><button className="icon-button" aria-label="Close bag" onClick={close}><X size={19} /></button></div>
       <div className="drawer-content">
-        {entries.length ? entries.map(({ product, quantity }) => <div className="cart-line" key={product.id}>
+        {entries.length ? entries.map(({ product, variant, quantity, available, priceProduct }) => <div className="cart-line" key={`${product.id}-${variant?.id || 'missing'}`}>
           <div className="cart-thumb" role="button" tabIndex={0} aria-label={`Quick view ${product.name}`} onClick={() => onQuickView(product)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onQuickView(product); } }}><ProductArtwork product={product} small /></div>
-          <div><h3>{product.name}</h3><p>{formatPrice(product.price, currency)}</p><div className="quantity-control">
-            <button aria-label={`Reduce quantity of ${product.name}`} onClick={() => onQuantity(product.id, -1)}>−</button>
+          <div><h3>{product.name}</h3><p>{formatProductPrice(priceProduct, currency)}</p>{variant?.title && variant.title !== 'Default Title' && <small>{variant.title}</small>}{!available && <small className="product-unavailable">No longer available in Shopify</small>}<div className="quantity-control">
+            <button aria-label={`Reduce quantity of ${product.name}`} onClick={() => onQuantity(product.id, variant?.id || '', -1)}>−</button>
             <span>{quantity}</span>
-            <button aria-label={`Increase quantity of ${product.name}`} onClick={() => onQuantity(product.id, 1)}>+</button>
+            <button aria-label={`Increase quantity of ${product.name}`} disabled={!available || quantity >= 20} onClick={() => onQuantity(product.id, variant?.id || '', 1)}>+</button>
           </div></div>
-          <button className="icon-button" aria-label={`Remove ${product.name}`} onClick={() => onQuantity(product.id, -quantity)}><X size={14} /></button>
+          <button className="icon-button" aria-label={`Remove ${product.name}`} onClick={() => onQuantity(product.id, variant?.id || '', -quantity)}><X size={14} /></button>
         </div>) : <div className="empty-state"><Sparkles size={25} strokeWidth={1.3} /><h2>A little space for something lovely.</h2><p>Your bag is waiting for a meaningful find.</p><button className="button button-dark" onClick={close}>Keep exploring</button></div>}
       </div>
       {entries.length > 0 && <div className="drawer-foot" style={{ display: 'block' }}>
-        <div className="cart-total"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
-        <p className="demo-note">Secure checkout powered by Razorpay. Sign in is required to place an order.</p>
-        <a className="button button-dark checkout-button" href="/checkout" onClick={(event) => { if (!entries.length) event.preventDefault(); }}>Proceed to checkout <ArrowRight size={15} /></a>
+        <div className="cart-total"><span>Subtotal</span><span>{formatProductPrice({ price: subtotal, shopifyCurrency: entries[0]?.priceProduct.shopifyCurrency }, currency)}</span></div>
+        <p className="demo-note">Shopify verifies current stock, shipping and payment in secure checkout.</p>
+        <button type="button" className="button button-dark checkout-button" disabled={!canCheckout} onClick={() => { close(); window.location.assign('/checkout'); }}>Proceed to checkout <ArrowRight size={15} /></button>
       </div>}
     </aside>
   </div>;
 }
 
-function WishlistDrawer({ close, favorites, currency, onFavorite, onQuickView, onAdd }) {
-  const liked = products.filter((product) => favorites.includes(product.id));
+function WishlistDrawer({ close, favorites, products: catalogProducts, currency, onFavorite, onQuickView, onAdd }) {
+  const liked = catalogProducts.filter((product) => favorites.includes(product.id));
   return <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
     <aside className="drawer drawer-right" role="dialog" aria-modal="true" aria-label="Wishlist">
       <div className="drawer-head"><h2>Your saved pieces</h2><button className="icon-button" aria-label="Close wishlist" onClick={close}><X size={19} /></button></div>
@@ -459,7 +548,7 @@ function WishlistDrawer({ close, favorites, currency, onFavorite, onQuickView, o
         {!liked.length && <div className="empty-state"><Heart size={24} strokeWidth={1.3} /><h2>Keep the ones that call to you.</h2><p>Tap a heart on any piece to save it here.</p></div>}
         {liked.map((product) => <div className="cart-line" key={product.id}>
           <div className="cart-thumb" role="button" tabIndex={0} aria-label={`Quick view ${product.name}`} onClick={() => onQuickView(product)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onQuickView(product); } }}><ProductArtwork product={product} small /></div>
-          <div><h3>{product.name}</h3><p>{formatPrice(product.price, currency)}</p><button className="add-small" style={{ opacity: 1 }} onClick={() => onAdd(product)}>Add to bag</button></div>
+          <div><h3>{product.name}</h3><p>{formatProductPrice(product, currency)}</p><button className="add-small" style={{ opacity: 1 }} disabled={!product.inStock || !product.shopifyVariantId} onClick={() => onAdd(product)}>{product.inStock && product.shopifyVariantId ? 'Add to bag' : 'Unavailable'}</button></div>
           <button className="icon-button" aria-label={`Remove ${product.name} from wishlist`} onClick={() => onFavorite(product.id)}><Heart size={15} fill="currentColor" /></button>
         </div>)}
       </div>
@@ -467,8 +556,8 @@ function WishlistDrawer({ close, favorites, currency, onFavorite, onQuickView, o
   </div>;
 }
 
-function SearchModal({ query, setQuery, close, onQuickView }) {
-  const results = query.trim() ? products.filter((product) => product.name.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [];
+function SearchModal({ query, setQuery, close, onQuickView, products: catalogProducts }) {
+  const results = query.trim() ? catalogProducts.filter((product) => product.name.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [];
   return <Modal onClose={close} className="search-modal">
     <button className="modal-close" aria-label="Close search" onClick={close}><X size={17} /></button>
     <span className="eyebrow">Find your next companion</span>
@@ -476,7 +565,7 @@ function SearchModal({ query, setQuery, close, onQuickView }) {
     <label className="header-search"><Search size={18} /><input autoFocus value={query} placeholder="Try citrine, bracelet, intention…" onChange={(event) => setQuery(event.target.value)} aria-label="Search all products" /></label>
     <div className="search-results">
       {query.trim() && results.length === 0 && <p className="demo-note">No pieces found for “{query}”. Try a broader word such as crystal or bracelet.</p>}
-      {results.map((product) => <div className="search-row" key={product.id}><button onClick={() => onQuickView(product)}>{product.name}</button><span>{formatPrice(product.price, 'INR')}</span></div>)}
+      {results.map((product) => <div className="search-row" key={product.id}><button onClick={() => onQuickView(product)}>{product.name}</button><span>{formatProductPrice(product, 'INR')}</span></div>)}
       {!query.trim() && <p className="demo-note">Begin with a product name, crystal or intention.</p>}
     </div>
   </Modal>;
@@ -515,64 +604,112 @@ function AuthModal({ close, session, onSession, showToast }) {
   </Modal>;
 }
 
-function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoOrder, onOpenAccount, onOpenQuiz }) {
-  const entries = Object.entries(items).filter(([, quantity]) => quantity > 0).map(([id, quantity]) => ({ product: products.find((product) => product.id === id), quantity })).filter((entry) => entry.product);
-  const subtotal = entries.reduce((total, entry) => total + entry.product.price * entry.quantity, 0);
-  const formatted = (value) => `${currencyData[currency].sign} ${(value * currencyData[currency].multiplier).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
-  const [orderComplete, setOrderComplete] = useState(false);
-  const completePreviewOrder = () => {
-    setOrderComplete(true);
-    onDemoOrder();
-  };
+function CheckoutPage({ items, products: catalogProducts, currency, onQuantity, showToast, onOpenQuiz }) {
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [whatsappSetup, setWhatsappSetup] = useState({ loading: true, ready: false, missing: [], error: '' });
+  const [whatsappConsent, setWhatsappConsent] = useState(false);
+  const [customer, setCustomer] = useState({
+    name: '', email: '', phone: '', address1: '', address2: '',
+    city: '', province: '', postalCode: '', note: ''
+  });
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/shopify/checkout-status', { signal: controller.signal })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Checkout settings could not be checked.');
+        setWhatsappSetup({ loading: false, ready: Boolean(result.ready), missing: result.missing || [], error: '' });
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          setWhatsappSetup({ loading: false, ready: false, missing: [], error: error.message || 'Checkout settings could not be checked.' });
+        }
+      });
+    return () => controller.abort();
+  }, []);
+  const entries = items.map((line) => {
+    const product = catalogProducts.find((item) => item.id === line.productId);
+    const variant = product?.shopifyVariants?.find((item) => item.id === line.variantId);
+    return product ? {
+      product,
+      variant,
+      quantity: line.quantity,
+      available: Boolean(variant?.availableForSale),
+      priceProduct: variant ? { ...product, price: Number(variant.price.amount), shopifyCurrency: variant.price.currencyCode } : product
+    } : null;
+  }).filter(Boolean);
+  const subtotal = entries.reduce((total, entry) => total + entry.priceProduct.price * entry.quantity, 0);
+  const totalItems = entries.reduce((total, entry) => total + entry.quantity, 0);
+  const canCheckout = entries.length > 0 && entries.every((entry) => entry.available);
+  const subtotalProduct = { price: subtotal, shopifyCurrency: entries[0]?.priceProduct.shopifyCurrency };
+  const updateCustomer = (field, value) => setCustomer((current) => ({ ...current, [field]: value }));
   const submitOrder = async (event) => {
     event.preventDefault();
-    if (!entries.length) return;
-    if (!hasSupabaseConfig()) {
-      completePreviewOrder();
+    setFormError('');
+    if (busy || !entries.length) return;
+    if (!canCheckout) {
+      setFormError('Remove unavailable products from your bag before checkout.');
       return;
     }
-    if (!session) {
-      showToast('Sign in to continue to secure payment.');
-      onOpenAccount();
+    if (!whatsappSetup.ready) {
+      setFormError(whatsappSetup.error || `WhatsApp setup is incomplete: configure ${whatsappSetup.missing.join(', ')} in Replit first.`);
       return;
     }
+    if (!whatsappConsent) {
+      setFormError('Please consent before sharing your delivery details with the studio on WhatsApp.');
+      return;
+    }
+    setBusy(true);
     try {
-      await startCheckout({
-        amountInr: subtotal,
-        user: session.user,
-        onSuccess: completePreviewOrder,
-        onFailure: () => showToast('Payment could not be completed. Please try again.')
+      const response = await fetch('/api/shopify/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lines: entries.map(({ variant, quantity }) => ({ variantId: variant.id, quantity })),
+          customer,
+          whatsappConsent
+        })
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Checkout could not be prepared. Please try again.');
+      const checkoutUrl = new URL(result.checkoutUrl);
+      if (checkoutUrl.protocol !== 'https:') throw new Error('Shopify did not return a secure checkout link.');
+      window.location.assign(checkoutUrl.toString());
     } catch (error) {
-      showToast(error?.message?.includes('RAZORPAY') ? 'Payment setup is not configured yet.' : 'Checkout is unavailable right now.');
+      setFormError(error?.message || 'Checkout could not be prepared. Please try again.');
+      setBusy(false);
     }
   };
-  if (orderComplete) return <main className="checkout-page checkout-complete-page">
-     <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Open to See Your Future</span></div>
-    <section className="order-complete" role="status">
-      <span className="order-complete-mark"><Sparkles size={25} /></span>
-      <span className="eyebrow">Thank you</span>
-      <h1>Your next chapter starts here.</h1>
-      <p>{hasSupabaseConfig() ? 'Your payment was confirmed.' : 'Your preview order is complete. No payment was taken and no personal details were saved.'}</p>
-      <a className="button button-dark" href="/collections/whats-new">Continue exploring <ArrowRight size={15} /></a>
-    </section>
-  </main>;
   return <main className="checkout-page">
     <div className="checkout-topline"><a href="/shop" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open to See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
     <form className="checkout-layout" onSubmit={submitOrder}>
       <section className="checkout-form-panel">
-        <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Review your pieces and add delivery details. This preview never stores your address or contact information.</p>
+        <span className="eyebrow">A considered final step</span><h1>Delivery details.</h1>
+        <p className="checkout-lede">Share your contact and delivery details first. With your permission, the studio receives them on WhatsApp, then you continue to Shopify’s secure payment page.</p>
+        <h2 className="checkout-section-title">Contact</h2>
         <div className="checkout-form-grid">
-          <label>First name<input name="firstName" autoComplete="given-name" required placeholder="Your first name" /></label>
-          <label>Last name<input name="lastName" autoComplete="family-name" required placeholder="Your last name" /></label>
-          <label className="full">Email address<input name="email" type="email" autoComplete="email" required value={session?.user?.email || undefined} placeholder="you@example.com" readOnly={!!session?.user?.email} /></label>
-          <label className="full">Delivery address<input name="address" autoComplete="street-address" required placeholder="House number, street and area" /></label>
-          <label>City<input name="city" autoComplete="address-level2" required placeholder="City" /></label>
-          <label>Postal code<input name="postalCode" autoComplete="postal-code" required inputMode="numeric" pattern="[0-9A-Za-z -]{4,10}" placeholder="Postal code" /></label>
+          <label className="full">Full name<input required autoComplete="name" maxLength={100} value={customer.name} onChange={(event) => updateCustomer('name', event.target.value)} placeholder="Name for the delivery" /></label>
+          <label>Email address<input required type="email" autoComplete="email" maxLength={254} value={customer.email} onChange={(event) => updateCustomer('email', event.target.value)} placeholder="you@example.com" /></label>
+          <label>Phone number<input required type="tel" autoComplete="tel" inputMode="tel" maxLength={24} pattern="[+0-9 ()-]{8,24}" value={customer.phone} onChange={(event) => updateCustomer('phone', event.target.value)} placeholder="+91 98765 43210" /><span className="checkout-field-hint">Indian number; include +91 if needed.</span></label>
+          <label className="full">Address<input required autoComplete="address-line1" maxLength={120} value={customer.address1} onChange={(event) => updateCustomer('address1', event.target.value)} placeholder="House number and street" /></label>
+          <label className="full">Apartment or landmark (optional)<input autoComplete="address-line2" maxLength={120} value={customer.address2} onChange={(event) => updateCustomer('address2', event.target.value)} placeholder="Apartment, floor or nearby landmark" /></label>
+          <label>City<input required autoComplete="address-level2" maxLength={60} value={customer.city} onChange={(event) => updateCustomer('city', event.target.value)} /></label>
+          <label>State<input required autoComplete="address-level1" maxLength={60} value={customer.province} onChange={(event) => updateCustomer('province', event.target.value)} /></label>
+          <label>PIN code<input required autoComplete="postal-code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={customer.postalCode} onChange={(event) => updateCustomer('postalCode', event.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6 digits" /></label>
+          <label>Country<input value="India" readOnly aria-label="Country, India" /></label>
+          <label className="full checkout-note-field">Delivery note (optional)<textarea maxLength={300} rows={3} value={customer.note} onChange={(event) => updateCustomer('note', event.target.value)} placeholder="Anything the studio should know about delivery?" /></label>
         </div>
-        <div className="checkout-assurance"><span>✦</span><div><strong>Made for a meaningful moment</strong><p>Domestic delivery estimates are 3–5 business days. Live order fulfilment is not enabled in this preview.</p></div></div>
+        <div className="checkout-consent">
+          <label><input type="checkbox" checked={whatsappConsent} onChange={(event) => setWhatsappConsent(event.target.checked)} required /><span>I agree to share my name, contact details, delivery address and selected items with the studio on WhatsApp so they can prepare my order request.</span></label>
+          <p>This app does not store this form or collect card details. Shopify handles payment securely and may ask you to confirm delivery details.</p>
+        </div>
+        <div className="checkout-assurance"><span>✦</span><div><strong>Payment stays on Shopify</strong><p>Shopify checks current inventory, shipping and taxes, then shows the payment methods available for your order.</p></div></div>
+        {whatsappSetup.loading && <p className="checkout-setup-note" role="status">Checking WhatsApp checkout setup…</p>}
+        {!whatsappSetup.loading && !whatsappSetup.ready && <p className="checkout-setup-note" role="status">{whatsappSetup.error || `WhatsApp setup is incomplete. Add ${whatsappSetup.missing.join(', ')} in Replit to enable checkout.`}</p>}
+        {formError && <p className="checkout-form-error" role="alert">{formError}</p>}
       </section>
-      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{entries.reduce((sum, entry) => sum + entry.quantity, 0)} items</span></div>{entries.length ? entries.map(({ product, quantity }) => <div className="summary-line" key={product.id}><ProductArtwork product={product} small /><div><strong>{product.name}</strong><span>Qty {quantity}</span><button type="button" onClick={() => onQuantity(product.id, -1)}>Remove</button></div><b>{formatted(product.price * quantity)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/whats-new">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatted(subtotal)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Complimentary</span></div><button type="submit" className="button button-dark checkout-pay" disabled={!entries.length}>{hasSupabaseConfig() && session ? 'Continue to secure payment' : 'Place preview order'} <ArrowRight size={15} /></button><p className="payment-note">{hasSupabaseConfig() && session ? 'Payments are securely processed by Razorpay. Your card details never touch our studio.' : 'Preview only: no payment is taken and no personal details are stored.'}</p></aside>
+      <aside className="checkout-summary"><div className="summary-heading"><span>Your order</span><span>{totalItems} items</span></div>{entries.length ? entries.map(({ product, variant, quantity, available, priceProduct }) => <div className="summary-line" key={`${product.id}-${variant?.id || 'missing'}`}><ProductArtwork product={product} small /><div><strong>{product.name}</strong>{variant?.title && variant.title !== 'Default Title' && <span>{variant.title}</span>}<span>Qty {quantity}</span>{!available && <span className="product-unavailable">Unavailable in Shopify</span>}<button type="button" onClick={() => onQuantity(product.id, variant?.id || '', -quantity)}>Remove</button></div><b>{formatProductPrice({ ...priceProduct, price: priceProduct.price * quantity }, currency)}</b></div>) : <div className="empty-checkout"><p>Your bag is waiting.</p><a href="/collections/all">Explore the collection</a></div>}<div className="summary-total"><span>Subtotal</span><b>{formatProductPrice(subtotalProduct, currency)}</b></div><div className="summary-total muted"><span>Shipping</span><span>Calculated at checkout</span></div><button type="submit" className="button button-dark checkout-pay" disabled={!canCheckout || busy || whatsappSetup.loading || !whatsappSetup.ready || !whatsappConsent}>{busy ? 'Sending details securely…' : 'Send details & continue to payment'} <ArrowRight size={15} /></button><p className="payment-note">{canCheckout ? 'The studio receives an unpaid order request first; Shopify then opens to confirm and pay.' : 'Checkout requires products currently available in Shopify.'}</p></aside>
     </form>
   </main>;
 }
@@ -665,9 +802,9 @@ function Home() {
   </main>;
 }
 
-function IntentionPage({ currency, favorites, onFavorite, onQuickView, onAdd }) {
+function IntentionPage({ products: catalogProducts, currency, favorites, onFavorite, onQuickView, onAdd }) {
   const selected = intentionTiles.find((tile) => tile.slug === new URLSearchParams(window.location.search).get('intention'));
-  const recommendations = selected?.products.map((id) => products.find((product) => product.id === id)).filter(Boolean) || [];
+  const recommendations = selected?.products.map((id) => catalogProducts.find((product) => product.id === id)).filter(Boolean) || [];
   return <main className="intention-page">
     <section className="intention-heading">
       <span className="eyebrow">A personal place to begin</span>
@@ -693,22 +830,29 @@ function IntentionPage({ currency, favorites, onFavorite, onQuickView, onAdd }) 
   </main>;
 }
 
-function CollectionPage({ collection, subcollection, currency, favorites, onFavorite, onQuickView, onAdd }) {
+function CollectionPage({ collection, subcollection, products: catalogProducts, currency, favorites, onFavorite, onQuickView, onAdd }) {
   const [filters, setFilters] = useState({});
   const [filterOpen, setFilterOpen] = useState(false);
   const [sort, setSort] = useState('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [applied, setApplied] = useState(false);
-  const sourceItems = useMemo(() => subcollection
-    ? getSubcollectionProducts(collection.slug, subcollection.slug)
-    : getCollectionProducts(collection.slug), [collection.slug, subcollection?.slug]);
+  const sourceItems = useMemo(() => {
+    if (collection.slug === 'all') return catalogProducts;
+    if (subcollection) {
+      return catalogProducts.filter((item) => item.shopifyCollections.some((entry) =>
+        entry.handle === subcollection.slug || slugifyProduct(entry.title) === subcollection.slug
+      ));
+    }
+    return catalogProducts.filter((item) => item.collection === collection.slug
+      || item.shopifyCollections.some((entry) => entry.handle === collection.slug));
+  }, [catalogProducts, collection.slug, subcollection?.slug]);
   const filterGroups = {
-    Color: optionList(products, 'color'),
+    Color: optionList(catalogProducts, 'color'),
     'Crystals Type': ['Natural', 'Lightcoded', 'Mixed gemstones'].filter((option) => optionCount(sourceItems, 'Crystals Type', option) > 0),
-    Material: optionList(products, 'material'),
-    'Product Type': optionList(products, 'productType'),
-    Crystal: optionList(products, 'crystalType'),
-    Intention: optionList(products, 'intention')
+    Material: optionList(catalogProducts, 'material'),
+    'Product Type': optionList(catalogProducts, 'productType'),
+    Crystal: optionList(catalogProducts, 'crystalType'),
+    Intention: optionList(catalogProducts, 'intention')
   };
   const priceCeiling = Math.max(...sourceItems.map((item) => item.price), 0);
   const pageTitle = subcollection?.title || collection.title;
@@ -761,8 +905,9 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
   </main>;
 }
 
-function HomeProductSection({ title, ids, href, currency, favorites, onFavorite, onQuickView, onAdd, autoScroll = false, studioTheme = false }) {
-  const items = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+function HomeProductSection({ title, ids, products: catalogProducts, href, currency, favorites, onFavorite, onQuickView, onAdd, autoScroll = false, studioTheme = false }) {
+  const items = ids.map((id) => catalogProducts.find((product) => product.id === id)).filter(Boolean);
+  if (!items.length) return null;
   const cards = (duplicate = false) => items.map((product) => <div className="home-product-card" key={`${duplicate ? 'loop-' : ''}${product.id}`}>
     <ProductCard product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />
   </div>);
@@ -845,7 +990,7 @@ function MasterclassPage() {
   </main>;
 }
 
-function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd, modal = false }) {
+function QuizPage({ products: catalogProducts, currency, favorites, onFavorite, onQuickView, onAdd, modal = false }) {
   const Page = modal ? 'div' : 'main';
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -860,7 +1005,7 @@ function QuizPage({ currency, favorites, onFavorite, onQuickView, onAdd, modal =
     setAnswers((old) => { const next = [...old]; next[step] = letter; return next; });
   };
   const restart = () => { setStep(0); setAnswers([]); };
-  const recommended = result.items.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  const recommended = result.items.map((id) => catalogProducts.find((product) => product.id === id)).filter(Boolean);
   return <Page className="quiz-page">
     <div className="quiz-top"><span className="eyebrow">Daily crystal quiz</span><h1 className="quiz-title" id={modal ? 'quiz-modal-title' : undefined}>Find your crystal of the day</h1><p>Choose the option that feels most aligned with you today and discover the crystal energy calling you right now.</p></div>
     <div className="quiz-progress"><span>{step < quizQuestions.length ? `Question ${step + 1} / ${quizQuestions.length}` : `${quizQuestions.length} questions complete`}</span><button onClick={restart}>Restart quiz</button></div>
@@ -887,7 +1032,6 @@ function App() {
   const incomingCollectionSlug = pathSegments[0] === 'collections' ? pathSegments[1] : null;
   const incomingSubcollectionSlug = pathSegments[0] === 'collections' ? pathSegments[2] : null;
   const collectionSlug = incomingCollectionSlug ? collectionAliases[incomingCollectionSlug] || incomingCollectionSlug : null;
-  const collection = collectionSlug ? getCollection(collectionSlug) : null;
   const subcollection = collectionSlug && incomingSubcollectionSlug
     ? getNavigationSubcollection(collectionSlug, incomingSubcollectionSlug)
     : null;
@@ -913,10 +1057,9 @@ function App() {
   const productRoute = pathSegments[0] === 'products'
     || (pathSegments[0] === 'collections' && pathSegments[2] === 'products');
   const productSlug = productRoute ? pathSegments[pathSegments.length - 1] : null;
-  const product = productSlug ? products.find((item) => item.id === productSlug
-    || item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === productSlug) : null;
-  const productDetail = productRoute && !!product;
   const showStoreChrome = !home && !directory && !checkout && !spiritualSitePage;
+  const needsShopifyCatalog = showStoreChrome || checkout || studioHomePage;
+  const [storefrontCatalog, setStorefrontCatalog] = useState({ status: 'idle', products: [], error: '' });
   const [currency, setCurrency] = useState(() => {
     try {
       const saved = window.localStorage.getItem('vani-studio-currency');
@@ -924,8 +1067,13 @@ function App() {
     } catch { return 'INR'; }
   });
   const [cart, setCart] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem('vani-studio-cart') || '{}'); }
-    catch { return {}; }
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('vani-shopify-cart') || 'null');
+      if (Array.isArray(saved)) return saved.filter((line) => line && typeof line.productId === 'string' && Number(line.quantity) > 0);
+      const previewBag = JSON.parse(window.localStorage.getItem('vani-studio-cart') || '{}');
+      return Object.entries(previewBag).filter(([, quantity]) => Number(quantity) > 0)
+        .map(([productId, quantity]) => ({ productId, variantId: '', quantity: Number(quantity) }));
+    } catch { return []; }
   });
   const [favorites, setFavorites] = useState([]);
   const [drawer, setDrawer] = useState('');
@@ -934,7 +1082,68 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
   const [session, setSession] = useState(null);
-  const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+  const catalogProducts = useMemo(
+    () => storefrontCatalog.status === 'ready' ? normalizeShopifyProducts(storefrontCatalog.products) : [],
+    [storefrontCatalog.status, storefrontCatalog.products]
+  );
+  const liveProductIds = new Set(catalogProducts.map((item) => item.id));
+  const browsableProducts = [
+    ...catalogProducts,
+    ...products.filter((item) => !liveProductIds.has(item.id)).map((item) => ({
+      ...item,
+      previewOnly: true,
+      inStock: false,
+      shopifyVariantId: null,
+      shopifyVariants: [],
+      shopifyCurrency: null
+    }))
+  ];
+  const dynamicCollection = catalogProducts.flatMap((item) => item.shopifyCollections)
+    .find((item) => item.handle === collectionSlug);
+  const collection = collectionSlug === 'all'
+    ? { title: 'All products', slug: 'all', description: 'Browse products currently available in the Shopify store.' }
+    : collectionSlug
+      ? getCollection(collectionSlug) || (dynamicCollection && {
+        title: dynamicCollection.title,
+        slug: dynamicCollection.handle,
+        description: `Browse ${dynamicCollection.title} products currently listed in the Shopify store.`
+      })
+      : null;
+  const product = productSlug ? browsableProducts.find((item) => item.id === productSlug
+    || item.shopifyHandle === productSlug
+    || slugifyProduct(item.name) === productSlug) : null;
+  const productDetail = productRoute && !!product;
+  const cartCount = cart.reduce((sum, line) => sum + line.quantity, 0);
+  useEffect(() => {
+    if (!needsShopifyCatalog) return undefined;
+    const controller = new AbortController();
+    setStorefrontCatalog((current) => current.status === 'ready'
+      ? current
+      : { status: 'loading', products: [], error: '' });
+    fetch('/api/shopify/catalog', { signal: controller.signal })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'The Shopify catalog could not be loaded.');
+        return result;
+      })
+      .then((result) => setStorefrontCatalog({ status: 'ready', products: result.products || [], error: '' }))
+      .catch((error) => {
+        if (error.name !== 'AbortError') setStorefrontCatalog({ status: 'error', products: [], error: error.message });
+      });
+    return () => controller.abort();
+  }, [needsShopifyCatalog]);
+
+  useEffect(() => {
+    if (storefrontCatalog.status !== 'ready') return;
+    setCart((old) => {
+      const migrated = old.map((line) => {
+        if (line.variantId) return line;
+        const product = catalogProducts.find((item) => item.id === line.productId);
+        return product?.shopifyVariantId ? { ...line, variantId: product.shopifyVariantId } : line;
+      });
+      return migrated.every((line, index) => line === old[index]) ? old : migrated;
+    });
+  }, [storefrontCatalog.status, catalogProducts]);
   const showToast = (message) => {
     setToast(message);
     window.clearTimeout(window.__vaniToast);
@@ -948,21 +1157,48 @@ function App() {
     if (action === 'account') setDrawer('account');
   };
   const addToCart = (product, quantity = 1) => {
-    setCart((old) => ({ ...old, [product.id]: (old[product.id] || 0) + quantity }));
-    showToast(`${product.name} added to your demo bag.`);
+    if (!product?.inStock || !product.shopifyVariantId) {
+      showToast(product?.previewOnly ? 'This preview item is not listed in Shopify yet.' : 'This product is not currently available.');
+      return false;
+    }
+    const current = cart.find((line) => line.productId === product.id && line.variantId === product.shopifyVariantId)?.quantity || 0;
+    if (current + quantity > 20) {
+      showToast('You can add up to 20 of this option per bag.');
+      return false;
+    }
+    setCart((old) => {
+      const index = old.findIndex((line) => line.productId === product.id && line.variantId === product.shopifyVariantId);
+      if (index < 0) return [...old, { productId: product.id, variantId: product.shopifyVariantId, quantity }];
+      return old.map((line, lineIndex) => lineIndex === index ? { ...line, quantity: line.quantity + quantity } : line);
+    });
+    showToast(`${product.name} added to your bag.`);
+    return true;
   };
   const buyNow = (product, quantity = 1) => {
-    const nextCart = { ...cart, [product.id]: (cart[product.id] || 0) + quantity };
+    if (!product?.inStock || !product.shopifyVariantId) {
+      showToast(product?.previewOnly ? 'This preview item is not listed in Shopify yet.' : 'This product is not currently available.');
+      return;
+    }
+    const current = cart.find((line) => line.productId === product.id && line.variantId === product.shopifyVariantId)?.quantity || 0;
+    if (current + quantity > 20) {
+      showToast('You can add up to 20 of this option per bag.');
+      return;
+    }
+    const index = cart.findIndex((line) => line.productId === product.id && line.variantId === product.shopifyVariantId);
+    const nextCart = index < 0
+      ? [...cart, { productId: product.id, variantId: product.shopifyVariantId, quantity }]
+      : cart.map((line, lineIndex) => lineIndex === index ? { ...line, quantity: line.quantity + quantity } : line);
     setCart(nextCart);
-    try { window.localStorage.setItem('vani-studio-cart', JSON.stringify(nextCart)); }
+    try { window.localStorage.setItem('vani-shopify-cart', JSON.stringify(nextCart)); }
     catch { showToast('Browser storage is unavailable, so your bag cannot be carried into checkout.'); return; }
     window.location.assign('/checkout');
   };
-  const quantityChange = (id, delta) => setCart((old) => {
-    const next = Math.max(0, (old[id] || 0) + delta);
-    const updated = { ...old, [id]: next };
-    if (!next) delete updated[id];
-    return updated;
+  const quantityChange = (productId, variantId, delta) => setCart((old) => {
+    const index = old.findIndex((line) => line.productId === productId && line.variantId === variantId);
+    if (index < 0) return old;
+    const quantity = Math.max(0, Math.min(20, old[index].quantity + delta));
+    if (!quantity) return old.filter((_, lineIndex) => lineIndex !== index);
+    return old.map((line, lineIndex) => lineIndex === index ? { ...line, quantity } : line);
   });
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
@@ -979,7 +1215,7 @@ function App() {
     return () => window.cancelAnimationFrame(frame);
   }, [path]);
   useEffect(() => {
-    try { window.localStorage.setItem('vani-studio-cart', JSON.stringify(cart)); }
+    try { window.localStorage.setItem('vani-shopify-cart', JSON.stringify(cart)); }
     catch { /* Keep shopping functional for this visit if storage is disabled. */ }
   }, [cart]);
   useEffect(() => {
@@ -1002,17 +1238,20 @@ function App() {
   }, [product, productDetail]);
   const closeQuizModal = () => setQuizModalOpen(false);
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
-  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
+  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} products={catalogProducts} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
+  const catalogSection = catalogProducts.length
+    ? <HomeProductSection title="Shop all products" ids={catalogProducts.map((item) => item.id)} products={catalogProducts} href="/collections/all" currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+    : null;
   const content = home ? <Home />
-    : shopHome ? <StoreHome productSection={productSection} />
-    : productDetail ? <ProductPage product={product} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
-      : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
-        : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-      : intentionPage ? <IntentionPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+    : shopHome ? <StoreHome productSection={productSection} catalogSection={catalogSection} />
+    : productDetail ? <ProductPage product={product} products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
+      : checkout ? <CheckoutPage items={cart} products={browsableProducts} currency={currency} onQuantity={quantityChange} showToast={showToast} onOpenQuiz={() => setQuizModalOpen(true)} />
+        : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+      : intentionPage ? <IntentionPage products={catalogProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
         : journalPage ? <JournalPage pathname={path} />
           : gemstonePage ? <GemstonesPage />
             : studioPage ? <StudioPage />
-        : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+        : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
         : studioHomePage ? <SpiritualHomePage productSection={productSection} />
           : studioAboutPage ? <StudioAboutPage />
          : privateReadingsPage ? <PrivateReadingsPage />
@@ -1028,17 +1267,20 @@ function App() {
   return <div className="app-shell">
     {spiritualSitePage && <SpiritualSiteHeader />}
     {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
+    {needsShopifyCatalog && storefrontCatalog.status === 'loading' && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>Loading the live Shopify catalog…</div>}
+    {needsShopifyCatalog && storefrontCatalog.status === 'error' && <div className="demo-note" role="alert" style={{ padding: '12px 4%', textAlign: 'center' }}>{storefrontCatalog.error} No preview products can be purchased.</div>}
+    {needsShopifyCatalog && storefrontCatalog.status === 'ready' && catalogProducts.length === 0 && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>There are no products published in Shopify yet. App preview listings are not being sold.</div>}
     {content}
     {!checkout && !home && <Footer showToast={showToast} />}
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>{Object.keys(currencyData).map((code) => <option key={code} value={code}>{code}</option>)}</select><ChevronDown size={13} aria-hidden="true" /></div>}
-    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} session={session} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
-    {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
-    {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} products={browsableProducts} currency={currency} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
+    {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} products={browsableProducts} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
+    {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} products={catalogProducts} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'account' && <AuthModal session={session} onSession={setSession} close={() => setDrawer('')} showToast={showToast} />}
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
     {quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
       <button type="button" className="modal-close" aria-label="Close quiz" onClick={closeQuizModal}><X size={17} /></button>
-      <QuizPage modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={(item) => { closeQuizModal(); setQuickProduct(item); }} onAdd={addToCart} />
+      <QuizPage products={browsableProducts} modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={(item) => { closeQuizModal(); setQuickProduct(item); }} onAdd={addToCart} />
     </Modal>}
     {toast && <div className="toast" role="status">{toast}</div>}
     {showStoreChrome && <button className="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><ArrowUp size={18} strokeWidth={1.5} /></button>}
