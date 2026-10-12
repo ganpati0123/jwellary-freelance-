@@ -9,6 +9,7 @@ import {
 } from './lib/supabase.js';
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
 import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
+import { GemstonesPage, JournalPage, StoreHome, StudioPage } from './ShowcasePages.jsx';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -23,18 +24,20 @@ const quizOutcomes = {
   B: { tags: ['Confidence', 'Growth', 'Opportunity'], title: 'Your energy today is calling for confidence & growth', description: 'There is momentum in your answers. We gathered pieces for clear intention, brave movement and the opportunities you are ready to meet.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] },
   C: { tags: ['Wealth', 'Spiritual', 'Intuition'], title: 'Your energy today is calling for wealth, spiritual alignment & intuition', description: 'Your answers carry a beautiful mix of energies, so we selected crystals from the strongest pools that align with you today.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] }
 };
-const filterOptions = {
-  Color: ['Amber', 'Black', 'Blue', 'Green', 'Ivory', 'Jade green', 'Rose', 'Gold', 'Violet'],
-  'Crystals Type': ['Natural', 'Lightcoded', 'Mixed gemstones'],
-  Material: ['Brass', 'Gemstones', 'Natural crystal', 'Silver', 'Terracotta'],
-  'Product Type': ['Bracelet', 'Crystal point', 'Ritual object', 'Oracle cards', 'Digital practice'],
-  Crystal: ['Ametrine', 'Aventurine', 'Clear quartz', 'Citrine', 'Jade', 'Lapis lazuli', 'Rose quartz', 'Pyrite'],
-  Intention: ['Abundance', 'Clarity', 'Healing', 'Intuition', 'Love', 'Protection', 'Prosperity']
-};
 const currencyData = {
   INR: { sign: 'Rs.', multiplier: 1 },
+  AUD: { sign: 'A$', multiplier: 0.0185 },
+  CAD: { sign: 'C$', multiplier: 0.0165 },
+  CHF: { sign: 'CHF ', multiplier: 0.0112 },
+  EUR: { sign: '€', multiplier: 0.011 },
+  GBP: { sign: '£', multiplier: 0.0095 },
+  HKD: { sign: 'HK$', multiplier: 0.093 },
+  SGD: { sign: 'S$', multiplier: 0.0162 },
+  THB: { sign: '฿', multiplier: 0.4 },
   USD: { sign: '$', multiplier: 0.012 },
-  EUR: { sign: '€', multiplier: 0.011 }
+  AED: { sign: 'AED ', multiplier: 0.044 },
+  ZAR: { sign: 'R', multiplier: 0.21 },
+  MYR: { sign: 'RM ', multiplier: 0.051 }
 };
 const intentionTiles = [
   { slug: 'wealth', title: 'Wealth', icon: Coins, description: 'Pieces for abundance, opportunity and a steady relationship with your goals.', products: ['wealth-mixel', 'wealth-elixir', 'money-oil', 'money-cheque'] },
@@ -62,14 +65,14 @@ const collectionAliases = {
 };
 
 function Brand({ large = false }) {
-  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Open To See Your Future home">
+  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Vani Kabir Studio home">
     <svg className="brand-mark" viewBox="0 0 48 54" fill="none" aria-hidden="true">
       <path d="M9 6c4 3 8 3 15 0v42c-7-3-11-3-15 0M39 6c-4 3-8 3-15 0v42c7-3 11-3 15 0M8 13c4 4 8 4 16 1M40 13c-4 4-8 4-16 1M8 41c4-4 8-4 16-1M40 41c-4-4-8-4-16-1" stroke="currentColor" strokeWidth="1.45" />
       <path d="M17 5c0 9-4 12-4 22s4 13 4 22m14-44c0 9 4 12 4 22s-4 13-4 22M23 6v42M5 27h38M11 21l8 6-8 6m26-12-8 6 8 6" stroke="currentColor" strokeWidth="1.25" />
       <circle cx="24" cy="27" r="3.4" stroke="currentColor" strokeWidth="1.2" />
     </svg>
-    <span className="brand-name">Open To See Your Future</span>
-    <span className="brand-caption">An open path for what comes next</span>
+    <span className="brand-name">Vani Kabir Studio</span>
+    <span className="brand-caption">Making spirituality simple</span>
   </a>;
 }
 
@@ -156,6 +159,9 @@ function Header({ routeSlug, cartCount, wishlistCount, onAction, onOpenQuiz }) {
         </div>)}
         <a href="/pages/daily-crystal-quiz" onClick={closeMenus}>Daily crystal quiz</a>
         <a href="/pages/explore-with-intention" onClick={closeMenus}>Explore with intention</a>
+        <a href="/blogs" onClick={closeMenus}>Blogs</a>
+        <a href="/pages/gemstones" onClick={closeMenus}>Studio gems</a>
+        <a href="/pages/studio" onClick={closeMenus}>Meet the master</a>
         <a href="/pages/3-sacred-rites-of-a-shaman" onClick={closeMenus}>3 sacred rites masterclass</a>
         <a href="/links" onClick={closeMenus}>Explore all links</a>
       </nav>}
@@ -177,7 +183,8 @@ function ProductArtwork({ product, small = false }) {
           : product.image === 'oil' ? 'art-oil'
             : product.image === 'paper' ? 'art-paper'
               : product.image === 'card' ? 'art-card'
-                : product.image === 'figure' ? 'art-figure'
+      : product.image === 'figure' ? 'art-figure'
+        : product.image === 'phone' ? 'art-phone'
                   : 'art-stone';
   return <div className={`product-visual ${product.asset ? 'has-photo' : ''} ${small ? 'small-art' : ''}`} role="img" aria-label={`${product.name}, ${product.productType}`}>
     {product.asset
@@ -284,7 +291,7 @@ function ProductPage({ product, currency, onAdd, onBuyNow, onQuickView }) {
     <div className="product-detail-layout">
       <section className="product-detail-gallery"><ProductArtwork product={product} /><div className="gallery-caption"><span>01 / 01</span><span>Studio still life · Small batch</span></div></section>
       <section className="product-detail-copy">
-        <span className="eyebrow">{product.productType || 'Studio piece'} · Open To See Your Future</span>
+        <span className="eyebrow">{product.productType || 'Studio piece'} · Vani Kabir Studio</span>
         <h1>{product.name}</h1>
         <div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>{product.inStock ? 'Complimentary domestic shipping' : 'Currently unavailable'}</span></div>
         <p className="detail-intro">{product.description}</p>
@@ -316,39 +323,75 @@ function ProductPage({ product, currency, onAdd, onBuyNow, onQuickView }) {
   </main>;
 }
 
-function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inStockOnly, setInStockOnly }) {
+const optionList = (items, field) => [...new Set(items.map((item) => item[field]).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+const optionCount = (items, group, value) => items.filter((item) => {
+  if (group === 'Crystals Type') {
+    if (value === 'Natural') return /natural/i.test(item.material);
+    if (value === 'Lightcoded') return /lightcoded/i.test(item.name);
+    return /mixed/i.test(item.material);
+  }
+  const field = group === 'Crystal' ? 'crystalType' : group === 'Intention' ? 'intention' : group === 'Product Type' ? 'productType' : group.toLowerCase();
+  return String(item[field] || '').toLowerCase().includes(value.toLowerCase());
+}).length;
+
+function FilterDrawer({ close, filters, setFilters, onApply, sort, setSort, inStockOnly, setInStockOnly, filterGroups, sourceItems, currency, priceCeiling }) {
   const [openGroup, setOpenGroup] = useState('Price');
-  const [minPrice, setMinPrice] = useState(filters.minPrice || '');
-  const [maxPrice, setMaxPrice] = useState(filters.maxPrice || '');
   const toggleFilter = (group, item) => {
     setFilters((old) => {
       const current = old[group] || [];
       return { ...old, [group]: current.includes(item) ? current.filter((value) => value !== item) : [...current, item] };
     });
   };
-  const reset = () => { setFilters({}); setInStockOnly(false); setMinPrice(''); setMaxPrice(''); };
+  const reset = () => { setFilters({}); setInStockOnly(false); };
+  const { sign: currencySign, multiplier } = currencyData[currency] || currencyData.INR;
+  const cap = Math.max(1, Math.round(priceCeiling * multiplier));
+  const minPrice = filters.minPrice === undefined ? '' : String(Math.round(Number(filters.minPrice) * multiplier));
+  const maxPrice = filters.maxPrice === undefined ? '' : String(Math.round(Number(filters.maxPrice) * multiplier));
+  const selectedMin = Math.min(Number(minPrice) || 0, cap);
+  const selectedMax = Math.min(Number(maxPrice) || cap, cap);
+  const updatePrice = (key, value) => {
+    setFilters((old) => {
+      const updated = { ...old };
+      if (value === '') delete updated[key];
+      else {
+        const displayValue = Math.max(0, Math.min(Number(value) || 0, cap));
+        const boundedValue = key === 'minPrice' ? Math.min(displayValue, selectedMax) : Math.max(displayValue, selectedMin);
+        updated[key] = String(Math.round(boundedValue / multiplier));
+      }
+      return updated;
+    });
+  };
   return <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-    <aside className="drawer" role="dialog" aria-modal="true" aria-label="Collection filters">
+    <aside className="drawer drawer-filters" role="dialog" aria-modal="true" aria-label="Collection filters">
       <div className="drawer-head"><h2>Filters</h2><button className="icon-button" aria-label="Close filters" onClick={close}><X size={19} /></button></div>
       <div className="drawer-content">
-        <label className="eyebrow" htmlFor="drawer-sort">Sort by</label>
-        <select id="drawer-sort" className="filter-sort" value={sort} onChange={(event) => setSort(event.target.value)}>
+        <label className="filter-sort-field" htmlFor="drawer-sort"><span>Sort by</span><select id="drawer-sort" value={sort} onChange={(event) => setSort(event.target.value)}>
           <option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Alphabetically</option>
-        </select>
+        </select><ChevronDown size={17} aria-hidden="true" /></label>
         <div className="filter-group">
-          <button onClick={() => setInStockOnly(!inStockOnly)}>In stock only <span>{inStockOnly ? '●' : '○'}</span></button>
+          <label className="stock-toggle"><span>In stock only</span><input type="checkbox" checked={inStockOnly} onChange={(event) => setInStockOnly(event.target.checked)} /><span className="stock-toggle-track" aria-hidden="true" /></label>
         </div>
-        {['Price', ...Object.keys(filterOptions)].map((group) => <section className="filter-group" key={group}>
+        {['Price', ...Object.keys(filterGroups)].map((group) => <section className="filter-group" key={group}>
           <button aria-expanded={openGroup === group} onClick={() => setOpenGroup(openGroup === group ? '' : group)}>{group}<ChevronDown size={14} /></button>
           {openGroup === group && (group === 'Price'
             ? <div className="filter-options">
-              <input aria-label="Minimum price" className="filter-sort" type="number" min="0" placeholder="From ₹" value={minPrice} onChange={(event) => { setMinPrice(event.target.value); setFilters((old) => ({ ...old, minPrice: event.target.value })); }} />
-              <input aria-label="Maximum price" className="filter-sort" type="number" min="0" placeholder="To ₹" value={maxPrice} onChange={(event) => { setMaxPrice(event.target.value); setFilters((old) => ({ ...old, maxPrice: event.target.value })); }} />
+              <div className="filter-range">
+                <input aria-label="Minimum price range" type="range" min="0" max={cap} step={Math.max(1, Math.round(cap / 100))} value={selectedMin} onChange={(event) => updatePrice('minPrice', event.target.value)} />
+                <input aria-label="Maximum price range" type="range" min="0" max={cap} step={Math.max(1, Math.round(cap / 100))} value={selectedMax} onChange={(event) => updatePrice('maxPrice', event.target.value)} />
+              </div>
+              <div className="filter-price-inputs">
+                <label><span>{currencySign}</span><input aria-label="Minimum price" type="number" min="0" max={cap} placeholder="0" value={minPrice} onChange={(event) => updatePrice('minPrice', event.target.value)} /></label>
+                <span>to</span>
+                <label><span>{currencySign}</span><input aria-label="Maximum price" type="number" min="0" max={cap} placeholder={String(cap)} value={maxPrice} onChange={(event) => updatePrice('maxPrice', event.target.value)} /></label>
+              </div>
             </div>
-            : <div className="filter-options">{filterOptions[group].map((item) => <button key={item} className={`filter-chip ${(filters[group] || []).includes(item) ? 'selected' : ''}`} onClick={() => toggleFilter(group, item)}>{item}</button>)}</div>)}
+            : <div className="filter-options filter-checklist">{filterGroups[group].map((item) => <label className="filter-option" key={item}>
+              <input type="checkbox" checked={(filters[group] || []).includes(item)} onChange={() => toggleFilter(group, item)} />
+              <span>{item}</span><small>({optionCount(sourceItems, group, item)})</small>
+            </label>)}</div>)}
         </section>)}
       </div>
-      <div className="drawer-foot"><button className="button button-light" onClick={reset}>Reset</button><button className="button button-dark" onClick={() => { onApply(); close(); }}>Apply filters</button></div>
+      <div className="drawer-foot filter-drawer-foot"><button className="filter-reset" onClick={reset}>Reset</button><button className="button button-dark" onClick={() => { onApply(); close(); }}>Apply</button></div>
     </aside>
   </div>;
 }
@@ -485,7 +528,7 @@ function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoO
     }
   };
   if (orderComplete) return <main className="checkout-page checkout-complete-page">
-    <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Open To See Your Future</span></div>
+     <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Vani Kabir Studio</span></div>
     <section className="order-complete" role="status">
       <span className="order-complete-mark"><Sparkles size={25} /></span>
       <span className="eyebrow">Thank you</span>
@@ -495,7 +538,7 @@ function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoO
     </section>
   </main>;
   return <main className="checkout-page">
-    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open To See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Vani Kabir Studio</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
     <form className="checkout-layout" onSubmit={submitOrder}>
       <section className="checkout-form-panel">
         <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Review your pieces and add delivery details. This preview never stores your address or contact information.</p>
@@ -535,7 +578,7 @@ function Footer({ showToast }) {
         {submitted && <div className="form-feedback" role="status">You’re on the list. Look out for a note from the studio.</div>}
       </div>
       <div className="footer-about">
-        <p>Open To See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
+        <p>Vani Kabir Studio brings together lightcoded crystals, energy products and learning experiences. Explore with intention and find what feels right for your next chapter.</p>
         <div className="footer-links">
           <div><h3>Orders & Returns</h3><a href="#disclaimer">Shipping Policy</a><a href="#disclaimer">Exchange & Refund Policy</a><a href="#disclaimer">Cancellation Policy</a></div>
           <div><h3>Privacy</h3><a href="#disclaimer">Privacy Policy</a><a href="#disclaimer">Mobile App Privacy Policy</a><a href="#disclaimer">GDPR Policy</a><a href="#disclaimer">Do Not Sell My Personal Info</a></div>
@@ -545,11 +588,11 @@ function Footer({ showToast }) {
     </div>
     <div className="disclaimer" id="disclaimer">
       <h3>*Intellectual Property Disclaimer</h3>
-      <p>All trademarks, product names, concepts, designs and creative elements featured on this website are presented as part of the Open To See Your Future storefront preview. Any live intellectual-property notices should be confirmed by the site owner before launch.</p>
+      <p>All trademarks, product names, concepts, designs and creative elements featured on this website are presented as part of the Vani Kabir Studio storefront preview. Any live intellectual-property notices should be confirmed by the site owner before launch.</p>
     </div>
     <div className="landscape-footer" role="img" aria-label="Illustrated mountain sanctuary with waterfalls, temples and a lake" />
     <img className="footer-trust-strip" src="/attached_assets/generated_images/trust-strip.jpg" alt="Authenticity and quality assurance marks" />
-    <div className="footer-bottom"><span>© 2026 Open To See Your Future. An open path for what comes next.</span><div className="socials"><a aria-label="Instagram" href="https://instagram.com"><Camera size={13} /></a><a aria-label="Studio website" href="/links"><Globe2 size={13} /></a><a aria-label="YouTube" href="https://youtube.com"><Play size={13} /></a></div></div>
+    <div className="footer-bottom"><span>© 2026 Vani Kabir Studio · Making spirituality simple.</span><div className="socials"><a aria-label="Instagram" href="https://instagram.com"><Camera size={13} /></a><a aria-label="Studio website" href="/links"><Globe2 size={13} /></a><a aria-label="YouTube" href="https://youtube.com"><Play size={13} /></a></div></div>
   </footer>;
 }
 
@@ -584,7 +627,7 @@ function Home({ onOpenQuiz }) {
     <div className="link-home">
       <header className="link-home-intro">
         <Brand large />
-        <p>Open To See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
+        <p>Vani Kabir Studio is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="home-socials" aria-label="Studio social links">
           <a href="https://www.instagram.com/vanikabirstudio/" aria-label="Instagram" target="_blank" rel="noreferrer"><Camera size={19} strokeWidth={1.7} /></a>
           <a href="/collections/whats-new" aria-label="Explore the website"><Globe2 size={19} strokeWidth={1.7} /></a>
@@ -644,6 +687,15 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
   const sourceItems = useMemo(() => subcollection
     ? getSubcollectionProducts(collection.slug, subcollection.slug)
     : getCollectionProducts(collection.slug), [collection.slug, subcollection?.slug]);
+  const filterGroups = {
+    Color: optionList(products, 'color'),
+    'Crystals Type': ['Natural', 'Lightcoded', 'Mixed gemstones'].filter((option) => optionCount(sourceItems, 'Crystals Type', option) > 0),
+    Material: optionList(products, 'material'),
+    'Product Type': optionList(products, 'productType'),
+    Crystal: optionList(products, 'crystalType'),
+    Intention: optionList(products, 'intention')
+  };
+  const priceCeiling = Math.max(...sourceItems.map((item) => item.price), 0);
   const pageTitle = subcollection?.title || collection.title;
   const pageDescription = subcollection
     ? `Explore ${subcollection.title} in the ${collection.title} edit. Browse related pieces from the studio, then refine by color, crystal, material and intention.`
@@ -651,7 +703,10 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
   const visible = useMemo(() => {
     let list = [...sourceItems];
     if (inStockOnly) list = list.filter((item) => item.inStock);
-    const hasValues = (group, actual) => !(filters[group]?.length) || filters[group].some((value) => actual.toLowerCase().includes(value.toLowerCase()) || value.toLowerCase().includes(actual.toLowerCase()));
+    const hasValues = (group, actual) => {
+      const actualValue = String(actual || '');
+      return !(filters[group]?.length) || filters[group].some((value) => actualValue.toLowerCase().includes(value.toLowerCase()) || value.toLowerCase().includes(actualValue.toLowerCase()));
+    };
     list = list.filter((item) => {
       if (!hasValues('Color', item.color)) return false;
       if (!hasValues('Material', item.material)) return false;
@@ -664,8 +719,7 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
       if (!hasValues('Intention', item.intention)) return false;
       if (!hasValues('Product Type', item.productType)) return false;
       const min = Number(filters.minPrice || 0);
-      const max = Number(filters.maxPrice || 0);
-      return item.price >= min && (!max || item.price <= max);
+      return item.price >= min && (filters.maxPrice === undefined || item.price <= Number(filters.maxPrice));
     });
     if (sort === 'price-low') list.sort((a, b) => a.price - b.price);
     if (sort === 'price-high') list.sort((a, b) => b.price - a.price);
@@ -688,8 +742,16 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
       {visible.length ? visible.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />) :
         <div className="empty-state"><Sparkles size={23} strokeWidth={1.3} /><h2>Nothing in this particular light.</h2><p>Try widening your filters to see more of the collection.</p><button className="button button-light" onClick={clearFilters}>Reset filters</button></div>}
     </section>
-    {filterOpen && <FilterDrawer close={() => setFilterOpen(false)} filters={filters} setFilters={setFilters} onApply={() => setApplied(true)} sort={sort} setSort={setSort} inStockOnly={inStockOnly} setInStockOnly={setInStockOnly} />}
+    {filterOpen && <FilterDrawer close={() => setFilterOpen(false)} filters={filters} setFilters={setFilters} onApply={() => setApplied(true)} sort={sort} setSort={setSort} inStockOnly={inStockOnly} setInStockOnly={setInStockOnly} filterGroups={filterGroups} sourceItems={sourceItems} currency={currency} priceCeiling={priceCeiling} />}
   </main>;
+}
+
+function HomeProductSection({ title, ids, href, currency, favorites, onFavorite, onQuickView, onAdd }) {
+  const items = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  return <section className="home-product-section">
+    <div className="home-product-heading"><h1>{title}</h1><a href={href}>View all <span>○</span><span>›</span></a></div>
+    <div className="product-grid home-product-grid">{items.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}</div>
+  </section>;
 }
 
 function DirectoryPage() {
@@ -779,14 +841,22 @@ function App() {
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
   const intentionPage = path === '/pages/explore-with-intention';
+  const journalPage = ['/blogs', '/pages/blogs', '/pages/journal', '/journal'].includes(path) || path.startsWith('/blogs/');
+  const gemstonePage = ['/pages/gemstones', '/pages/studio-gems', '/pages/precious-gemstones'].includes(path);
+  const studioPage = ['/pages/studio', '/pages/meet-the-master', '/studio'].includes(path);
   const productRoute = pathSegments[0] === 'products'
     || (pathSegments[0] === 'collections' && pathSegments[2] === 'products');
   const productSlug = productRoute ? pathSegments[pathSegments.length - 1] : null;
   const product = productSlug ? products.find((item) => item.id === productSlug
     || item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === productSlug) : null;
   const productDetail = productRoute && !!product;
-  const showStoreChrome = !home && !directory && !checkout;
-  const [currency, setCurrency] = useState('INR');
+  const showStoreChrome = !directory && !checkout;
+  const [currency, setCurrency] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem('vani-studio-currency');
+      return currencyData[saved] ? saved : 'INR';
+    } catch { return 'INR'; }
+  });
   const [cart, setCart] = useState(() => {
     try { return JSON.parse(window.localStorage.getItem('vani-studio-cart') || '{}'); }
     catch { return {}; }
@@ -836,6 +906,10 @@ function App() {
     catch { /* Keep shopping functional for this visit if storage is disabled. */ }
   }, [cart]);
   useEffect(() => {
+    try { window.localStorage.setItem('vani-studio-currency', currency); }
+    catch { /* Currency selection still works for this visit when storage is unavailable. */ }
+  }, [currency]);
+  useEffect(() => {
     let alive = true;
     getSession().then(({ data }) => { if (alive) setSession(data?.session || null); }).catch(() => {});
     const listener = onAuthStateChange((_event, nextSession) => setSession(nextSession));
@@ -844,23 +918,20 @@ function App() {
       listener?.data?.subscription?.unsubscribe();
     };
   }, []);
-  useEffect(() => {
-    try {
-      if (window.sessionStorage.getItem('vani-crystal-quiz-skipped') === 'true') return undefined;
-    } catch { /* Continue without persistence if browser storage is disabled. */ }
-    const timer = window.setTimeout(() => setQuizModalOpen(true), 250);
-    return () => window.clearTimeout(timer);
-  }, []);
   const closeQuizModal = () => {
     setQuizModalOpen(false);
     try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
   };
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
-  const content = home ? <Home onOpenQuiz={() => setQuizModalOpen(true)} />
+  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />;
+  const content = home ? <StoreHome productSection={productSection} />
     : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
       : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
         : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : intentionPage ? <IntentionPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
+        : journalPage ? <JournalPage pathname={path} />
+          : gemstonePage ? <GemstonesPage />
+            : studioPage ? <StudioPage />
         : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage />
           : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
@@ -868,8 +939,8 @@ function App() {
   return <div className="app-shell">
     {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
     {content}
-    {!home && <Footer showToast={showToast} />}
-    {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}><option value="INR">INR⌄</option><option value="USD">USD⌄</option><option value="EUR">EUR⌄</option></select></div>}
+    {!checkout && <Footer showToast={showToast} />}
+    {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>{Object.keys(currencyData).map((code) => <option key={code} value={code}>{code}</option>)}</select><ChevronDown size={13} aria-hidden="true" /></div>}
     {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} currency={currency} session={session} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
     {drawer === 'search' && <SearchModal query={searchQuery} setQuery={setSearchQuery} close={() => setDrawer('')} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}

@@ -21,7 +21,11 @@ const referencePhotos = {
   'cards-fate': 'cards-fate.jpg',
   'silver-coin': 'silver-coin.jpg',
   'nephrite-bracelet': 'nephrite-bracelet.jpg',
-  'spirit-deck': 'spirit-deck.jpg'
+  'spirit-deck': 'spirit-deck.jpg',
+  'stone-of-hope': 'nephrite-bracelet.jpg',
+  'nine-day-bath-ritual': 'bowl-negativity.jpg',
+  'saturday-home-ritual': 'bowl-gold.jpg',
+  'obsidian-shani-yantra': 'silver-coin.jpg'
 };
 const p = (id, name, price, collection, image, color, material, crystalType, productType, intention, inStock = true) => {
   const digital = /digital/i.test(productType) || /digital/i.test(material);
@@ -89,7 +93,27 @@ export const products = [
   p('ancient-ritual', 'First Diya Of Infinite Abundance', 1919, 'ancient-tools', 'diya', 'Terracotta', 'Terracotta & brass', 'Citrine', 'Ritual object', 'Abundance'),
   p('crystal-quartz', 'Clear Quartz Lightcoded Point', 1888, 'crystals', 'crystal', 'Clear', 'Natural clear quartz', 'Clear quartz', 'Crystal point', 'Clarity'),
   p('crystal-rose', 'Rose Quartz Heart Stone', 2222, 'crystals', 'stone', 'Rose', 'Natural rose quartz', 'Rose quartz', 'Tumbled crystal', 'Love'),
-  p('crystal-pyrite', 'Ambas Pyrite Matrix Tumble', 1111, 'crystals', 'stone', 'Gold', 'Natural pyrite', 'Pyrite', 'Tumbled crystal', 'Prosperity')
+  p('crystal-pyrite', 'Ambas Pyrite Matrix Tumble', 1111, 'crystals', 'stone', 'Gold', 'Natural pyrite', 'Pyrite', 'Tumbled crystal', 'Prosperity'),
+  p('nine-day-bath-ritual', '9 Day Bath Ritual', 1111, 'divine-diwali', 'oil', 'Rose', 'Botanical salts & oils', 'Rose quartz', 'Ritual kit', 'Self-care'),
+  p('saturday-home-ritual', '4 Saturday Home Ritual', 1111, 'divine-diwali', 'oil', 'Amber', 'Botanical ritual blend', 'Citrine', 'Ritual kit', 'Protection'),
+  p('obsidian-shani-yantra', 'Obsidian Shani Yantra', 2121, 'divine-diwali', 'card', 'Black', 'Obsidian & brass', 'Obsidian', 'Yantra', 'Protection'),
+  p('sacred-geometry-toran', 'Sacred Geometry Toran', 1111, 'whats-new', 'figure', 'Gold', 'Brass & beads', 'Clear quartz', 'Ritual object', 'Protection'),
+  p('october-mercury-sheet', 'October Mercury Retrograde Reflection Sheet', 888, 'whats-new', 'paper', 'Ivory', 'Digital download', 'Clear quartz', 'Manifestation Sheet', 'Clarity'),
+  p('october-new-moon-sheet', 'October New Moon Manifestation Sheet', 888, 'whats-new', 'paper', 'Ivory', 'Digital download', 'Citrine', 'Manifestation Sheet', 'New beginnings'),
+  p('october-full-moon-sheet', 'October Full Moon Manifestation Sheet', 888, 'whats-new', 'paper', 'Ivory', 'Digital download', 'Rose quartz', 'Manifestation Sheet', 'Reflection'),
+  p('property-mixel', 'Property Mixel', 11111, 'bracelets', 'bracelet', 'Burgundy', 'Mixed gemstones & gold', 'Garnet', 'Bracelet', 'Wealth'),
+  p('luxury-blockage-mixel', 'Luxury Blockage Mixel', 9292, 'bracelets', 'bracelet', 'Amber', 'Mixed gemstones & gold', 'Tiger’s eye', 'Bracelet', 'Abundance'),
+  p('breakthrough-mixel', 'Breakthrough Mixel', 5555, 'bracelets', 'bracelet', 'Violet', 'Mixed gemstones', 'Amethyst', 'Bracelet', 'Career'),
+  p('pisces-zodiac-mixel', 'Pisces Zodiac Mixel', 5555, 'bracelets', 'bracelet', 'Rose', 'Mixed gemstones', 'Rose quartz', 'Bracelet', 'Intuition'),
+  p('stone-of-hope', 'Stone Of Hope Variscite Bracelet', 2626, 'rare', 'bracelet', 'Green', 'Variscite & silver', 'Variscite', 'Bracelet', 'Hope'),
+  p('money-inflow-wallpaper', 'Money Inflow Mobile Wallpaper', 499, 'e-studio', 'phone', 'Amber', 'Digital download', null, 'Wallpaper', 'Wealth'),
+  p('money-glow-wallpaper', 'Money Glow Mobile Wallpaper', 499, 'e-studio', 'phone', 'Gold', 'Digital download', null, 'Wallpaper', 'Abundance'),
+  p('love-abundance-wallpaper', 'Love & Abundance Mobile Wallpaper', 499, 'e-studio', 'phone', 'Rose', 'Digital download', null, 'Wallpaper', 'Love'),
+  p('portal-999-wallpaper', '999 Portal Mobile Wallpaper', 499, 'e-studio', 'phone', 'Violet', 'Digital download', null, 'Wallpaper', 'Spiritual awakening'),
+  p('good-health-wallpaper', 'Good Health Mobile Wallpaper', 499, 'e-studio', 'phone', 'Green', 'Digital download', null, 'Wallpaper', 'Health'),
+  p('unlimited-abundance-wallpaper', 'Unlimited Abundance Mobile Wallpaper', 499, 'e-studio', 'phone', 'Green', 'Digital download', null, 'Wallpaper', 'Wealth'),
+  p('wealth-code-wallet', 'Turn Ideas Into Wealth Code Wallet Foldable', 555, 'e-studio', 'paper', 'Brown', 'Digital download', null, 'Wallet foldable', 'Wealth'),
+  p('ancestors-blessing-wallpaper', 'Ancestor’s Blessing Mobile Wallpaper', 499, 'e-studio', 'phone', 'Gold', 'Digital download', null, 'Wallpaper', 'Ancestry')
 ];
 
 export const getCollection = (slug) => collections.find((collection) => collection.slug === slug);

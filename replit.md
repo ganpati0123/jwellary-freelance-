@@ -1,4 +1,4 @@
-# Open To See Your Future storefront
+# Vani Kabir Studio storefront
 
 ## Run locally
 
@@ -8,8 +8,9 @@
 
 ## Project notes
 
-- The home page follows the supplied centered bio-link reference, with two campaign cards and 12 destinations that lead to routes within this storefront.
-- The five-question quiz opens on a first visit to any route in a browser tab. Visitors can dismiss it with the close button, Escape or the backdrop, and reopen it from the store header or the landing-page link.
-- Collection, product-detail, checkout, link-directory, intention guide, masterclass, and quiz pages are handled by the client app.
+- The home page is a storefront inspired by the supplied Vani Kabir Studio references, with product shelves, intention shortcuts, Rare Energies and Lightcoding features, gemstones, studio, journal, and social sections.
+- `/links` remains the separate link directory. `/pages/explore-with-intention`, `/pages/gemstones`, `/pages/studio`, `/blogs`, `/collections/*`, and `/products/*` are storefront routes.
+- Collection filters include sort, stock status, price range, color, crystal type, material, product type, crystal, and intention.
+- The currency picker includes INR, AUD, CAD, CHF, EUR, GBP, HKD, SGD, THB, USD, AED, ZAR, and MYR. Display conversions are indicative estimates; catalog prices and checkout amounts are based in INR.
+- The five-question crystal quiz is available from the store header and quiz route; it does not automatically cover the first page view.
 - The catalog is local preview data. Without Supabase and Razorpay configuration, checkout is an explicitly labelled preview and does not take payment or save delivery details. Configure the optional providers before accepting live orders.
-- The homepage intentionally omits the shared footer; other routes include it.
