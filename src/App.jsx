@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowRight, ArrowUp, Camera, ChevronDown, ChevronRight, Eye, Globe2, Heart, House, Menu,
-  RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X, Play,
+  ArrowRight, ArrowUp, ChevronDown, ChevronRight, Eye, Globe2, Heart, House, Menu,
+  RotateCcw, Search, ShoppingBag, SlidersHorizontal, Sparkles, UserRound, X,
   BriefcaseBusiness, Coins, GraduationCap, HeartHandshake, Moon, Plane, ShieldCheck, Sun
 } from 'lucide-react';
 import {
@@ -11,7 +11,7 @@ import { collections, getCollection, getCollectionProducts, products } from './d
 import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
 import { GemstonesPage, JournalPage, StoreHome, StudioPage } from './ShowcasePages.jsx';
 import {
-  CelebrityPage, ContactPage, EvernroomPage, LibraryCategoryPage, LibraryDetailPage,
+  CelebrityPage, ContactPage, StudioAboutPage, LibraryCategoryPage, LibraryDetailPage,
   LibraryPage, PrivateReadingsPage, SoulpathResetPage, SpiritualHomePage, SpiritualSiteHeader
 } from './studio-pages/SpiritualSite.jsx';
 
@@ -69,14 +69,10 @@ const collectionAliases = {
 };
 
 function Brand({ large = false }) {
-  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Vani Kabir Studio home">
-    <svg className="brand-mark" viewBox="0 0 48 54" fill="none" aria-hidden="true">
-      <path d="M9 6c4 3 8 3 15 0v42c-7-3-11-3-15 0M39 6c-4 3-8 3-15 0v42c7-3 11-3 15 0M8 13c4 4 8 4 16 1M40 13c-4 4-8 4-16 1M8 41c4-4 8-4 16-1M40 41c-4-4-8-4-16-1" stroke="currentColor" strokeWidth="1.45" />
-      <path d="M17 5c0 9-4 12-4 22s4 13 4 22m14-44c0 9 4 12 4 22s-4 13-4 22M23 6v42M5 27h38M11 21l8 6-8 6m26-12-8 6 8 6" stroke="currentColor" strokeWidth="1.25" />
-      <circle cx="24" cy="27" r="3.4" stroke="currentColor" strokeWidth="1.2" />
-    </svg>
-    <span className="brand-name">Vani Kabir Studio</span>
-    <span className="brand-caption">Making spirituality simple</span>
+  return <a className={`brand ${large ? 'brand-large' : ''}`} href="/" aria-label="Open to See Your Future home">
+    <img className="brand-mark" src="/images/open-to-see-your-future.webp" alt="" />
+    <span className="brand-name">Open to See Your Future</span>
+    <span className="brand-caption">A space for what comes next</span>
   </a>;
 }
 
@@ -198,23 +194,23 @@ function ProductArtwork({ product, small = false }) {
         <div className="art-halo" />
         <div className={`art-object ${shape}`} style={{ '--stone': stone }} />
       </>}
-    {!small && <span className="product-badge">Exclusive</span>}
+    {!small && <span className="product-badge">{product.digital ? 'Digital' : product.inStock ? 'Studio selection' : 'Sold out'}</span>}
   </div>;
 }
 
 function ProductCard({ product, currency, onFavorite, favorite, onQuickView, onAdd }) {
   return <article className="product-card">
     <div className="product-visual-wrap">
-      <div onClick={() => onQuickView(product)} role="button" tabIndex={0} aria-label={`Quick view ${product.name}`} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onQuickView(product); } }}>
+      <a className="product-card-image-link" href={`/products/${product.id}`} aria-label={`View details for ${product.name}`}>
         <ProductArtwork product={product} />
-      </div>
+      </a>
       <div className="product-actions">
         <button className={favorite ? 'is-favorite' : ''} aria-label={favorite ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`} onClick={() => onFavorite(product.id)}><Heart size={15} fill={favorite ? 'currentColor' : 'none'} strokeWidth={1.5} /></button>
         <button aria-label={`Quick view ${product.name}`} onClick={() => onQuickView(product)}><Eye size={15} strokeWidth={1.5} /></button>
       </div>
     </div>
     <div className="product-info">
-      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>Hand-finished</span></div>
+      <div className="product-meta-line"><span>{product.productType || 'Studio piece'}</span><span>{product.inStock ? 'Available' : 'Sold out'}</span></div>
       <h3><a className="product-name-link" href={`/products/${product.id}`}>{product.name}</a></h3>
       <p className="product-intention">For {product.intention?.toLowerCase() || 'your ritual'}</p>
       <div className="product-bottom">
@@ -281,23 +277,32 @@ function ProductModal({ product, currency, onClose, onAdd }) {
         <div className="product-spec-grid"><div><span>Stone</span><strong>{product.crystalType || 'Natural stone'}</strong></div><div><span>Material</span><strong>{product.material}</strong></div><div><span>Intention</span><strong>{product.intention}</strong></div><div><span>Edition</span><strong>Small batch</strong></div></div>
         <div className="quick-perks"><span>Complimentary shipping</span><span>Gift-ready packaging</span></div>
          <button className="button button-dark quick-add" disabled={!product.inStock} onClick={() => { onAdd(product); onClose(); }}>{product.inStock ? 'Add to bag' : 'Unavailable'} <ArrowRight size={15} /></button>
+         <a className="quick-details-link" href={`/products/${product.id}`} onClick={onClose}>View full product details <ArrowRight size={14} /></a>
         <p className="demo-note" style={{ marginTop: 17 }}>Demo storefront — this action adds the item to your local sample bag. No payment is taken.</p>
       </div>
     </div>
   </Modal>;
 }
 
-function ProductPage({ product, currency, onAdd, onBuyNow, onQuickView }) {
+function ProductPage({ product, currency, favorites, onFavorite, onAdd, onBuyNow, onQuickView }) {
   const [quantity, setQuantity] = useState(1);
   if (!product) return null;
+  const collection = getCollection(product.collection);
+  const relatedProducts = products
+    .filter((item) => item.collection === product.collection && item.id !== product.id)
+    .slice(0, 4);
+  const digitalProduct = /digital/i.test(`${product.material} ${product.productType}`);
   return <main className="product-detail-page">
-    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><a href={`/collections/${product.collection}`}>{product.collection.replaceAll('-', ' ')}</a><span>/</span><strong>{product.name}</strong></div>
+    <div className="product-detail-breadcrumb"><a href="/">Home</a><span>/</span><a href={`/collections/${product.collection}`}>{collection?.title || product.collection.replaceAll('-', ' ')}</a><span>/</span><strong>{product.name}</strong></div>
     <div className="product-detail-layout">
-      <section className="product-detail-gallery"><ProductArtwork product={product} /><div className="gallery-caption"><span>01 / 01</span><span>Studio still life · Small batch</span></div></section>
+      <section className="product-detail-gallery">
+        <ProductArtwork product={product} />
+        <div className="gallery-caption"><span>{digitalProduct ? 'Digital listing' : 'Selected piece'}</span><span>{product.asset ? 'Studio image' : 'Product illustration'}</span></div>
+      </section>
       <section className="product-detail-copy">
-        <span className="eyebrow">{product.productType || 'Studio piece'} · Vani Kabir Studio</span>
+        <span className="eyebrow">{collection?.title || 'Studio collection'} · {product.productType || 'Studio piece'}</span>
         <h1>{product.name}</h1>
-        <div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>{product.inStock ? 'Complimentary domestic shipping' : 'Currently unavailable'}</span></div>
+        <div className="detail-price-row"><strong>{formatPrice(product.price, currency)}</strong><span>{product.inStock ? (digitalProduct ? 'Available as a digital listing' : 'Available to order') : 'Currently unavailable'}</span></div>
         <p className="detail-intro">{product.description}</p>
         <div className="detail-divider" />
         <div className="detail-facts">
@@ -305,25 +310,36 @@ function ProductPage({ product, currency, onAdd, onBuyNow, onQuickView }) {
           <div><span>Intention</span><strong>{product.intention}</strong></div>
           <div><span>Material</span><strong>{product.material}</strong></div>
           <div><span>Product type</span><strong>{product.productType}</strong></div>
+          <div><span>Colour</span><strong>{product.color}</strong></div>
+          <div><span>Format</span><strong>{digitalProduct ? 'Digital' : 'Physical'}</strong></div>
         </div>
+        <div className="detail-stock-note"><span className={product.inStock ? 'stock-dot' : 'stock-dot unavailable'} />{product.inStock ? 'In stock for preview ordering' : 'Currently unavailable'}</div>
         <div className="detail-purchase-row">
           <div className="detail-quantity" aria-label="Quantity">
-            <button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button>
+            <button type="button" aria-label={`Decrease quantity of ${product.name}`} onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button>
             <span>{quantity}</span>
-            <button type="button" aria-label="Increase quantity" onClick={() => setQuantity((value) => Math.min(20, value + 1))}>+</button>
+            <button type="button" aria-label={`Increase quantity of ${product.name}`} onClick={() => setQuantity((value) => Math.min(20, value + 1))}>+</button>
           </div>
           <button className="button button-dark detail-add" disabled={!product.inStock} onClick={() => onAdd(product, quantity)}>Add to bag <ArrowRight size={15} /></button>
         </div>
         <button className="button detail-buy-now" disabled={!product.inStock} onClick={() => onBuyNow(product, quantity)}>Buy now</button>
         {!product.inStock && <p className="product-unavailable" role="status">This edition is currently unavailable.</p>}
+        <button type="button" className={`detail-save ${favorites.includes(product.id) ? 'is-favorite' : ''}`} aria-pressed={favorites.includes(product.id)} onClick={() => onFavorite(product.id)}>
+          <Heart size={16} fill={favorites.includes(product.id) ? 'currentColor' : 'none'} />{favorites.includes(product.id) ? 'Saved to your wishlist' : 'Save to wishlist'}
+        </button>
+        <p className="product-preview-note">Preview storefront. Product availability, delivery details and checkout are confirmed before live launch.</p>
         <div className="detail-accordions">
           <details open><summary>About this piece <span>+</span></summary><p>{product.description}</p></details>
-          <details><summary>A moment of intention <span>+</span></summary><p>{product.practice}</p></details>
+          <details><summary>Make it part of your practice <span>+</span></summary><p>{product.practice}</p></details>
           <details><summary>Materials & care <span>+</span></summary><p>{product.care}</p></details>
-          <details><summary>Shipping & gifting <span>+</span></summary><p>Domestic deliveries are estimated at 3–5 business days. Shipping and availability are shown here for preview; confirm current details before a live purchase.</p></details>
+          <details><summary>Availability & delivery <span>+</span></summary><p>{digitalProduct ? 'This listing is marked as a digital item. The file format, access instructions and delivery timing are not configured for live orders yet.' : 'The preview suggests domestic delivery in 3–5 business days. Confirm current shipping, packaging and return terms with the studio before accepting live orders.'}</p></details>
         </div>
       </section>
     </div>
+    {relatedProducts.length > 0 && <section className="product-detail-related">
+      <div className="product-related-heading"><div><span className="eyebrow">Continue exploring</span><h2>More from {collection?.title || 'the collection'}</h2></div><a href={`/collections/${product.collection}`}>Shop the collection <ArrowRight size={14} /></a></div>
+      <div className="product-grid">{relatedProducts.map((item) => <ProductCard key={item.id} product={item} currency={currency} favorite={favorites.includes(item.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}</div>
+    </section>}
   </main>;
 }
 
@@ -532,7 +548,7 @@ function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoO
     }
   };
   if (orderComplete) return <main className="checkout-page checkout-complete-page">
-     <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Vani Kabir Studio</span></div>
+     <div className="checkout-topline"><a href="/" className="checkout-back">← Return home</a><span>Open to See Your Future</span></div>
     <section className="order-complete" role="status">
       <span className="order-complete-mark"><Sparkles size={25} /></span>
       <span className="eyebrow">Thank you</span>
@@ -542,7 +558,7 @@ function CheckoutPage({ items, currency, session, onQuantity, showToast, onDemoO
     </section>
   </main>;
   return <main className="checkout-page">
-    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Vani Kabir Studio</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
+    <div className="checkout-topline"><a href="/" className="checkout-back">← Continue shopping</a><div className="checkout-top-actions"><span>Open to See Your Future</span><button type="button" className="checkout-quiz-link" onClick={onOpenQuiz}>Find your crystal</button></div></div>
     <form className="checkout-layout" onSubmit={submitOrder}>
       <section className="checkout-form-panel">
         <span className="eyebrow">A considered final step</span><h1>Complete your order.</h1><p className="checkout-lede">Review your pieces and add delivery details. This preview never stores your address or contact information.</p>
@@ -582,7 +598,7 @@ function Footer({ showToast }) {
         {submitted && <div className="form-feedback" role="status">You’re on the list. Look out for a note from the studio.</div>}
       </div>
       <div className="footer-about">
-        <p>Vani Kabir Studio brings together lightcoded crystals, energy products and learning experiences. Explore with intention and find what feels right for your next chapter.</p>
+        <p>Open to See Your Future brings together crystals, thoughtful objects and learning experiences. Explore with intention and find what feels right for your next chapter.</p>
         <div className="footer-links">
           <div><h3>Orders & Returns</h3><a href="#disclaimer">Shipping Policy</a><a href="#disclaimer">Exchange & Refund Policy</a><a href="#disclaimer">Cancellation Policy</a></div>
           <div><h3>Privacy</h3><a href="#disclaimer">Privacy Policy</a><a href="#disclaimer">Mobile App Privacy Policy</a><a href="#disclaimer">GDPR Policy</a><a href="#disclaimer">Do Not Sell My Personal Info</a></div>
@@ -592,11 +608,10 @@ function Footer({ showToast }) {
     </div>
     <div className="disclaimer" id="disclaimer">
       <h3>*Intellectual Property Disclaimer</h3>
-      <p>All trademarks, product names, concepts, designs and creative elements featured on this website are presented as part of the Vani Kabir Studio storefront preview. Any live intellectual-property notices should be confirmed by the site owner before launch.</p>
+      <p>Product names, descriptions, pricing and availability on this website are shown for preview. Confirm ownership, product information and all customer-facing policies before accepting live orders.</p>
     </div>
     <div className="landscape-footer" role="img" aria-label="Illustrated mountain sanctuary with waterfalls, temples and a lake" />
-    <img className="footer-trust-strip" src="/attached_assets/generated_images/trust-strip.jpg" alt="Authenticity and quality assurance marks" />
-    <div className="footer-bottom"><span>© 2026 Vani Kabir Studio · Making spirituality simple.</span><div className="socials"><a aria-label="Instagram" href="https://instagram.com"><Camera size={13} /></a><a aria-label="Studio website" href="/links"><Globe2 size={13} /></a><a aria-label="YouTube" href="https://youtube.com"><Play size={13} /></a></div></div>
+    <div className="footer-bottom"><span>© 2026 Open to See Your Future</span><div className="socials"><a aria-label="Contact the studio" href="/pages/contact">Contact</a><a aria-label="Explore the collections" href="/collections/whats-new"><Globe2 size={13} /></a></div></div>
   </footer>;
 }
 
@@ -605,7 +620,7 @@ const directoryLinks = [
   ['Europe Collection Season - 3', '/collections/europe-season-3'],
   ['Ancestry Manifestation Sheet - October', '/products/ancestry-october'],
   ['New Lightcoded Mixels @1919', '/collections/bracelets/magic-mixels'],
-  ['MVK Verified', '/collections/mvk-verified'],
+  ['Studio Verified', '/collections/mvk-verified'],
   ['New Arrivals', '/collections/whats-new'],
   ['Pure Bracelets', '/collections/bracelets/pure'],
   ['Magic Mixel Bracelets', '/collections/bracelets/magic-mixels'],
@@ -631,19 +646,18 @@ function Home({ onOpenQuiz }) {
     <div className="link-home">
       <header className="link-home-intro">
         <Brand large />
-        <p>Vani Kabir Studio is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
+        <p>Open to See Your Future is a modern home for meaningful rituals, crystals and thoughtfully chosen tools. Explore with intention and find what feels right for your next chapter.</p>
         <div className="home-socials" aria-label="Studio social links">
-          <a href="https://www.instagram.com/vanikabirstudio/" aria-label="Instagram" target="_blank" rel="noreferrer"><Camera size={19} strokeWidth={1.7} /></a>
           <a href="/collections/whats-new" aria-label="Explore the website"><Globe2 size={19} strokeWidth={1.7} /></a>
-          <a href="https://www.youtube.com/@mastervanikabir" aria-label="YouTube" target="_blank" rel="noreferrer"><Play size={18} fill="currentColor" strokeWidth={1.5} /></a>
+          <a href="/pages/contact" aria-label="Contact the studio"><ArrowRight size={18} strokeWidth={1.7} /></a>
         </div>
       </header>
       <div className="home-campaign-promos">
         <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
-          <img src="/attached_assets/generated_images/divine-diwali-campaign.jpg" alt="Aumatrix 2.0 collection: Divine Diwali" />
+          <img src="/images/open-to-see-your-future.webp" alt="A celestial figure, gemstones and a luminous crystal orb" />
         </a>
         <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass">
-          <img src="/attached_assets/generated_images/sacred-rites-poster.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir, 16 October 2026" />
+          <img src="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
         </a>
       </div>
       <DirectoryLinks />
@@ -786,15 +800,15 @@ function MasterclassPage() {
   return <main>
     <section className="rite-hero">
       <div className="rite-copy">
-        <span className="eyebrow">Masterclass with Master Vani Kabir</span>
+        <span className="eyebrow">A thoughtful studio masterclass</span>
         <h1><em>3 Sacred Rites</em><br />of a Shaman</h1>
         <p>You don’t have to be a Shaman to learn them.</p>
         <p>Discover ancient shamanic ways of working with simple elements of the Earth: a stone, a plant and a thread. Through Body Stone, Plant Dita and Thread Work, learn to release, reconnect and consciously work with intentions, bonds and everyday life.</p>
         <p className="small-label">Friday, 16 October 2026 · 7 pm to 9 pm IST</p>
         <p className="rite-price">Energy exchange · ₹5,555</p>
-        <a className="button button-dark" href="mailto:hello@vanikabir.com?subject=3%20Sacred%20Rites%20masterclass%20booking">Book now <ArrowRight size={15} /></a>
+        <a className="button button-dark" href="/pages/contact">Ask about this class <ArrowRight size={15} /></a>
       </div>
-      <div className="rite-image" role="img" aria-label="Master Vani Kabir in a light editorial portrait from the shaman rites masterclass" />
+      <div className="rite-image" role="img" aria-label="A woman in a softly lit, botanical reading space" />
     </section>
     <section className="rite-details">
       <article className="rite-step"><span>01</span><h2>DISPEL</h2><p>Fears and energies you no longer wish to carry.</p></article>
@@ -805,7 +819,7 @@ function MasterclassPage() {
       <span className="eyebrow">3 Sacred Rites of a Shaman</span>
       <h2>Come closer to the living Earth.</h2>
       <p>Friday, 16 October 2026 · 7 pm to 9 pm IST · Energy exchange ₹5,555</p>
-      <a className="button button-dark" href="mailto:hello@vanikabir.com?subject=3%20Sacred%20Rites%20masterclass%20booking">Book now <ArrowRight size={15} /></a>
+      <a className="button button-dark" href="/pages/contact">Ask about this class <ArrowRight size={15} /></a>
     </section>
     <section className="masterclass-faq" aria-labelledby="masterclass-faq-title">
       <h2 id="masterclass-faq-title">FAQ’s</h2>
@@ -885,7 +899,7 @@ function App() {
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
   const masterclassPage = ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path);
-  const evernroomPage = ['/pages/evernroom', '/about'].includes(path);
+  const studioAboutPage = ['/pages/about', '/pages/evernroom', '/about'].includes(path);
   const privateReadingsPage = ['/pages/private-readings', '/private-readings'].includes(path);
   const soulpathResetPage = ['/pages/soulpath-reset', '/soulpath-reset'].includes(path);
   const celebrityPage = ['/pages/celebrity', '/celebrity'].includes(path);
@@ -893,7 +907,7 @@ function App() {
   const libraryCategoryPage = path.startsWith('/pages/library/category/');
   const libraryDetailPage = path.startsWith('/pages/library/') && !libraryCategoryPage;
   const contactPage = path === '/pages/contact';
-  const spiritualSitePage = home || masterclassPage || evernroomPage || privateReadingsPage || soulpathResetPage || celebrityPage || libraryOverviewPage || libraryCategoryPage || libraryDetailPage || contactPage;
+  const spiritualSitePage = home || masterclassPage || studioAboutPage || privateReadingsPage || soulpathResetPage || celebrityPage || libraryOverviewPage || libraryCategoryPage || libraryDetailPage || contactPage;
   const intentionPage = path === '/pages/explore-with-intention';
   const journalPage = ['/blogs', '/pages/blogs', '/pages/journal', '/journal'].includes(path) || path.startsWith('/blogs/');
   const gemstonePage = ['/pages/gemstones', '/pages/studio-gems', '/pages/precious-gemstones'].includes(path);
@@ -983,6 +997,11 @@ function App() {
       listener?.data?.subscription?.unsubscribe();
     };
   }, []);
+  useEffect(() => {
+    document.title = productDetail && product
+      ? `${product.name} | Open to See Your Future`
+      : 'Open to See Your Future';
+  }, [product, productDetail]);
   const closeQuizModal = () => {
     setQuizModalOpen(false);
     try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
@@ -991,7 +1010,7 @@ function App() {
   const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
   const content = home ? <SpiritualHomePage productSection={productSection} />
     : shopHome ? <StoreHome productSection={productSection} />
-    : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
+    : productDetail ? <ProductPage product={product} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
       : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
         : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : intentionPage ? <IntentionPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
@@ -999,7 +1018,7 @@ function App() {
           : gemstonePage ? <GemstonesPage />
             : studioPage ? <StudioPage />
         : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-       : evernroomPage ? <EvernroomPage />
+       : studioAboutPage ? <StudioAboutPage />
          : privateReadingsPage ? <PrivateReadingsPage />
            : soulpathResetPage ? <SoulpathResetPage />
              : celebrityPage ? <CelebrityPage />

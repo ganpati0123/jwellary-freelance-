@@ -3,7 +3,7 @@ export const collections = [
   { title: 'Aumatrix 2.0', slug: 'aumatrix-2', description: 'Lightcoded forms and elemental tools from the Aumatrix 2.0 collection.' },
   { title: 'Divine Diwali - Season 4', slug: 'divine-diwali', description: 'A considered collection of ritual pieces for light, intention and abundance.' },
   { title: 'Europe Season 3', slug: 'europe-season-3', description: 'Rare finds and lightcoded companions gathered for Europe, season three.' },
-  { title: 'MVK Verified', slug: 'mvk-verified', description: 'A hand-selected edit of crystals and tools personally verified by Master Vani Kabir.' },
+  { title: 'Studio Verified', slug: 'mvk-verified', description: 'A hand-selected edit of crystals and tools selected with care by the studio.' },
   { title: 'Rare', slug: 'rare', description: 'Uncommon natural formations and one-of-a-kind companions, chosen for their presence.' },
   { title: 'Bracelets', slug: 'bracelets', description: 'Gemstone bracelets and wearable reminders to return to your intention.' },
   { title: 'Crystals', slug: 'crystals', description: 'Natural crystals and gemstones for a personal practice, chosen with care.' },
@@ -31,7 +31,8 @@ const p = (id, name, price, collection, image, color, material, crystalType, pro
   const digital = /digital/i.test(productType) || /digital/i.test(material);
   return {
     id, name, price, collection, image, color, material, crystalType, productType, intention, inStock,
-    asset: referencePhotos[id] ? `/attached_assets/generated_images/${referencePhotos[id]}` : null,
+    digital,
+    asset: referencePhotos[id] ? `/images/studio/${referencePhotos[id]}` : null,
     description: `${name} is a ${productType.toLowerCase()} made with ${material.toLowerCase()}${crystalType ? ` and centred around ${crystalType.toLowerCase()}` : ''}. Its ${intention.toLowerCase()} focus makes it a thoughtful companion for a personal ritual, a quiet moment of reflection or a considered gift. ${digital ? 'This listing is marked as a digital practice.' : 'Natural materials can vary in tone and pattern, so each piece has its own character.'}`,
     practice: `Set one personal intention for ${intention.toLowerCase()} and use this piece as a gentle reminder to return to it. Spiritual and ritual practices are personal; this product does not promise a particular outcome.`,
     care: digital
@@ -87,7 +88,7 @@ export const products = [
   p('rare-nephrite', 'Ancient Nephrite Jade Bracelet - 9k Gold Charm', 44444, 'rare', 'bracelet', 'Jade green', 'Nephrite jade & 9k gold', 'Nephrite jade', 'Bracelet', 'Protection', false),
   p('europe-crystal', 'Smoky Quartz Temple Point', 7777, 'europe-season-3', 'crystal', 'Smoky brown', 'Natural smoky quartz', 'Smoky quartz', 'Crystal point', 'Grounding'),
   p('europe-bracelet', 'Lapis Lazuli Om Bracelet', 3333, 'europe-season-3', 'bracelet', 'Blue', 'Lapis lazuli', 'Lapis lazuli', 'Bracelet', 'Communication'),
-  p('verified-citrine', 'Citrine Sunburst Point — MVK Verified', 5555, 'mvk-verified', 'crystal', 'Golden yellow', 'Natural citrine', 'Citrine', 'Verified crystal', 'Abundance'),
+  p('verified-citrine', 'Citrine Sunburst Point — Studio Verified', 5555, 'mvk-verified', 'crystal', 'Golden yellow', 'Natural citrine', 'Citrine', 'Verified crystal', 'Abundance'),
   p('verified-jade', 'Nephrite Jade Guardian Bracelet', 44444, 'mvk-verified', 'bracelet', 'Jade green', 'Nephrite jade', 'Nephrite jade', 'Bracelet', 'Protection'),
   p('ancient-bowl', 'Bowl Over Negativity 2.0™', 2929, 'ancient-tools', 'bowl', 'Gold', 'Brass & crystals', 'Clear quartz', 'Ritual bowl', 'Cleansing'),
   p('ancient-ritual', 'First Diya Of Infinite Abundance', 1919, 'ancient-tools', 'diya', 'Terracotta', 'Terracotta & brass', 'Citrine', 'Ritual object', 'Abundance'),

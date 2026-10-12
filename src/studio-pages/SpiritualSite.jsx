@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import './spiritual-site.css';
 
-const A = '/attached_assets/generated_images/';
+const A = '/images/studio/';
+const articleImagePath = (image) => image.startsWith('/') ? image : `${A}${image}`;
 
 const destinations = [
-  { label: 'Home', href: '/', links: [['About Evernroom', '/pages/evernroom'], ['Private Readings', '/pages/private-readings']] },
-  { label: 'About Evernroom', href: '/pages/evernroom', links: [['E-Studio learning', '/collections/e-studio'], ['Vani Kabir Studio stories', '/pages/library/category/vani-kabir-studio']] },
+  { label: 'Home', href: '/', links: [['About the studio', '/pages/about'], ['Private Readings', '/pages/private-readings']] },
+  { label: 'About the studio', href: '/pages/about', links: [['E-Studio learning', '/collections/e-studio'], ['Studio stories', '/pages/library/category/studio-notes']] },
   { label: 'Private Readings', href: '/pages/private-readings', links: [['Contact the studio', '/pages/contact'], ['A reading is a conversation', '/pages/library/a-reading-is-a-conversation']] },
   { label: 'Soulpath Reset', href: '/pages/soulpath-reset', links: [['Long reads', '/pages/library/category/long-reads'], ['Contact the studio', '/pages/contact']] },
-  { label: 'Masterclass', href: '/masterclass', links: [['Explore E-Studio', '/collections/e-studio'], ['About Evernroom', '/pages/evernroom']] },
-  { label: 'Celebrity', href: '/pages/celebrity', links: [['Studio stories', '/pages/library/category/vani-kabir-studio'], ['Visit the library', '/pages/library']] },
-  { label: 'Library', href: '/pages/library', links: [['Case studies', '/pages/library/category/case-studies'], ['Long reads', '/pages/library/category/long-reads'], ['Vani Kabir Studio', '/pages/library/category/vani-kabir-studio']] }
+  { label: 'Masterclass', href: '/masterclass', links: [['Explore E-Studio', '/collections/e-studio'], ['About the studio', '/pages/about']] },
+  { label: 'Celebrity', href: '/pages/celebrity', links: [['Studio stories', '/pages/library/category/studio-notes'], ['Visit the library', '/pages/library']] },
+  { label: 'Library', href: '/pages/library', links: [['Case studies', '/pages/library/category/case-studies'], ['Long reads', '/pages/library/category/long-reads'], ['Studio notes', '/pages/library/category/studio-notes']] }
 ];
 
 const articles = [
@@ -43,15 +44,15 @@ const articles = [
     ]
   },
   {
-    slug: 'inside-the-evernroom',
-    category: 'Vani Kabir Studio',
-    title: 'Inside the Evernroom: a space for returning to yourself',
+    slug: 'inside-the-studio',
+    category: 'Studio notes',
+    title: 'A space for returning to yourself',
     deck: 'The thinking behind an intimate learning space where ancient ideas meet the questions of everyday life.',
     excerpt: 'Meet the values that shape the studio: curiosity, care, grounded language and room for individual meaning.',
     image: 'studio-altar.jpg',
     alt: 'A calm studio altar with a small flame and carefully placed objects',
     sections: [
-      ['A room, and a way of meeting', 'Evernroom is imagined as a place to pause and pay attention. Its spirit is less about collecting answers and more about learning how to sit with a question, notice what matters, and make space for meaningful conversation.'],
+      ['A room, and a way of meeting', 'This is a place to pause and pay attention. The spirit is less about collecting answers and more about learning how to sit with a question, notice what matters, and make space for meaningful conversation.'],
       ['Tradition approached with care', 'Spiritual traditions hold histories and living communities. The studio aims to approach learning with respect, to name what is personal interpretation, and to avoid presenting a single practice as universal.'],
       ['Everyday life stays in the room', 'Reflection is most useful when it can travel back into ordinary life. Learning here is grounded in practical choices, gentle curiosity and the understanding that each person has their own pace.']
     ]
@@ -76,8 +77,8 @@ const articles = [
     title: 'The language of symbols in a personal practice',
     deck: 'How a symbol can become a prompt for reflection without being treated as a prediction or a promise.',
     excerpt: 'Consider symbols as a language for reflection: personal, contextual and open to more than one reading.',
-    image: 'sacred-rites-poster.jpg',
-    alt: 'A considered masterclass poster featuring Master Vani Kabir',
+    image: '/images/future-founder-portrait.webp',
+    alt: 'A woman in a softly lit, botanical reading space',
     sections: [
       ['Meaning depends on context', 'A symbol may carry cultural histories, shared associations and deeply personal memories. A careful reading makes room for those layers rather than reducing a symbol to one universal definition.'],
       ['Ask what it brings forward', 'Instead of asking a symbol to decide for you, try asking what it helps you notice. Does it bring a concern into focus? Does it remind you of a value or a conversation you have been avoiding?'],
@@ -86,7 +87,7 @@ const articles = [
   },
   {
     slug: 'a-studio-note-on-listening',
-    category: 'Vani Kabir Studio',
+    category: 'Studio notes',
     title: 'A studio note on listening well',
     deck: 'Before advice, a useful conversation makes space for careful listening and clear boundaries.',
     excerpt: 'A short note on the studio’s approach to conversation, consent and personal agency.',
@@ -103,7 +104,7 @@ const articles = [
 const categoryDefinitions = [
   { slug: 'case-studies', title: 'Case studies', intro: 'Thoughtful examples of how reflection, symbolic language and meaningful questions can be approached in everyday life.', filter: 'Case studies' },
   { slug: 'long-reads', title: 'Long reads', intro: 'Patient explorations of ritual, symbolism and spiritual learning, written to leave room for your own point of view.', filter: 'Long reads' },
-  { slug: 'vani-kabir-studio', title: 'Vani Kabir Studio', intro: 'Notes from the studio: its values, learning spaces and the care behind a more personal approach to spirituality.', filter: 'Vani Kabir Studio' }
+  { slug: 'studio-notes', title: 'Studio notes', intro: 'Notes from the studio: its values, learning spaces and the care behind a more personal approach to spirituality.', filter: 'Studio notes' }
 ];
 
 function Arrow() {
@@ -135,10 +136,10 @@ export function SpiritualSiteHeader() {
     <div className="vk-announcement">A thoughtful space for reflection, learning and ritual</div>
     <header className="vk-header-main">
       <div className="vk-header-note">Making spirituality simple</div>
-      <a className="vk-brand" href="/" aria-label="Vani Kabir Studio home">
-        <span className="vk-brand-monogram" aria-hidden="true">VK</span>
-        <span className="vk-brand-name">Vani Kabir Studio</span>
-        <span className="vk-brand-caption">Evernroom · A space to return</span>
+      <a className="vk-brand" href="/" aria-label="Open to See Your Future home">
+        <img className="vk-brand-mark" src="/images/open-to-see-your-future.webp" alt="" />
+        <span className="vk-brand-name">Open to See Your Future</span>
+        <span className="vk-brand-caption">A space for what comes next</span>
       </a>
       <div className="vk-header-actions">
         <button className="vk-menu-button" type="button" aria-expanded={mobileOpen} aria-controls="vk-mobile-menu" onClick={() => { setMobileOpen((value) => !value); setOpenMenu(null); }}>
@@ -190,7 +191,7 @@ function SectionHeading({ eyebrow, title, description, href, linkLabel = 'Explor
 const toolCards = [
   ['01', 'A small pause', 'An invitation to put down the noise and notice what is asking for your attention.', '/pages/soulpath-reset'],
   ['02', 'The reading room', 'A personal conversation to help you explore a question with care and perspective.', '/pages/private-readings'],
-  ['03', 'Ritual, made personal', 'A practice can begin with an ordinary moment and become meaningful through attention.', '/pages/evernroom'],
+  ['03', 'Ritual, made personal', 'A practice can begin with an ordinary moment and become meaningful through attention.', '/pages/about'],
   ['04', 'Learn at your pace', 'Explore spiritual ideas with clear language, curiosity and room to reflect.', '/collections/e-studio'],
   ['05', 'A thoughtful object', 'Explore the existing studio collections as personal reminders, chosen with intention.', '/collections/crystals']
 ];
@@ -209,16 +210,16 @@ export function SpiritualHomePage({ productSection }) {
   return <main className="vk-spiritual vk-home">
     <section className="vk-home-hero">
       <div className="vk-home-hero-copy">
-        <span className="vk-eyebrow">Vani Kabir Studio · Evernroom</span>
+        <span className="vk-eyebrow">Open to See Your Future</span>
         <h1 className="vk-serif">A little space<br />to hear your <em>own wisdom.</em></h1>
         <p>Personal readings, spiritual learning and stories from the studio—held with care, curiosity and room for your own meaning.</p>
-        <a className="vk-button" href="/pages/evernroom">Explore the studio <Arrow /></a>
+        <a className="vk-button" href="/pages/about">Explore the studio <Arrow /></a>
       </div>
       <div className="vk-hero-visual">
-        <img src={`${A}studio-altar.jpg`} alt="A quiet studio altar with candlelight, a crystal and prayer beads" />
+        <img src="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
         <span className="vk-hero-caption">A moment of stillness, in the studio</span>
       </div>
-      <div className="vk-hero-seal" aria-hidden="true"><span>VK</span><span>A space to return</span></div>
+      <div className="vk-hero-seal" aria-hidden="true"><img src="/images/open-to-see-your-future.webp" alt="" /><span>A space for what comes next</span></div>
     </section>
 
     <section className="vk-home-intro">
@@ -240,9 +241,9 @@ export function SpiritualHomePage({ productSection }) {
           <img src={`${A}studio-altar.jpg`} alt="" />
           <div><small>One-to-one · Personal reflection</small><h3>A reading, held with care.</h3><p>Bring a question, a transition or simply the wish to pause and look again.</p><span className="vk-card-link">Explore private readings <Arrow /></span></div>
         </a>
-        <a className="vk-experience-card" href="/pages/evernroom">
-          <img src={`${A}sacred-rites-poster.jpg`} alt="" />
-          <div><small>Evernroom · Spiritual learning</small><h3>Learn with an open mind.</h3><p>Explore ideas, tools and practices in a space built for questions.</p><span className="vk-card-link">Enter Evernroom <Arrow /></span></div>
+        <a className="vk-experience-card" href="/pages/about">
+          <img src="/images/future-founder-portrait.webp" alt="" />
+          <div><small>Studio · Spiritual learning</small><h3>Learn with an open mind.</h3><p>Explore ideas, tools and practices in a space built for questions.</p><span className="vk-card-link">Explore learning <Arrow /></span></div>
         </a>
         <a className="vk-experience-card" href="/pages/soulpath-reset">
           <img src={`${A}sanctuary-landscape.jpg`} alt="" />
@@ -267,10 +268,10 @@ export function SpiritualHomePage({ productSection }) {
       <div className="vk-story-image"><img src={`${A}sanctuary-landscape.jpg`} alt="A richly illustrated sanctuary landscape with mountains, water and a temple" /></div>
       <div className="vk-story-copy">
         <span className="vk-eyebrow">The story behind the space</span>
-        <h2 className="vk-serif">Welcome to <em>Evernroom.</em></h2>
-        <p>A name for the place we return to when we make room to listen. Evernroom brings together spiritual learning and everyday questions in a setting that values curiosity over certainty.</p>
-        <p>Founded by Master Vani Kabir, the studio is an invitation to explore—with care for the traditions we learn from, and respect for the choices each person makes.</p>
-        <a className="vk-text-link" href="/pages/evernroom">Discover Evernroom <Arrow /></a>
+        <h2 className="vk-serif">A space to return to yourself.</h2>
+        <p>Open to See Your Future brings together spiritual learning and everyday questions in a setting that values curiosity over certainty.</p>
+        <p>The studio is an invitation to explore—with care for the traditions we learn from, and respect for the choices each person makes.</p>
+        <a className="vk-text-link" href="/pages/about">Discover the studio <Arrow /></a>
         <div className="vk-story-note">“A space to reflect, not a script to follow.”</div>
       </div>
     </section>
@@ -279,7 +280,7 @@ export function SpiritualHomePage({ productSection }) {
       <SectionHeading eyebrow="Find your next step" title="Follow a thread of curiosity." description="You do not need to know exactly what you are looking for. Begin with a question that feels close to you." />
       <div className="vk-pathways-grid">
         <article className="vk-pathway"><span>01 / FOR A PERSONAL QUESTION</span><h3>Private readings</h3><p>A considered one-to-one session with room for listening, perspective and your own decision-making.</p><a href="/pages/private-readings">Explore readings <Arrow /></a></article>
-        <article className="vk-pathway"><span>02 / FOR A LEARNING MOMENT</span><h3>Classes at Evernroom</h3><p>Explore spiritual ideas and practices through thoughtful learning and open questions.</p><a href="/collections/e-studio">Browse learning <Arrow /></a></article>
+        <article className="vk-pathway"><span>02 / FOR A LEARNING MOMENT</span><h3>Classes at the studio</h3><p>Explore spiritual ideas and practices through thoughtful learning and open questions.</p><a href="/collections/e-studio">Browse learning <Arrow /></a></article>
         <article className="vk-pathway"><span>03 / FOR A QUIETER MOMENT</span><h3>Soulpath Reset</h3><p>A gentle, self-guided pause to notice what matters and choose a manageable next step.</p><a href="/pages/soulpath-reset">Take a pause <Arrow /></a></article>
       </div>
     </section>
@@ -289,7 +290,7 @@ export function SpiritualHomePage({ productSection }) {
       <div className="vk-testimonial-viewport">
         <div className="vk-testimonial-track">
           {duplicatedTestimonials.map(([quote, name], index) => <article className="vk-testimonial" key={`${name}-${index}`}>
-            <blockquote>{quote}</blockquote><footer>Vani Kabir Studio · {name}</footer>
+            <blockquote>{quote}</blockquote><footer>Open to See Your Future · {name}</footer>
           </article>)}
         </div>
       </div>
@@ -300,7 +301,7 @@ export function SpiritualHomePage({ productSection }) {
       <SectionHeading eyebrow="From the library" title="Notes for the in-between." description="Stories and practical thoughts to read slowly, carry with you, or leave for another day." href="/pages/library" />
       <div className="vk-library-grid">
         {previewArticles.map((article) => <article className="vk-library-card" key={article.slug}>
-          <a href={`/pages/library/${article.slug}`}><img src={`${A}${article.image}`} alt={article.alt} /></a>
+          <a href={`/pages/library/${article.slug}`}><img src={articleImagePath(article.image)} alt={article.alt} /></a>
           <span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p>
           <a href={`/pages/library/${article.slug}`}>Read more <Arrow /></a>
         </article>)}
@@ -311,6 +312,7 @@ export function SpiritualHomePage({ productSection }) {
 }
 
 function PageHero({ eyebrow, title, description, image, alt, action, actionHref, imageClass = '' }) {
+  const imageSrc = image.startsWith('/') ? image : `${A}${image}`;
   return <section className="vk-page-hero">
     <div className="vk-page-hero-copy">
       <span className="vk-eyebrow">{eyebrow}</span>
@@ -318,7 +320,7 @@ function PageHero({ eyebrow, title, description, image, alt, action, actionHref,
       <p>{description}</p>
       {action && <a className="vk-button" href={actionHref}>{action}<Arrow /></a>}
     </div>
-    <div className={`vk-page-hero-media ${imageClass}`}><img src={`${A}${image}`} alt={alt} /></div>
+    <div className={`vk-page-hero-media ${imageClass}`}><img src={imageSrc} alt={alt} /></div>
   </section>;
 }
 
@@ -335,18 +337,18 @@ function CtaPanel({ eyebrow, title, text, href, label }) {
   return <section className="vk-cta-panel"><span className="vk-eyebrow">{eyebrow}</span><h2 className="vk-serif">{title}</h2><p>{text}</p><a className="vk-button vk-button-light" href={href}>{label}<Arrow /></a></section>;
 }
 
-export function EvernroomPage() {
-  return <main className="vk-spiritual vk-spiritual-page vk-evernroom">
-    <PageHero eyebrow="Vani Kabir Studio · A space to learn" title={<>Welcome to<br /><em>Evernroom.</em></>} description="A thoughtful learning space for spiritual ideas, living traditions and the questions we carry into everyday life." image="sacred-rites-poster.jpg" alt="Master Vani Kabir featured in the Three Sacred Rites masterclass poster" action="Explore learning experiences" actionHref="/collections/e-studio" />
-    <section className="vk-page-intro"><span className="vk-eyebrow">A room for questions</span><h2 className="vk-serif">Learning can be both grounded and full of wonder.</h2><p>Evernroom is an invitation to explore practices and perspectives with curiosity. We value clear language, respectful context and the freedom to decide what belongs in your own life.</p></section>
-    <NumberedSection eyebrow="The Evernroom approach" title="Come curious. Leave room for yourself." description="Spiritual learning is most meaningful when it offers insight without asking you to hand over your judgement." entries={[
+export function StudioAboutPage() {
+  return <main className="vk-spiritual vk-spiritual-page vk-studio-about">
+    <PageHero eyebrow="Open to See Your Future · A space to learn" title={<>Learning with<br /><em>an open mind.</em></>} description="A thoughtful learning space for spiritual ideas, living traditions and the questions we carry into everyday life." image="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" action="Explore learning experiences" actionHref="/collections/e-studio" />
+    <section className="vk-page-intro"><span className="vk-eyebrow">A room for questions</span><h2 className="vk-serif">Learning can be both grounded and full of wonder.</h2><p>Open to See Your Future is an invitation to explore practices and perspectives with curiosity. We value clear language, respectful context and the freedom to decide what belongs in your own life.</p></section>
+    <NumberedSection eyebrow="The studio approach" title="Come curious. Leave room for yourself." description="Spiritual learning is most meaningful when it offers insight without asking you to hand over your judgement." entries={[
       ['Learn in context', 'Explore ideas with care for their histories and the people who have carried them forward.'],
       ['Ask honest questions', 'No question is too practical or too personal to begin a thoughtful conversation.'],
       ['Keep what is useful', 'Take time to reflect and choose what, if anything, you would like to bring into your own practice.']
     ]} tone="vk-content-sage" />
     <section className="vk-split-section">
       <img src={`${A}studio-altar.jpg`} alt="A sunlit ritual space with an oil lamp and a few thoughtfully placed objects" />
-      <div><span className="vk-eyebrow">Learning at your pace</span><h2 className="vk-serif">A practice is not a performance.</h2><p>Some learning begins in a class. Some starts with a page, a conversation or a few quiet minutes at home. Evernroom is designed to make spiritual exploration feel approachable without flattening its depth.</p><p>Explore available sessions and classes in the studio’s existing E-Studio collection.</p><a className="vk-text-link" href="/collections/e-studio">Browse E-Studio <Arrow /></a></div>
+      <div><span className="vk-eyebrow">Learning at your pace</span><h2 className="vk-serif">A practice is not a performance.</h2><p>Some learning begins in a class. Some starts with a page, a conversation or a few quiet minutes at home. Open to See Your Future makes spiritual exploration feel approachable without flattening its depth.</p><p>Explore available sessions and classes in the studio’s E-Studio collection.</p><a className="vk-text-link" href="/collections/e-studio">Browse E-Studio <Arrow /></a></div>
     </section>
     <CtaPanel eyebrow="Your next thoughtful hour" title="Bring your curiosity into the room." text="Explore the studio’s current learning experiences and find a place to begin." href="/collections/e-studio" label="See learning experiences" />
   </main>;
@@ -354,7 +356,7 @@ export function EvernroomPage() {
 
 export function PrivateReadingsPage() {
   return <main className="vk-spiritual vk-spiritual-page vk-private-readings">
-    <PageHero eyebrow="A one-to-one conversation" title={<>Make space<br />for a <em>clearer question.</em></>} description="Private readings with Master Vani Kabir offer a dedicated moment for reflection, careful listening and a fresh perspective on what is on your mind." image="studio-altar.jpg" alt="A quiet altar prepared in soft daylight for a reflective conversation" action="Ask about a reading" actionHref="/pages/contact" />
+    <PageHero eyebrow="A one-to-one conversation" title={<>Make space<br />for a <em>clearer question.</em></>} description="Private readings offer a dedicated moment for reflection, careful listening and a fresh perspective on what is on your mind." image="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" action="Ask about a reading" actionHref="/pages/contact" />
     <section className="vk-page-intro"><span className="vk-eyebrow">Personal reflection</span><h2 className="vk-serif">A reading is a conversation—not a verdict.</h2><p>You do not need to arrive with the perfect words. Bring a question, a feeling, or a situation you would like to look at more closely. The conversation is a space for perspective; your choices remain your own.</p></section>
     <NumberedSection eyebrow="What to expect" title="A considered hour, with room to breathe." description="The shape of each reading follows the person and the question. These principles guide the experience." entries={[
       ['Begin with listening', 'We start with what brought you here and what kind of reflection would feel useful.'],
@@ -396,13 +398,13 @@ export function SoulpathResetPage() {
       <div><span className="vk-eyebrow">Gentle by design</span><h2 className="vk-serif">There is no way to do this wrong.</h2><p>If closing your eyes is uncomfortable, keep them open. If sitting still does not work for you, move a little. This practice can be adapted to suit your comfort and accessibility needs.</p><p>For urgent distress or ongoing concerns, reach out to a trusted person or a qualified professional.</p></div>
       <img src={`${A}studio-altar.jpg`} alt="Warm late-afternoon light falling across a simple altar" />
     </section>
-    <CtaPanel eyebrow="Keep exploring" title="Reflection can take many forms." text="Find a learning experience or a personal conversation that meets you where you are." href="/pages/evernroom" label="Explore Evernroom" />
+    <CtaPanel eyebrow="Keep exploring" title="Reflection can take many forms." text="Find a learning experience or a personal conversation that meets you where you are." href="/pages/about" label="Explore the studio" />
   </main>;
 }
 
 export function CelebrityPage() {
   return <main className="vk-spiritual vk-spiritual-page vk-celebrity">
-    <PageHero eyebrow="Public conversations · Thoughtful context" title={<>A life in public.<br /><em>A person beyond it.</em></>} description="A respectful look at how spirituality and public life meet—without turning private lives into proof, spectacle or endorsement." image="divine-diwali-campaign.jpg" alt="A festive studio campaign image with warm traditional colour and soft light" />
+    <PageHero eyebrow="Public conversations · Thoughtful context" title={<>A life in public.<br /><em>A person beyond it.</em></>} description="A respectful look at how spirituality and public life meet—without turning private lives into proof, spectacle or endorsement." image="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
     <section className="vk-page-intro"><span className="vk-eyebrow">Stories with boundaries</span><h2 className="vk-serif">Curiosity deserves context.</h2><p>Public figures are often surrounded by speculation about their personal beliefs and private choices. The studio approaches these conversations with care: no invented associations, no implied endorsements and no claims about anyone’s private practice.</p></section>
     <NumberedSection eyebrow="A considered point of view" title="What we can talk about responsibly." description="Spiritual ideas can be discussed without making assumptions about the people who encounter them." entries={[
       ['The ideas themselves', 'Explore ritual, symbolism and reflective practice on their own terms.'],
@@ -411,7 +413,7 @@ export function CelebrityPage() {
     ]} tone="vk-content-sage" />
     <section className="vk-split-section">
       <img src={`${A}sanctuary-landscape.jpg`} alt="A quiet sanctuary landscape in a soft illustrated style" />
-      <div><span className="vk-eyebrow">A studio commitment</span><h2 className="vk-serif">No story is worth losing a person’s dignity.</h2><p>Our studio stories focus on learning, practice and perspective. We do not publish personal details or use someone’s image to suggest a relationship, result or recommendation they have not explicitly shared.</p><a className="vk-text-link" href="/pages/library/category/vani-kabir-studio">Read studio notes <Arrow /></a></div>
+      <div><span className="vk-eyebrow">A studio commitment</span><h2 className="vk-serif">No story is worth losing a person’s dignity.</h2><p>Our studio stories focus on learning, practice and perspective. We do not publish personal details or use someone’s image to suggest a relationship, result or recommendation they have not explicitly shared.</p><a className="vk-text-link" href="/pages/library/category/studio-notes">Read studio notes <Arrow /></a></div>
     </section>
     <CtaPanel eyebrow="Explore the work" title="Meet the ideas, not the rumours." text="Read considered studio writing on spiritual learning, ritual and personal reflection." href="/pages/library" label="Visit the library" />
   </main>;
@@ -419,7 +421,7 @@ export function CelebrityPage() {
 
 function ArticleCard({ article }) {
   return <article className="vk-article-card">
-    <a href={`/pages/library/${article.slug}`}><img src={`${A}${article.image}`} alt={article.alt} /></a>
+    <a href={`/pages/library/${article.slug}`}><img src={articleImagePath(article.image)} alt={article.alt} /></a>
     <span className="vk-eyebrow">{article.category}</span>
     <h2>{article.title}</h2>
     <p>{article.excerpt}</p>
@@ -436,7 +438,7 @@ function LibraryCategoryNav({ current }) {
 
 export function LibraryPage() {
   return <main className="vk-spiritual vk-spiritual-page vk-library">
-    <header className="vk-library-head"><span className="vk-eyebrow">The Evernroom journal</span><h1 className="vk-serif">The Library</h1><p>Thoughtful reading for spiritual curiosity: practical notes, longer reflections and stories from the studio.</p></header>
+    <header className="vk-library-head"><span className="vk-eyebrow">Open to See Your Future · Journal</span><h1 className="vk-serif">The Library</h1><p>Thoughtful reading for spiritual curiosity: practical notes, longer reflections and stories from the studio.</p></header>
     <LibraryCategoryNav current="all" />
     <section className="vk-article-grid" aria-label="All library stories">{articles.map((article) => <ArticleCard article={article} key={article.slug} />)}</section>
     <CtaPanel eyebrow="A question of your own?" title="Sometimes the next page is a conversation." text="If a studio story has brought something into focus, explore a private reading or send us a note." href="/pages/contact" label="Get in touch" />
@@ -455,10 +457,10 @@ export function LibraryDetailPage(props = {}) {
   return <main className="vk-spiritual vk-spiritual-page vk-library-detail">
     <article className="vk-article-detail">
       <a className="vk-back-link" href="/pages/library">← Back to the library</a>
-      <span className="vk-eyebrow">{article.category} · Evernroom journal</span>
+      <span className="vk-eyebrow">{article.category} · Studio journal</span>
       <h1 className="vk-serif">{article.title}</h1>
       <p className="vk-article-deck">{article.deck}</p>
-      <img src={`${A}${article.image}`} alt={article.alt} />
+      <img src={articleImagePath(article.image)} alt={article.alt} />
       <div className="vk-article-body">
         {article.sections.map(([heading, copy], index) => <section key={heading}>
           <h2>{heading}</h2><p>{copy}</p>
@@ -468,7 +470,7 @@ export function LibraryDetailPage(props = {}) {
         <a className="vk-text-link" href="/pages/library">Explore more stories <Arrow /></a>
       </div>
     </article>
-    <CtaPanel eyebrow="Continue the exploration" title="There is more to discover." text="Browse the library by theme or find out about learning at Evernroom." href="/pages/library" label="Return to the library" />
+    <CtaPanel eyebrow="Continue the exploration" title="There is more to discover." text="Browse the library by theme or find out about learning at the studio." href="/pages/library" label="Return to the library" />
   </main>;
 }
 
@@ -477,7 +479,7 @@ export function LibraryCategoryPage(props = {}) {
   const category = categoryDefinitions.find((item) => item.slug === slug) || categoryDefinitions.find((item) => item.slug === props.category) || categoryDefinitions[0];
   const matchingArticles = articles.filter((article) => article.category === category.filter);
   return <main className="vk-spiritual vk-spiritual-page vk-library-category">
-    <header className="vk-library-head"><span className="vk-eyebrow">The Evernroom journal · Category</span><h1 className="vk-serif">{category.title}</h1><p>{category.intro}</p></header>
+    <header className="vk-library-head"><span className="vk-eyebrow">Studio journal · Category</span><h1 className="vk-serif">{category.title}</h1><p>{category.intro}</p></header>
     <LibraryCategoryNav current={category.slug} />
     <section className="vk-article-grid" aria-label={`${category.title} stories`}>{matchingArticles.map((article) => <ArticleCard article={article} key={article.slug} />)}</section>
     <CtaPanel eyebrow="More from the journal" title="Follow another thread." text="The library brings together practical notes, long reads and studio stories." href="/pages/library" label="See all stories" />
@@ -495,21 +497,21 @@ export function ContactPage() {
       <div>
         <span className="vk-eyebrow">A note to the studio</span>
         <h1 className="vk-serif">Let’s begin with a conversation.</h1>
-        <p>Questions about a reading, an Evernroom experience or the studio? Send a note and tell us what you would like to know.</p>
-        <div className="vk-contact-details"><span className="vk-eyebrow">Email the studio</span><br /><a href="mailto:hello@vanikabir.com">hello@vanikabir.com</a><p>For existing orders or collection questions, please use the relevant contact details in your order confirmation.</p></div>
+        <p>Questions about a reading, a learning experience or the studio? Send a note and tell us what you would like to know.</p>
+        <div className="vk-contact-details"><span className="vk-eyebrow">A note to the studio</span><p>Messages entered here stay in this browser preview and are not sent or stored.</p></div>
       </div>
       <div>
-        {submitted ? <div className="vk-form-success" role="status">Thank you for taking the time to write. This preview does not transmit or store messages; please email hello@vanikabir.com to send your enquiry directly.</div> : <form className="vk-contact-form" onSubmit={submit}>
+        {submitted ? <div className="vk-form-success" role="status">Thank you for taking the time to write. This preview does not transmit or store messages.</div> : <form className="vk-contact-form" onSubmit={submit}>
           <label>Your name<input name="name" type="text" autoComplete="name" required /></label>
           <label>Email address<input name="email" type="email" autoComplete="email" required /></label>
           <label>What would you like to ask about?
             <select name="topic" defaultValue="Private readings">
-              <option>Private readings</option><option>Evernroom learning</option><option>Soulpath Reset</option><option>Something else</option>
+              <option>Private readings</option><option>Studio learning</option><option>Soulpath Reset</option><option>Something else</option>
             </select>
           </label>
           <label>Your note<textarea name="message" required /></label>
           <button className="vk-button" type="submit">Prepare my enquiry <Arrow /></button>
-          <p>This form is a local preview and does not send or store your message. For a direct enquiry, email the studio.</p>
+          <p>This form is a local preview and does not send or store your message.</p>
         </form>}
       </div>
     </section>

@@ -4,5 +4,6 @@ import '../index.css';
 import './checkout.css';
 import './experience.css';
 import './storefront.css';
+import './brand-polish.css';
 
 createRoot(document.getElementById('root')).render(<App />);

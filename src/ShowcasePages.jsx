@@ -10,42 +10,42 @@ const journalPosts = [
     slug: 'aumatrix-origin-grid',
     category: 'Aumatrix',
     title: 'Aumatrix 2.0: The Return of the Origin Grid',
-    image: '/attached_assets/generated_images/divine-diwali-stilllife.jpg',
+    image: '/images/studio/divine-diwali-stilllife.jpg',
     excerpt: 'A closer look at the geometry, symbols and stories behind the Aumatrix collection.'
   },
   {
     slug: 'green-aventurine-bracelet',
     category: 'About crystals',
     title: 'Green Aventurine Bracelet Benefits: Meaning and Uses',
-    image: '/attached_assets/generated_images/nephrite-bracelet.jpg',
+    image: '/images/studio/nephrite-bracelet.jpg',
     excerpt: 'Explore the colour, character and care of green aventurine in an everyday bracelet.'
   },
   {
     slug: 'hidden-power-of-crystals',
     category: 'About crystals',
     title: 'The Hidden Power of Crystals: How They Can Change Your Life',
-    image: '/attached_assets/generated_images/studio-altar.jpg',
+    image: '/images/studio/studio-altar.jpg',
     excerpt: 'A grounded introduction to choosing, caring for and setting intentions with crystals.'
   },
   {
     slug: 'origin-of-ancestry-day',
     category: 'Ancestry',
     title: 'The Origin of Ancestry Day',
-    image: '/attached_assets/generated_images/sanctuary-landscape.jpg',
+    image: '/images/studio/sanctuary-landscape.jpg',
     excerpt: 'A reflective studio journal on family stories, remembrance and meaningful rituals.'
   },
   {
     slug: 'ancient-tools-for-modern-rituals',
     category: 'Ancient tools',
     title: 'Ancient Tools for Everyday Rituals',
-    image: '/attached_assets/generated_images/circle-healing.jpg',
+    image: '/images/studio/circle-healing.jpg',
     excerpt: 'Simple ways to bring thoughtfully chosen ritual objects into the rhythm of a day.'
   },
   {
     slug: 'pendants-with-purpose',
     category: 'Pendant',
     title: 'Choosing a Pendant That Feels Like Yours',
-    image: '/attached_assets/generated_images/silver-coin.jpg',
+    image: '/images/studio/silver-coin.jpg',
     excerpt: 'A short guide to materials, wear and choosing a piece that carries personal meaning.'
   }
 ];
@@ -92,7 +92,7 @@ export function StoreHome({ productSection }) {
   const mixels = ['property-mixel', 'luxury-blockage-mixel', 'breakthrough-mixel', 'pisces-zodiac-mixel'];
   const testimonials = [
     ['“Master told me to keep Pyrite on my work desk. Within 11 days, I received a long-stalled payment.”', 'Raghav T.', 'Hyderabad, India'],
-    ['“I never understood crystals until I received the Citrine Tree from Master Vani Kabir. It felt like my abundance portal was activated the day it arrived.”', 'Aranya R.', 'Delhi, India'],
+    ['“I never understood crystals until I found a piece that felt personal to me. It became a reminder to pause and return to my intention.”', 'Aranya R.', 'Delhi, India'],
     ['“I booked a reading and she suggested a Tanzanite bracelet. It didn’t sleep the first night—it was that powerful.”', 'Lucas M.', 'Lisbon, Portugal']
   ];
 
@@ -109,7 +109,7 @@ export function StoreHome({ productSection }) {
     {productSection('New arrivals', arrivals, '/collections/whats-new')}
 
     <section className="rare-energy-banner">
-      <img src="/attached_assets/generated_images/nephrite-bracelet.jpg" alt="Gemstone bracelet arranged on a warm neutral surface" />
+      <img src="/images/studio/nephrite-bracelet.jpg" alt="Gemstone bracelet arranged on a warm neutral surface" />
       <div><span>RARE ENERGIES</span><h2>Pieces you won’t find everywhere.</h2><a href="/collections/rare">Discover rare pieces <ArrowRight size={15} /></a></div>
     </section>
 
@@ -123,7 +123,7 @@ export function StoreHome({ productSection }) {
 
     <section className="featured-bracelet">
       <a className="featured-bracelet-image" href="/products/stone-of-hope">
-        <img src="/attached_assets/generated_images/nephrite-bracelet.jpg" alt="Stone of Hope gemstone bracelet" />
+        <img src="/images/studio/nephrite-bracelet.jpg" alt="Stone of Hope gemstone bracelet" />
       </a>
       <div><span>BLESSING OF THE MONTH</span><h2>Stone of Hope<br />Variscite Bracelet</h2><p>A hand-selected gemstone bracelet and a quiet reminder of hope, renewal and a fresh perspective.</p><strong>Rs. 2,626</strong><a className="button button-dark" href="/products/stone-of-hope">Shop now <ArrowRight size={15} /></a></div>
     </section>
@@ -142,8 +142,8 @@ export function StoreHome({ productSection }) {
     </section>
 
     <section className="meet-master-feature">
-      <img src="/attached_assets/generated_images/studio-altar.jpg" alt="A quiet, sunlit studio altar" />
-      <div><span>MAKING SPIRITUALITY SIMPLE</span><h2>MEET THE MASTER</h2><p>Master Vani Kabir — Founder of Evernroom™</p><a href="/pages/studio">Discover the studio <ArrowRight size={15} /></a></div>
+      <img src="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
+      <div><span>OPEN TO SEE YOUR FUTURE</span><h2>MEET YOUR GUIDE</h2><p>A welcoming studio for thoughtful reflection, learning and meaningful rituals.</p><a href="/pages/studio">Discover the studio <ArrowRight size={15} /></a></div>
       <aside><span>YOUR FIRST STEP TO HEALING YOURSELF IS BY COMING TO A READING</span><a href="/pages/studio">Book a reading <ArrowRight size={14} /></a></aside>
     </section>
 
@@ -153,16 +153,16 @@ export function StoreHome({ productSection }) {
     </section>
 
     <section className="journal-preview">
-      <SectionTitle eyebrow="Blogs" title="The Evernroom™ Journal" href="/blogs" linkLabel="View all blogs" />
+      <SectionTitle eyebrow="From the studio" title="The Journal" href="/blogs" linkLabel="View all stories" />
       <div className="journal-preview-grid">{journalPosts.slice(0, 4).map((post) => <a className="journal-preview-card" href={`/blogs/${post.slug}`} key={post.slug}>
         <img src={post.image} alt="" /><span>{post.title}</span>
       </a>)}</div>
     </section>
 
     <section className="social-preview">
-      <div><span>FOLLOW ALONG</span><h2>@VANIKABIRSTUDIO</h2></div>
+      <div><span>OPEN TO SEE YOUR FUTURE</span><h2>STUDIO MOMENTS</h2></div>
       <div className="social-photo-grid">
-        {[...journalPosts.slice(0, 4)].map((post) => <a href="https://www.instagram.com/vanikabirstudio/" target="_blank" rel="noreferrer" key={post.slug} aria-label={`Visit Instagram: ${post.title}`}><img src={post.image} alt="" /></a>)}
+        {[...journalPosts.slice(0, 4)].map((post) => <a href={`/blogs/${post.slug}`} key={post.slug} aria-label={`Read ${post.title}`}><img src={post.image} alt="" /></a>)}
       </div>
     </section>
 
@@ -190,19 +190,19 @@ export function JournalPage({ pathname }) {
     <h1>{article.title}</h1>
     <img src={article.image} alt="" />
     <p className="journal-article-lede">{article.excerpt}</p>
-    <p>At Vani Kabir Studio, each object begins with curiosity: how a material feels, where it comes from, and what meaning someone chooses to give it. A stone can be a beautiful piece of nature and a personal reminder to pause, reflect and return to an intention.</p>
+    <p>At Open to See Your Future, each object begins with curiosity: how a material feels, where it comes from, and what meaning someone chooses to give it. A stone can be a beautiful piece of nature and a personal reminder to pause, reflect and return to an intention.</p>
     <p>Choose pieces with care, learn about their materials, and follow the care guidance that suits them. Rituals are personal practices, not promises of a particular result.</p>
     <a className="button button-dark" href="/collections/crystals">Explore crystals <ArrowRight size={15} /></a>
   </main>;
 
   return <main className="journal-page">
-    <div className="journal-heading"><span>THE EVERNROOM™ JOURNAL</span><h1>Vani Kabir Studio Blogs</h1><p>Stories, guides and notes from the studio.</p></div>
+    <div className="journal-heading"><span>OPEN TO SEE YOUR FUTURE · JOURNAL</span><h1>Stories from the studio</h1><p>Stories, guides and notes to explore at your own pace.</p></div>
     <nav className="journal-categories" aria-label="Filter blog posts">
       {journalCategories.map((item) => <button type="button" className={category === item ? 'active' : ''} aria-pressed={category === item} onClick={() => setCategory(item)} key={item}>{item}</button>)}
     </nav>
     <div className="journal-featured">
       {visiblePosts[0] && <a href={`/blogs/${visiblePosts[0].slug}`} className="journal-feature-image"><img src={visiblePosts[0].image} alt="" /><span>FEATURED STORY</span></a>}
-      <div className="journal-feature-copy"><span>{visiblePosts[0]?.category || 'Studio journal'}</span><h2>{visiblePosts[0]?.title || 'Stories from the studio'}</h2><p>{visiblePosts[0]?.excerpt || 'Explore thoughtful notes from Vani Kabir Studio.'}</p><a href={visiblePosts[0] ? `/blogs/${visiblePosts[0].slug}` : '/blogs'}>Read more <ArrowRight size={14} /></a></div>
+      <div className="journal-feature-copy"><span>{visiblePosts[0]?.category || 'Studio journal'}</span><h2>{visiblePosts[0]?.title || 'Stories from the studio'}</h2><p>{visiblePosts[0]?.excerpt || 'Explore thoughtful notes from the studio.'}</p><a href={visiblePosts[0] ? `/blogs/${visiblePosts[0].slug}` : '/blogs'}>Read more <ArrowRight size={14} /></a></div>
     </div>
     <section className="journal-grid" aria-label="Blog articles">
       {visiblePosts.slice(1).map((post) => <a className="journal-card" href={`/blogs/${post.slug}`} key={post.slug}>
@@ -235,13 +235,13 @@ export function GemstonesPage() {
 export function StudioPage() {
   return <main className="studio-page">
     <section className="studio-hero">
-      <img src="/attached_assets/generated_images/studio-altar.jpg" alt="A warm, quiet altar at the studio" />
-      <div><span>MAKING SPIRITUALITY SIMPLE</span><h1>Meet the Master</h1><p>Master Vani Kabir · Founder of Evernroom™</p></div>
+      <img src="/images/future-founder-portrait.webp" alt="A woman in a softly lit, botanical reading space" />
+      <div><span>OPEN TO SEE YOUR FUTURE</span><h1>Meet your guide</h1><p>A thoughtful space for reflection, learning and a more personal approach to spirituality.</p></div>
       <aside><span>Your first step to healing yourself is by coming to a reading.</span><a href="#studio-reading">Book a reading <ArrowRight size={14} /></a></aside>
     </section>
     <section className="studio-story">
       <span className="eyebrow">A note from the studio</span><h2>Intention, material and meaning.</h2>
-      <p>Vani Kabir Studio brings together lightcoded crystals, energy products and learning experiences. Each piece is selected as a considered companion for a personal practice—made to invite reflection, not promise an outcome.</p>
+      <p>Open to See Your Future brings together crystals, meaningful objects and learning experiences. Each piece is selected as a considered companion for a personal practice—made to invite reflection, not promise an outcome.</p>
       <a className="button button-dark" href="/pages/3-sacred-rites-of-a-shaman">Explore the masterclass <ArrowRight size={14} /></a>
     </section>
     <section className="studio-lightcoding"><div><span>MAKING SPIRITUALITY SIMPLE</span><h2>LIGHTCODING</h2></div><p>Lightcoding is the language of symbols and frequencies. In personal practices, objects may serve as reminders of the intentions someone chooses to carry.</p><a href="/pages/gemstones">Know your gemstone <ArrowRight size={14} /></a></section>

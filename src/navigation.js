@@ -6,7 +6,7 @@ const menuContent = {
     ['Europe Collection Season - 3', 'europe-collection-season-3', ['europe']],
     ['Ancestry Manifestation Sheet - October', 'ancestry-manifestation-sheet-october', ['ancestry']],
     ['New Lightcoded Mixels @1919', 'new-lightcoded-mixels-1919', ['mixel']],
-    ['MVK Verified', 'mvk-verified-edit', ['verified']],
+    ['Studio Verified', 'mvk-verified-edit', ['verified']],
     ['New Arrivals', 'new-arrivals', ['new']]
   ],
   'aumatrix-2': [
@@ -37,7 +37,7 @@ const menuContent = {
     ['Verified Crystals', 'verified-crystals', ['verified', 'crystal']],
     ['Verified Bracelets', 'verified-bracelets', ['verified', 'bracelet']],
     ['Verified Ritual Tools', 'verified-ritual-tools', ['verified']],
-    ['Master Vani’s Edit', 'master-vanis-edit', ['verified']],
+    ['Studio’s Selected Edit', 'master-vanis-edit', ['verified']],
     ['Verified New Arrivals', 'verified-new-arrivals', ['verified']]
   ],
   rare: [
@@ -82,10 +82,10 @@ const menuContent = {
   'ancient-tools': [
     ['Cheques', 'cheques', ['cheque']],
     ['Wawoki', 'wawoki', []],
-    ['Evernroom™ Journals', 'evernroom-journals', ['journal']],
-    ['Evernroom™ Pendants', 'evernroom-pendants', ['pendant']],
+    ['Studio Journals', 'evernroom-journals', ['journal']],
+    ['Studio Pendants', 'evernroom-pendants', ['pendant']],
     ['Angel Number Pendants', 'angel-number-pendants', ['pendant']],
-    ['Evernroom™ Stickers', 'evernroom-stickers', ['sticker']],
+    ['Studio Stickers', 'evernroom-stickers', ['sticker']],
     ['Manifestation & Prayer Cards', 'manifestation-prayer-cards', ['cards']]
   ]
 };

@@ -1,0 +1,1 @@
+- [Brand identity](brand-identity.md) — use “Open to See Your Future,” the supplied celestial logo, and supplied portrait; retire legacy studio branding.
