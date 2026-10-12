@@ -1,0 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+
+.vk-spiritual {
+  --vk-ink: #292c24;
+  --vk-ink-soft: #5e6256;
+  --vk-paper: #f5f1e8;
+  --vk-paper-light: #faf8f2;
+  --vk-sand: #e8deca;
+  --vk-line: #d9d0c0;
+  --vk-olive: #59644d;
+  --vk-olive-deep: #303d32;
+  --vk-gold: #ad8050;
+  --vk-clay: #a76043;
+  color: var(--vk-ink);
+  background: var(--vk-paper);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.vk-spiritual *,
+.vk-spiritual *::before,
+.vk-spiritual *::after { box-sizing: border-box; }
+.vk-spiritual a { color: inherit; text-decoration: none; }
+.vk-spiritual button { font: inherit; }
+.vk-spiritual img { display: block; max-width: 100%; }
+.vk-spiritual :focus-visible { outline: 2px solid var(--vk-clay); outline-offset: 4px; }
+.vk-spiritual .vk-serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; }
+.vk-spiritual .vk-eyebrow { display: inline-block; color: var(--vk-olive); font-size: 10px; font-weight: 700; letter-spacing: .17em; line-height: 1.5; text-transform: uppercase; }
+.vk-spiritual .vk-button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 20px; padding: 0 23px; border: 1px solid var(--vk-ink); background: var(--vk-ink); color: var(--vk-paper-light); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; transition: background .25s ease, color .25s ease, transform .25s ease; }
+.vk-spiritual .vk-button:hover { background: transparent; color: var(--vk-ink); transform: translateY(-2px); }
+.vk-spiritual .vk-button-light { border-color: var(--vk-paper-light); background: var(--vk-paper-light); color: var(--vk-ink); }
+.vk-spiritual .vk-button-light:hover { border-color: var(--vk-paper-light); color: var(--vk-paper-light); }
+.vk-spiritual .vk-text-link { display: inline-flex; align-items: center; gap: 13px; border-bottom: 1px solid currentColor; padding-bottom: 5px; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.vk-spiritual .vk-text-link span { font-size: 17px; transition: transform .2s ease; }
+.vk-spiritual .vk-text-link:hover span { transform: translateX(4px); }
+
+.vk-spiritual-header { position: relative; z-index: 20; background: var(--vk-paper-light); }
+.vk-spiritual-header .vk-announcement { min-height: 31px; display: flex; align-items: center; justify-content: center; padding: 6px 16px; background: var(--vk-olive-deep); color: #f7f1e5; font-size: 9px; letter-spacing: .13em; text-align: center; text-transform: uppercase; }
+.vk-spiritual-header .vk-header-main { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 92px; padding: 10px 5.2%; }
+.vk-spiritual-header .vk-brand { display: inline-flex; flex-direction: column; align-items: center; color: var(--vk-ink); line-height: 1; }
+.vk-spiritual-header .vk-brand-monogram { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-style: italic; letter-spacing: -.1em; padding-right: .1em; }
+.vk-spiritual-header .vk-brand-name { margin-top: 7px; font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; }
+.vk-spiritual-header .vk-brand-caption { margin-top: 5px; color: #777565; font-size: 7px; letter-spacing: .18em; text-transform: uppercase; }
+.vk-spiritual-header .vk-header-note { color: var(--vk-ink-soft); font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-style: italic; }
+.vk-spiritual-header .vk-header-actions { display: flex; justify-content: flex-end; }
+.vk-spiritual-header .vk-menu-button { display: none; align-items: center; gap: 10px; border: 0; background: transparent; color: var(--vk-ink); cursor: pointer; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.vk-spiritual-header .vk-menu-icon { width: 22px; display: grid; gap: 5px; }
+.vk-spiritual-header .vk-menu-icon i { height: 1px; background: currentColor; }
+.vk-spiritual-header .vk-desktop-nav { display: flex; justify-content: center; min-height: 47px; border-top: 1px solid #e9e2d6; }
+.vk-spiritual-header .vk-nav-item { position: relative; display: flex; align-items: stretch; }
+.vk-spiritual-header .vk-nav-trigger { display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; border: 0; background: transparent; color: var(--vk-ink); cursor: pointer; font-size: 10px; font-weight: 600; letter-spacing: .075em; text-transform: uppercase; white-space: nowrap; }
+.vk-spiritual-header .vk-nav-item > .vk-nav-trigger::after { content: '⌄'; color: var(--vk-gold); font-size: 11px; transition: transform .2s ease; }
+.vk-spiritual-header .vk-nav-trigger:hover,.vk-spiritual-header .vk-nav-item:focus-within .vk-nav-trigger { color: var(--vk-clay); }
+.vk-spiritual-header .vk-nav-item:hover > .vk-nav-trigger::after,.vk-spiritual-header .vk-nav-item:focus-within > .vk-nav-trigger::after { transform: rotate(180deg); }
+.vk-spiritual-header .vk-dropdown { position: absolute; top: 100%; left: 0; width: 260px; padding: 17px; border: 1px solid var(--vk-line); background: var(--vk-paper-light); box-shadow: 0 18px 35px #302c2417; }
+.vk-spiritual-header .vk-dropdown > span { display: block; margin: 1px 0 10px; color: var(--vk-gold); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
+.vk-spiritual-header .vk-dropdown a { display: flex; justify-content: space-between; gap: 15px; padding: 10px 1px; border-top: 1px solid #e9e2d6; font-family: 'Playfair Display', Georgia, serif; font-size: 15px; }
+.vk-spiritual-header .vk-dropdown a:hover { color: var(--vk-clay); }
+.vk-spiritual-header .vk-mobile-nav { display: none; }
+
+.vk-home .vk-home-hero { position: relative; min-height: min(710px, 70vw); display: grid; grid-template-columns: 45% 55%; background: #e7dfcf; }
+.vk-home .vk-home-hero-copy { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 7.5% 7% 8% 12%; }
+.vk-home .vk-home-hero-copy .vk-eyebrow { margin-bottom: 21px; }
+.vk-home .vk-home-hero h1 { max-width: 570px; margin: 0; font: 400 clamp(49px,6.3vw,91px)/.99 'Playfair Display', Georgia, serif; letter-spacing: -.045em; }
+.vk-home .vk-home-hero h1 em { color: var(--vk-clay); font-weight: 400; }
+.vk-home .vk-home-hero-copy p { max-width: 390px; margin: 23px 0 27px; color: #55574c; font-size: 14px; line-height: 1.8; }
+.vk-home .vk-hero-visual { position: relative; min-height: 100%; overflow: hidden; }
+.vk-home .vk-hero-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% center; }
+.vk-home .vk-hero-visual::after { position: absolute; inset: 0; content: ''; background: linear-gradient(90deg,#e7dfcf 0%,#e7dfcf00 28%),linear-gradient(0deg,#33281b24,transparent 50%); }
+.vk-home .vk-hero-caption { position: absolute; z-index: 1; right: 5%; bottom: 6%; color: #fff9ec; font-size: 9px; letter-spacing: .17em; text-transform: uppercase; }
+.vk-home .vk-hero-seal { position: absolute; z-index: 3; right: -48px; bottom: 11%; display: grid; width: 132px; height: 132px; place-content: center; border: 1px solid #ad8050; border-radius: 50%; background: var(--vk-paper); color: var(--vk-olive-deep); text-align: center; transform: rotate(-8deg); }
+.vk-home .vk-hero-seal span:first-child { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; line-height: 1; }
+.vk-home .vk-hero-seal span:last-child { margin-top: 7px; font-size: 7px; letter-spacing: .15em; text-transform: uppercase; }
+.vk-home .vk-home-intro { display: grid; grid-template-columns: 1fr 1.1fr; gap: 9%; align-items: center; padding: 104px 11%; background: var(--vk-paper-light); }
+.vk-home .vk-home-intro h2 { max-width: 460px; margin: 13px 0 0; font: 400 clamp(38px,5vw,65px)/1.04 'Playfair Display', Georgia, serif; letter-spacing: -.03em; }
+.vk-home .vk-home-intro h2 em { color: var(--vk-olive); }
+.vk-home .vk-home-intro-copy { max-width: 505px; color: var(--vk-ink-soft); font-size: 14px; line-height: 1.9; }
+.vk-home .vk-home-intro-copy p { margin: 0 0 18px; }
+.vk-home .vk-experience-band { padding: 66px 7% 74px; background: var(--vk-olive-deep); color: #f7f1e6; }
+.vk-home .vk-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin: 0 0 26px; }
+.vk-home .vk-section-heading .vk-eyebrow { color: #c6ad82; }
+.vk-home .vk-section-heading h2 { margin: 7px 0 0; font: 400 clamp(32px,4.3vw,52px)/1.05 'Playfair Display', Georgia, serif; letter-spacing: -.025em; }
+.vk-home .vk-section-heading > p { max-width: 280px; margin: 0 0 4px; color: #d3d5c9; font-size: 12px; line-height: 1.7; }
+.vk-home .vk-experience-grid { display: grid; grid-template-columns: 1.1fr .9fr .9fr; gap: 13px; }
+.vk-home .vk-experience-card { position: relative; min-height: 370px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; background: #615846; color: white; }
+.vk-home .vk-experience-card:first-child { min-height: 460px; }
+.vk-home .vk-experience-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.vk-home .vk-experience-card:hover img { transform: scale(1.045); }
+.vk-home .vk-experience-card::after { position: absolute; inset: 0; content: ''; background: linear-gradient(0deg,#191b17db 0%,#191b1700 72%); }
+.vk-home .vk-experience-card > div { position: relative; z-index: 1; padding: 26px; }
+.vk-home .vk-experience-card small { color: #e4c799; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
+.vk-home .vk-experience-card h3 { margin: 7px 0 8px; font: 400 clamp(28px,3vw,39px)/1.02 'Playfair Display', Georgia, serif; }
+.vk-home .vk-experience-card p { max-width: 350px; margin: 0 0 14px; color: #f4efe5; font-size: 12px; line-height: 1.7; }
+.vk-home .vk-experience-card .vk-card-link { display: inline-flex; gap: 10px; align-items: center; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.vk-home .vk-experience-card .vk-card-link span { font-size: 16px; }
+.vk-home .vk-tools-section { padding: 79px 0 84px; overflow: hidden; background: #eee7d9; }
+.vk-home .vk-tools-section .vk-section-heading { padding: 0 7%; }
+.vk-home .vk-tools-section .vk-section-heading > p { color: var(--vk-ink-soft); }
+.vk-home .vk-rail { display: flex; gap: 14px; width: max-content; padding: 10px 0; animation: vk-tools-marquee 48s linear infinite; }
+.vk-home .vk-tools-section:hover .vk-rail,.vk-home .vk-tools-section:focus-within .vk-rail { animation-play-state: paused; }
+.vk-home .vk-rail-wrap { overflow: hidden; }
+.vk-home .vk-tool-card { width: clamp(230px,26vw,340px); padding: 23px 22px 21px; border: 1px solid #d4c9b5; background: #f7f3ea; }
+.vk-home .vk-tool-card .vk-tool-mark { display: grid; width: 40px; height: 40px; place-items: center; margin-bottom: 20px; border: 1px solid #b89b71; border-radius: 50%; color: var(--vk-clay); font-family: 'Playfair Display', Georgia, serif; font-size: 19px; }
+.vk-home .vk-tool-card small { color: var(--vk-olive); font-size: 8px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+.vk-home .vk-tool-card h3 { margin: 6px 0 8px; font: 400 24px/1.1 'Playfair Display', Georgia, serif; }
+.vk-home .vk-tool-card p { min-height: 57px; margin: 0; color: var(--vk-ink-soft); font-size: 11px; line-height: 1.65; }
+.vk-home .vk-tool-card a { display: inline-block; margin-top: 16px; border-bottom: 1px solid var(--vk-gold); padding-bottom: 4px; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.vk-home .vk-studio-story { display: grid; grid-template-columns: 52% 48%; min-height: 600px; background: #f7f3ea; }
+.vk-home .vk-story-image { min-height: 600px; }
+.vk-home .vk-story-image img { width: 100%; height: 100%; min-height: 600px; object-fit: cover; }
+.vk-home .vk-story-copy { display: flex; flex-direction: column; justify-content: center; padding: 9% 13%; }
+.vk-home .vk-story-copy h2 { margin: 13px 0 17px; font: 400 clamp(42px,5vw,67px)/1 'Playfair Display', Georgia, serif; letter-spacing: -.035em; }
+.vk-home .vk-story-copy h2 em { color: var(--vk-clay); }
+.vk-home .vk-story-copy p { margin: 0 0 20px; color: var(--vk-ink-soft); font-size: 13px; line-height: 1.85; }
+.vk-home .vk-story-note { margin-top: 30px; padding-top: 17px; border-top: 1px solid var(--vk-line); color: var(--vk-olive); font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-style: italic; }
+.vk-home .vk-pathways { padding: 78px 7%; background: #d8d2c1; }
+.vk-home .vk-pathways-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 28px; background: #b9b19f; }
+.vk-home .vk-pathway { position: relative; min-height: 210px; padding: 28px; background: #e8e2d3; }
+.vk-home .vk-pathway span { color: var(--vk-clay); font-size: 10px; letter-spacing: .14em; }
+.vk-home .vk-pathway h3 { margin: 24px 0 8px; font: 400 26px 'Playfair Display', Georgia, serif; }
+.vk-home .vk-pathway p { margin: 0 0 16px; color: var(--vk-ink-soft); font-size: 11px; line-height: 1.65; }
+.vk-home .vk-pathway a { border-bottom: 1px solid var(--vk-olive); padding-bottom: 4px; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.vk-home .vk-quote-band { padding: 80px 7% 85px; overflow: hidden; background: #a96c4f; color: #fff8ec; }
+.vk-home .vk-quote-band .vk-section-heading { padding: 0; }
+.vk-home .vk-quote-band .vk-eyebrow { color: #f0d3aa; }
+.vk-home .vk-quote-band .vk-section-heading h2 { max-width: 440px; }
+.vk-home .vk-testimonial-viewport { overflow: hidden; }
+.vk-home .vk-testimonial-track { display: flex; width: max-content; gap: 14px; animation: vk-testimonial-marquee 55s linear infinite; }
+.vk-home .vk-testimonial { display: flex; width: clamp(270px,33vw,420px); min-height: 200px; flex-direction: column; justify-content: space-between; padding: 23px; border: 1px solid #e5c3a3a1; background: #8f563f; }
+.vk-home .vk-testimonial blockquote { margin: 0; font: 400 22px/1.35 'Playfair Display', Georgia, serif; }
+.vk-home .vk-testimonial footer { margin-top: 24px; color: #f2d5af; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.vk-home .vk-testimonial-disclaimer { margin: 14px 0 0; color: #f4dcc3; font-size: 9px; }
+.vk-home .vk-library-preview { padding: 82px 7% 92px; background: var(--vk-paper-light); }
+.vk-home .vk-library-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-top: 29px; }
+.vk-home .vk-library-card img { width: 100%; aspect-ratio: 1.27; object-fit: cover; }
+.vk-home .vk-library-card > span { display: block; margin-top: 13px; color: var(--vk-olive); font-size: 9px; letter-spacing: .13em; text-transform: uppercase; }
+.vk-home .vk-library-card h3 { margin: 7px 0 8px; font: 400 24px/1.13 'Playfair Display', Georgia, serif; }
+.vk-home .vk-library-card p { margin: 0 0 13px; color: var(--vk-ink-soft); font-size: 11px; line-height: 1.7; }
+.vk-home .vk-library-card a { border-bottom: 1px solid var(--vk-gold); padding-bottom: 4px; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.vk-home .vk-library-footer { display: flex; justify-content: center; margin-top: 30px; }
+
+.vk-spiritual-page { min-height: 45vh; }
+.vk-spiritual-page .vk-page-hero { position: relative; display: grid; min-height: 510px; grid-template-columns: 1fr 1fr; background: #e8deca; }
+.vk-spiritual-page .vk-page-hero-copy { display: flex; flex-direction: column; justify-content: center; padding: 8% 12%; }
+.vk-spiritual-page .vk-page-hero h1 { margin: 13px 0 17px; font: 400 clamp(44px,6vw,76px)/.99 'Playfair Display', Georgia, serif; letter-spacing: -.04em; }
+.vk-spiritual-page .vk-page-hero h1 em { color: var(--vk-clay); }
+.vk-spiritual-page .vk-page-hero p { max-width: 450px; margin: 0 0 22px; color: var(--vk-ink-soft); font-size: 13px; line-height: 1.8; }
+.vk-spiritual-page .vk-page-hero-media { min-height: 510px; overflow: hidden; }
+.vk-spiritual-page .vk-page-hero-media img { width: 100%; height: 100%; min-height: 510px; object-fit: cover; }
+.vk-spiritual-page .vk-page-hero-media.vk-hero-cover img { object-position: center; }
+.vk-spiritual-page .vk-page-intro { max-width: 880px; margin: auto; padding: 86px 7%; text-align: center; }
+.vk-spiritual-page .vk-page-intro h2 { margin: 10px 0 17px; font: 400 clamp(34px,4.8vw,56px)/1.08 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-page-intro p { margin: auto; max-width: 640px; color: var(--vk-ink-soft); font-size: 13px; line-height: 1.9; }
+.vk-spiritual-page .vk-content-section { padding: 74px 8%; background: var(--vk-paper-light); }
+.vk-spiritual-page .vk-content-section.vk-content-sage { background: #e8e3d5; }
+.vk-spiritual-page .vk-content-section.vk-content-dark { background: var(--vk-olive-deep); color: #f6f0e4; }
+.vk-spiritual-page .vk-content-title { max-width: 790px; margin: 0 auto 32px; text-align: center; }
+.vk-spiritual-page .vk-content-title h2 { margin: 9px 0 10px; font: 400 clamp(31px,4.2vw,48px)/1.1 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-content-title p { margin: auto; max-width: 570px; color: var(--vk-ink-soft); font-size: 12px; line-height: 1.8; }
+.vk-spiritual-page .vk-content-dark .vk-content-title p { color: #d7d9cc; }
+.vk-spiritual-page .vk-numbered-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; max-width: 1120px; margin: auto; background: var(--vk-line); }
+.vk-spiritual-page .vk-numbered-card { min-height: 205px; padding: 26px; background: var(--vk-paper-light); }
+.vk-spiritual-page .vk-content-sage .vk-numbered-card { background: #f1ede3; }
+.vk-spiritual-page .vk-content-dark .vk-numbered-grid { background: #62705e; }
+.vk-spiritual-page .vk-content-dark .vk-numbered-card { background: #39483a; }
+.vk-spiritual-page .vk-numbered-card > span { color: var(--vk-clay); font-size: 9px; letter-spacing: .16em; }
+.vk-spiritual-page .vk-numbered-card h3 { margin: 21px 0 7px; font: 400 25px/1.15 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-numbered-card p { margin: 0; color: var(--vk-ink-soft); font-size: 11px; line-height: 1.7; }
+.vk-spiritual-page .vk-content-dark .vk-numbered-card p { color: #d6d7ce; }
+.vk-spiritual-page .vk-split-section { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 8%; padding: 80px 10%; }
+.vk-spiritual-page .vk-split-section img { width: 100%; max-height: 520px; object-fit: cover; }
+.vk-spiritual-page .vk-split-section h2 { margin: 11px 0 14px; font: 400 clamp(33px,4vw,52px)/1.05 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-split-section p { color: var(--vk-ink-soft); font-size: 12px; line-height: 1.9; }
+.vk-spiritual-page .vk-cta-panel { padding: 72px 8%; background: #a96c4f; color: #fff8ec; text-align: center; }
+.vk-spiritual-page .vk-cta-panel h2 { margin: 8px auto 12px; max-width: 720px; font: 400 clamp(35px,5vw,58px)/1.07 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-cta-panel p { max-width: 560px; margin: 0 auto 24px; color: #f5dfcc; font-size: 12px; line-height: 1.8; }
+.vk-spiritual-page .vk-cta-panel .vk-eyebrow { color: #f1d6b0; }
+.vk-spiritual-page .vk-contact-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 9%; max-width: 1120px; margin: auto; padding: 72px 8%; }
+.vk-spiritual-page .vk-contact-layout h1 { margin: 12px 0; font: 400 clamp(42px,5vw,67px)/1 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-contact-layout p { color: var(--vk-ink-soft); font-size: 12px; line-height: 1.8; }
+.vk-spiritual-page .vk-contact-details { margin-top: 27px; padding-top: 19px; border-top: 1px solid var(--vk-line); }
+.vk-spiritual-page .vk-contact-details a { display: inline-block; border-bottom: 1px solid var(--vk-gold); font-family: 'Playfair Display', Georgia, serif; font-size: 19px; }
+.vk-spiritual-page .vk-contact-form { display: grid; gap: 16px; }
+.vk-spiritual-page .vk-contact-form label { display: grid; gap: 7px; color: var(--vk-olive); font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.vk-spiritual-page .vk-contact-form input,.vk-spiritual-page .vk-contact-form textarea,.vk-spiritual-page .vk-contact-form select { width: 100%; border: 0; border-bottom: 1px solid #bcb29f; border-radius: 0; padding: 11px 0; background: transparent; color: var(--vk-ink); font: 13px 'DM Sans',sans-serif; text-transform: none; letter-spacing: normal; }
+.vk-spiritual-page .vk-contact-form textarea { min-height: 105px; resize: vertical; }
+.vk-spiritual-page .vk-form-success { padding: 15px; border-left: 2px solid var(--vk-olive); background: #e7e6d7; color: var(--vk-olive-deep); font-size: 12px; }
+.vk-spiritual-page .vk-reset-card { max-width: 710px; min-height: 260px; margin: 0 auto; padding: clamp(25px,5vw,45px); border: 1px solid #c7b99f; background: #f5f1e8; }
+.vk-spiritual-page .vk-reset-card h3 { margin: 14px 0 10px; font-size: clamp(31px,4vw,43px); }
+.vk-spiritual-page .vk-reset-card p { max-width: 560px; color: var(--vk-ink-soft); font-size: 14px; line-height: 1.85; }
+.vk-spiritual-page .vk-reset-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; }
+.vk-spiritual-page .vk-reset-controls button:disabled { border-color: #d1cbbb; background: #e4dfd3; color: #888679; cursor: not-allowed; transform: none; }
+
+.vk-spiritual-page .vk-library-head { padding: 73px 7% 43px; text-align: center; background: #e8deca; }
+.vk-spiritual-page .vk-library-head h1 { margin: 11px 0 12px; font: 400 clamp(45px,6vw,74px)/1 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-library-head p { max-width: 580px; margin: auto; color: var(--vk-ink-soft); font-size: 13px; line-height: 1.8; }
+.vk-spiritual-page .vk-category-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; padding: 24px 5%; border-bottom: 1px solid var(--vk-line); background: var(--vk-paper-light); }
+.vk-spiritual-page .vk-category-links a { padding: 8px 14px; border: 1px solid var(--vk-line); color: var(--vk-ink-soft); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.vk-spiritual-page .vk-category-links a:hover,.vk-spiritual-page .vk-category-links a[aria-current="page"] { border-color: var(--vk-olive); background: var(--vk-olive); color: #fff8ec; }
+.vk-spiritual-page .vk-article-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px 17px; padding: 45px 7% 85px; }
+.vk-spiritual-page .vk-article-card { display: flex; min-width: 0; flex-direction: column; }
+.vk-spiritual-page .vk-article-card img { width: 100%; aspect-ratio: 1.3; object-fit: cover; }
+.vk-spiritual-page .vk-article-card .vk-eyebrow { margin-top: 14px; font-size: 8px; }
+.vk-spiritual-page .vk-article-card h2 { margin: 8px 0; font: 400 24px/1.13 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-article-card p { margin: 0 0 13px; color: var(--vk-ink-soft); font-size: 11px; line-height: 1.7; }
+.vk-spiritual-page .vk-article-card a { align-self: flex-start; margin-top: auto; border-bottom: 1px solid var(--vk-gold); padding-bottom: 4px; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.vk-spiritual-page .vk-article-detail { max-width: 920px; margin: auto; padding: 62px 6% 90px; }
+.vk-spiritual-page .vk-article-detail .vk-back-link { display: block; width: fit-content; margin-bottom: 22px; color: var(--vk-olive); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+.vk-spiritual-page .vk-article-detail > .vk-eyebrow { display: block; }
+.vk-spiritual-page .vk-article-detail h1 { margin: 10px 0 14px; font: 400 clamp(40px,6vw,72px)/1.02 'Playfair Display', Georgia, serif; letter-spacing: -.035em; }
+.vk-spiritual-page .vk-article-detail .vk-article-deck { max-width: 670px; color: var(--vk-ink-soft); font-family: 'Playfair Display', Georgia, serif; font-size: 20px; line-height: 1.5; }
+.vk-spiritual-page .vk-article-detail > img { width: 100%; max-height: 500px; margin: 30px 0; object-fit: cover; }
+.vk-spiritual-page .vk-article-body { max-width: 690px; margin: auto; }
+.vk-spiritual-page .vk-article-body h2 { margin: 38px 0 10px; font: 400 30px/1.15 'Playfair Display', Georgia, serif; }
+.vk-spiritual-page .vk-article-body p { color: #55584e; font-size: 14px; line-height: 1.95; }
+.vk-spiritual-page .vk-article-body .vk-note { margin: 29px 0; border-left: 2px solid var(--vk-gold); padding: 4px 0 4px 20px; color: var(--vk-olive); font: italic 20px/1.5 'Playfair Display', Georgia, serif; }
+
+@keyframes vk-tools-marquee { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+.vk-home .vk-product-showcase { padding: 72px clamp(22px, 5.5vw, 82px) 78px; background: #f3f0e8; }
+.vk-home .vk-product-showcase .home-product-heading { margin-bottom: 26px; }
+.vk-home .vk-product-showcase .home-product-heading h1 { font: 400 clamp(32px, 4vw, 54px)/1 var(--font-display); text-transform: none; }
+.vk-home .vk-product-showcase .home-product-heading > a { font-size: 10px; letter-spacing: .12em; }
+.vk-home .vk-product-showcase .product-visual { border-radius: 4px; background: #e9e6dd; }
+.vk-home .vk-product-showcase .product-info h3 { font-size: 13px; }
+.vk-home .vk-product-showcase .product-price { font-size: 12px; }
+
+@media (max-width: 640px) {
+  .vk-home .vk-product-showcase { padding: 52px 20px 57px; }
+  .vk-home .vk-product-showcase .home-product-heading { align-items: flex-end; gap: 12px; }
+  .vk-home .vk-product-showcase .home-product-heading h1 { font-size: 34px; }
+}
+@keyframes vk-testimonial-marquee { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .vk-spiritual *, .vk-spiritual *::before, .vk-spiritual *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+@media (max-width: 900px) {
+  .vk-spiritual-header .vk-header-main { min-height: 82px; padding: 9px 4%; }
+  .vk-spiritual-header .vk-header-note { font-size: 12px; }
+  .vk-spiritual-header .vk-nav-trigger { padding: 0 8px; font-size: 8px; letter-spacing: .045em; }
+  .vk-home .vk-home-hero { min-height: 600px; grid-template-columns: 48% 52%; }
+  .vk-home .vk-home-hero-copy { padding-left: 8%; }
+  .vk-home .vk-experience-card { min-height: 330px; }
+  .vk-home .vk-experience-card:first-child { min-height: 410px; }
+}
+@media (max-width: 700px) {
+  .vk-spiritual-header .vk-announcement { min-height: 28px; font-size: 8px; }
+  .vk-spiritual-header .vk-header-main { grid-template-columns: 1fr auto 1fr; min-height: 76px; padding: 8px 18px; }
+  .vk-spiritual-header .vk-menu-button { display: inline-flex; padding: 8px 0; }
+  .vk-spiritual-header .vk-header-note { display: none; }
+  .vk-spiritual-header .vk-brand-monogram { font-size: 20px; }
+  .vk-spiritual-header .vk-brand-name { font-size: 8px; }
+  .vk-spiritual-header .vk-brand-caption { font-size: 6px; }
+  .vk-spiritual-header .vk-desktop-nav { display: none; }
+  .vk-spiritual-header .vk-mobile-nav { position: absolute; top: 100%; left: 0; right: 0; display: grid; max-height: calc(100dvh - 100px); overflow-y: auto; padding: 13px 20px 22px; border-top: 1px solid var(--vk-line); background: var(--vk-paper-light); box-shadow: 0 15px 25px #28231821; }
+  .vk-spiritual-header .vk-mobile-group { border-bottom: 1px solid #e9e2d6; }
+  .vk-spiritual-header .vk-mobile-row { display: flex; min-height: 52px; align-items: center; justify-content: space-between; gap: 10px; }
+  .vk-spiritual-header .vk-mobile-link { display: flex; flex: 1; min-height: 52px; align-items: center; color: var(--vk-ink); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .vk-spiritual-header .vk-mobile-expand { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border: 1px solid var(--vk-line); background: transparent; color: var(--vk-olive); cursor: pointer; font-size: 17px; }
+  .vk-spiritual-header .vk-mobile-expand:hover { border-color: var(--vk-olive); background: #eee8dc; }
+  .vk-spiritual-header .vk-mobile-submenu { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; padding: 0 0 12px; }
+  .vk-spiritual-header .vk-mobile-submenu a { padding: 9px 0; color: var(--vk-ink-soft); font-family: 'Playfair Display', Georgia, serif; font-size: 15px; }
+  .vk-home .vk-home-hero { min-height: 0; display: flex; flex-direction: column-reverse; }
+  .vk-home .vk-hero-visual { min-height: 62vw; }
+  .vk-home .vk-hero-visual::after { background: linear-gradient(0deg,#e7dfcf00 75%,#e7dfcf20); }
+  .vk-home .vk-home-hero-copy { padding: 38px 24px 51px; }
+  .vk-home .vk-home-hero h1 { max-width: 540px; font-size: clamp(48px,13vw,74px); }
+  .vk-home .vk-home-hero-copy p { font-size: 13px; }
+  .vk-home .vk-hero-caption { right: 18px; bottom: 15px; font-size: 8px; }
+  .vk-home .vk-hero-seal { right: 18px; bottom: -35px; width: 83px; height: 83px; }
+  .vk-home .vk-hero-seal span:first-child { font-size: 20px; }
+  .vk-home .vk-hero-seal span:last-child { font-size: 5px; }
+  .vk-home .vk-home-intro { grid-template-columns: 1fr; gap: 20px; padding: 67px 25px; }
+  .vk-home .vk-home-intro h2 { font-size: 44px; }
+  .vk-home .vk-home-intro-copy { font-size: 13px; }
+  .vk-home .vk-experience-band,.vk-home .vk-pathways,.vk-home .vk-quote-band { padding: 58px 22px; }
+  .vk-home .vk-section-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .vk-home .vk-section-heading h2 { font-size: 37px; }
+  .vk-home .vk-section-heading > p { max-width: 100%; }
+  .vk-home .vk-experience-grid { grid-template-columns: 1fr; }
+  .vk-home .vk-experience-card,.vk-home .vk-experience-card:first-child { min-height: 360px; }
+  .vk-home .vk-tools-section { padding: 59px 0 61px; }
+  .vk-home .vk-tools-section .vk-section-heading { padding: 0 22px; }
+  .vk-home .vk-tool-card { width: 270px; }
+  .vk-home .vk-studio-story { grid-template-columns: 1fr; }
+  .vk-home .vk-story-image,.vk-home .vk-story-image img { min-height: 390px; max-height: 480px; }
+  .vk-home .vk-story-copy { padding: 49px 25px 58px; }
+  .vk-home .vk-story-copy h2 { font-size: 48px; }
+  .vk-home .vk-pathways-grid { grid-template-columns: 1fr; }
+  .vk-home .vk-pathway { min-height: 180px; }
+  .vk-home .vk-testimonial { width: 285px; min-height: 190px; }
+  .vk-home .vk-testimonial blockquote { font-size: 20px; }
+  .vk-home .vk-library-preview { padding: 62px 22px 70px; }
+  .vk-home .vk-library-grid { grid-template-columns: 1fr; gap: 25px; }
+  .vk-home .vk-library-card img { aspect-ratio: 1.55; }
+  .vk-spiritual-page .vk-page-hero { display: flex; flex-direction: column-reverse; min-height: 0; }
+  .vk-spiritual-page .vk-page-hero-media,.vk-spiritual-page .vk-page-hero-media img { min-height: 60vw; max-height: 440px; }
+  .vk-spiritual-page .vk-page-hero-copy { padding: 41px 24px 48px; }
+  .vk-spiritual-page .vk-page-hero h1 { font-size: clamp(44px,12vw,67px); }
+  .vk-spiritual-page .vk-page-intro { padding: 62px 24px; }
+  .vk-spiritual-page .vk-content-section { padding: 57px 22px; }
+  .vk-spiritual-page .vk-numbered-grid { grid-template-columns: 1fr; }
+  .vk-spiritual-page .vk-numbered-card { min-height: 0; }
+  .vk-spiritual-page .vk-split-section { grid-template-columns: 1fr; gap: 25px; padding: 58px 24px; }
+  .vk-spiritual-page .vk-split-section img { max-height: 420px; }
+  .vk-spiritual-page .vk-cta-panel { padding: 59px 23px; }
+  .vk-spiritual-page .vk-contact-layout { grid-template-columns: 1fr; gap: 36px; padding: 51px 24px 70px; }
+  .vk-spiritual-page .vk-library-head { padding: 56px 23px 35px; }
+  .vk-spiritual-page .vk-category-links { justify-content: flex-start; padding: 17px 20px; }
+  .vk-spiritual-page .vk-article-grid { grid-template-columns: 1fr; gap: 29px; padding: 31px 22px 66px; }
+  .vk-spiritual-page .vk-article-card img { aspect-ratio: 1.5; }
+  .vk-spiritual-page .vk-article-detail { padding: 44px 22px 65px; }
+  .vk-spiritual-page .vk-article-detail .vk-article-deck { font-size: 18px; }
+  .vk-spiritual-page .vk-reset-controls { flex-direction: column; align-items: stretch; }
+}

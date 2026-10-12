@@ -350,3 +350,21 @@
   .filter-drawer-foot { min-height:75px; }
   .filter-drawer-foot .button { min-height:55px; }
 }
+
+.home-product-section-marquee { overflow:hidden; }
+.home-product-marquee-viewport { width:100%; overflow:hidden; }
+.home-product-marquee-track { display:flex; width:max-content; animation:home-products-right 46s linear infinite; will-change:transform; }
+.home-product-track { display:flex; flex:none; gap:14px; padding-right:14px; }
+.home-product-card { width:clamp(220px,22vw,300px); flex:0 0 clamp(220px,22vw,300px); }
+.home-product-section-marquee .product-visual { aspect-ratio:1.02 / 1; }
+.home-product-section-marquee .product-info h3 { font-size:12px; }
+@keyframes home-products-right { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+
+@media(max-width:640px) {
+  .home-product-card { width:clamp(215px,72vw,275px); flex-basis:clamp(215px,72vw,275px); }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .home-product-marquee-viewport { overflow-x:auto; }
+  .home-product-marquee-track { animation:none; }
+}

@@ -10,6 +10,10 @@ import {
 import { collections, getCollection, getCollectionProducts, products } from './data.js';
 import { getNavigationSubcollection, getSubcollectionProducts, navigationMenus } from './navigation.js';
 import { GemstonesPage, JournalPage, StoreHome, StudioPage } from './ShowcasePages.jsx';
+import {
+  CelebrityPage, ContactPage, EvernroomPage, LibraryCategoryPage, LibraryDetailPage,
+  LibraryPage, PrivateReadingsPage, SoulpathResetPage, SpiritualHomePage, SpiritualSiteHeader
+} from './studio-pages/SpiritualSite.jsx';
 
 const navCollections = collections;
 const quizQuestions = [
@@ -746,11 +750,21 @@ function CollectionPage({ collection, subcollection, currency, favorites, onFavo
   </main>;
 }
 
-function HomeProductSection({ title, ids, href, currency, favorites, onFavorite, onQuickView, onAdd }) {
+function HomeProductSection({ title, ids, href, currency, favorites, onFavorite, onQuickView, onAdd, autoScroll = false, studioTheme = false }) {
   const items = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
-  return <section className="home-product-section">
+  const cards = (duplicate = false) => items.map((product) => <div className="home-product-card" key={`${duplicate ? 'loop-' : ''}${product.id}`}>
+    <ProductCard product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />
+  </div>);
+  return <section id={studioTheme ? 'sacred-energy-tools' : undefined} className={`home-product-section ${autoScroll ? 'home-product-section-marquee' : ''} ${studioTheme ? 'vk-product-showcase' : ''}`}>
     <div className="home-product-heading"><h1>{title}</h1><a href={href}>View all <span>○</span><span>›</span></a></div>
-    <div className="product-grid home-product-grid">{items.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}</div>
+    {autoScroll
+      ? <div className="home-product-marquee-viewport" aria-label={`${title} products`}>
+        <div className="home-product-marquee-track">
+          <div className="home-product-track">{cards()}</div>
+          <div className="home-product-track" aria-hidden="true" inert>{cards(true)}</div>
+        </div>
+      </div>
+      : <div className="product-grid home-product-grid">{cards()}</div>}
   </section>;
 }
 
@@ -764,6 +778,11 @@ function DirectoryPage() {
 }
 
 function MasterclassPage() {
+  const testimonials = [
+    ['“I left with practical awareness I could apply immediately.”', 'Anjali Mehra', 'Delhi'],
+    ['“The concepts were simple, but their impact was profound.”', 'Rebecca Stone', 'Dubai'],
+    ['“I’ve attended many personal development programs. This was different.”', 'Harsh Jain', 'Bengaluru']
+  ];
   return <main>
     <section className="rite-hero">
       <div className="rite-copy">
@@ -773,7 +792,7 @@ function MasterclassPage() {
         <p>Discover ancient shamanic ways of working with simple elements of the Earth: a stone, a plant and a thread. Through Body Stone, Plant Dita and Thread Work, learn to release, reconnect and consciously work with intentions, bonds and everyday life.</p>
         <p className="small-label">Friday, 16 October 2026 · 7 pm to 9 pm IST</p>
         <p className="rite-price">Energy exchange · ₹5,555</p>
-        <a className="button button-dark" href="/collections/e-studio">Explore learning experiences <ArrowRight size={15} /></a>
+        <a className="button button-dark" href="mailto:hello@vanikabir.com?subject=3%20Sacred%20Rites%20masterclass%20booking">Book now <ArrowRight size={15} /></a>
       </div>
       <div className="rite-image" role="img" aria-label="Master Vani Kabir in a light editorial portrait from the shaman rites masterclass" />
     </section>
@@ -786,7 +805,31 @@ function MasterclassPage() {
       <span className="eyebrow">3 Sacred Rites of a Shaman</span>
       <h2>Come closer to the living Earth.</h2>
       <p>Friday, 16 October 2026 · 7 pm to 9 pm IST · Energy exchange ₹5,555</p>
-      <a className="button button-dark" href="/collections/e-studio">Explore learning experiences <ArrowRight size={15} /></a>
+      <a className="button button-dark" href="mailto:hello@vanikabir.com?subject=3%20Sacred%20Rites%20masterclass%20booking">Book now <ArrowRight size={15} /></a>
+    </section>
+    <section className="masterclass-faq" aria-labelledby="masterclass-faq-title">
+      <h2 id="masterclass-faq-title">FAQ’s</h2>
+      <div className="masterclass-faq-list">
+        <details><summary>Can I attend from anywhere in the world?<span aria-hidden="true">+</span></summary><p>Yes. The masterclass is online, so you can join from anywhere. The listed session time is India Standard Time.</p></details>
+        <details><summary>Will there be a recording?<span aria-hidden="true">+</span></summary><p>Recording availability is not confirmed on this page. Please check the booking details with the studio before registering.</p></details>
+        <details><summary>Will there be practical exercises or activations?<span aria-hidden="true">+</span></summary><p>The session introduces guided ways of working with a body stone, a plant and a thread. No prior shamanic experience is required.</p></details>
+        <details><summary>How early should I join the live session?<span aria-hidden="true">+</span></summary><p>Please join a few minutes early. The studio can share the live access and setup details when you book.</p></details>
+        <details><summary>What do I need to prepare?<span aria-hidden="true">+</span></summary><p>A stone, a plant and a thread are the simple elements used in the class. Any specific preparation can be confirmed with the studio when booking.</p></details>
+        <details><summary>Can I ask questions during the session?<span aria-hidden="true">+</span></summary><p>Yes. Bring your questions to the live session; the studio can confirm how the question time will be held in the booking details.</p></details>
+      </div>
+    </section>
+    <section className="masterclass-testimonials" aria-labelledby="masterclass-testimonials-title">
+      <div className="masterclass-testimonials-heading">
+        <span className="eyebrow">Masterclass testimonials</span>
+        <h2 id="masterclass-testimonials-title">Here’s what people are saying</h2>
+      </div>
+      <div className="masterclass-testimonials-viewport">
+        <div className="masterclass-testimonials-track">
+          {[...testimonials, ...testimonials].map(([quote, name, city], index) => <article className="masterclass-testimonial-card" aria-hidden={index >= testimonials.length ? 'true' : undefined} inert={index >= testimonials.length} key={`${name}-${index}`}>
+            <p>{quote}</p><span>{name}, {city}</span>
+          </article>)}
+        </div>
+      </div>
     </section>
   </main>;
 }
@@ -838,8 +881,19 @@ function App() {
     ? getNavigationSubcollection(collectionSlug, incomingSubcollectionSlug)
     : null;
   const home = path === '/';
+  const shopHome = path === '/shop';
   const directory = ['/links', '/pages/links', '/pages/link-in-bio'].includes(path);
   const checkout = path === '/checkout';
+  const masterclassPage = ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path);
+  const evernroomPage = ['/pages/evernroom', '/about'].includes(path);
+  const privateReadingsPage = ['/pages/private-readings', '/private-readings'].includes(path);
+  const soulpathResetPage = ['/pages/soulpath-reset', '/soulpath-reset'].includes(path);
+  const celebrityPage = ['/pages/celebrity', '/celebrity'].includes(path);
+  const libraryOverviewPage = path === '/pages/library';
+  const libraryCategoryPage = path.startsWith('/pages/library/category/');
+  const libraryDetailPage = path.startsWith('/pages/library/') && !libraryCategoryPage;
+  const contactPage = path === '/pages/contact';
+  const spiritualSitePage = home || masterclassPage || evernroomPage || privateReadingsPage || soulpathResetPage || celebrityPage || libraryOverviewPage || libraryCategoryPage || libraryDetailPage || contactPage;
   const intentionPage = path === '/pages/explore-with-intention';
   const journalPage = ['/blogs', '/pages/blogs', '/pages/journal', '/journal'].includes(path) || path.startsWith('/blogs/');
   const gemstonePage = ['/pages/gemstones', '/pages/studio-gems', '/pages/precious-gemstones'].includes(path);
@@ -850,7 +904,7 @@ function App() {
   const product = productSlug ? products.find((item) => item.id === productSlug
     || item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === productSlug) : null;
   const productDetail = productRoute && !!product;
-  const showStoreChrome = !directory && !checkout;
+  const showStoreChrome = !directory && !checkout && !spiritualSitePage;
   const [currency, setCurrency] = useState(() => {
     try {
       const saved = window.localStorage.getItem('vani-studio-currency');
@@ -900,7 +954,18 @@ function App() {
   });
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((item) => item !== id) : [...old, id]);
 
-  useEffect(() => { window.scrollTo(0, 0); }, [path]);
+  useEffect(() => {
+    const anchor = window.location.hash.slice(1);
+    if (!anchor) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      try { document.getElementById(decodeURIComponent(anchor))?.scrollIntoView(); }
+      catch { window.scrollTo(0, 0); }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [path]);
   useEffect(() => {
     try { window.localStorage.setItem('vani-studio-cart', JSON.stringify(cart)); }
     catch { /* Keep shopping functional for this visit if storage is disabled. */ }
@@ -923,8 +988,9 @@ function App() {
     try { window.sessionStorage.setItem('vani-crystal-quiz-skipped', 'true'); } catch { /* Keep close usable when storage is blocked. */ }
   };
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
-  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />;
-  const content = home ? <StoreHome productSection={productSection} />
+  const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
+  const content = home ? <SpiritualHomePage productSection={productSection} />
+    : shopHome ? <StoreHome productSection={productSection} />
     : productDetail ? <ProductPage product={product} currency={currency} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
       : checkout ? <CheckoutPage items={cart} currency={currency} session={session} onQuantity={quantityChange} showToast={showToast} onDemoOrder={() => setCart({})} onOpenAccount={() => setDrawer('account')} onOpenQuiz={() => setQuizModalOpen(true)} />
         : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
@@ -933,10 +999,19 @@ function App() {
           : gemstonePage ? <GemstonesPage />
             : studioPage ? <StudioPage />
         : ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'].includes(path) ? <QuizPage currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
-      : ['/masterclass', '/pages/3-sacred-rites-of-a-shaman', '/pages/shaman-masterclass', '/pages/3-sacred-rites'].includes(path) ? <MasterclassPage />
+       : evernroomPage ? <EvernroomPage />
+         : privateReadingsPage ? <PrivateReadingsPage />
+           : soulpathResetPage ? <SoulpathResetPage />
+             : celebrityPage ? <CelebrityPage />
+               : libraryOverviewPage ? <LibraryPage />
+                 : libraryCategoryPage ? <LibraryCategoryPage pathname={path} />
+                   : libraryDetailPage ? <LibraryDetailPage pathname={path} />
+                     : contactPage ? <ContactPage />
+                       : masterclassPage ? <MasterclassPage />
           : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
             : <main className="directory-page"><span className="eyebrow">The studio</span><h1 className="directory-title">This path is still unfolding.</h1><p className="directory-intro">The page you’re looking for hasn’t been gathered here yet.</p><a className="button button-dark" href="/">Return to the beginning</a></main>;
   return <div className="app-shell">
+    {spiritualSitePage && <SpiritualSiteHeader />}
     {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
     {content}
     {!checkout && <Footer showToast={showToast} />}
