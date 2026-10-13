@@ -1,2 +1,3 @@
 - [Brand identity](brand-identity.md) — use “Open to See Your Future,” the supplied celestial logo, and supplied portrait; retire legacy studio branding.
 - [External build lockfiles](external-build-lockfiles.md) — check npm lockfile URLs for workspace-only registries before deploying elsewhere.
+- [Manual UPI checkout](manual-upi-checkout.md) — keep the storefront's local catalog orderable, and never mark QR payments verified before studio confirmation.

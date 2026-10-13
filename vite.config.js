@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { shopifyApiPlugin } from './server/shopifyPlugin.js';
+import { ordersApiPlugin } from './server/ordersPlugin.js';
 
 export default defineConfig({
-  plugins: [react(), shopifyApiPlugin()],
+  plugins: [react(), ordersApiPlugin()],
   server: {
     host: '0.0.0.0',
     port: 5000,

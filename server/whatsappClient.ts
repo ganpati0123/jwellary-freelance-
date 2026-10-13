@@ -11,6 +11,8 @@ export class WhatsAppOrderError extends Error {
 }
 
 type WhatsAppOrderDetails = {
+  orderReference: string;
+  paymentReference: string;
   customer: {
     name: string;
     email: string;
@@ -71,7 +73,7 @@ export async function sendWhatsAppOrderDetails(details: WhatsAppOrderDetails) {
     details.customer.name,
     `Phone: ${details.customer.phone}\nEmail: ${details.customer.email}`,
     deliveryAddress,
-    `${itemSummary}\nSubtotal: ${details.currencyCode} ${details.subtotal}`,
+    `Order: ${details.orderReference}\n${itemSummary}\nSubtotal: ${details.currencyCode} ${details.subtotal}\nUPI reference (unverified): ${details.paymentReference}`,
   ];
 
   if (parameters.some((value) => value.length > 1024)) {
