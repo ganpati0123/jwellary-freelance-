@@ -28,6 +28,24 @@ const quizOutcomes = {
   B: { tags: ['Confidence', 'Growth', 'Opportunity'], title: 'Your energy today is calling for confidence & growth', description: 'There is momentum in your answers. We gathered pieces for clear intention, brave movement and the opportunities you are ready to meet.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] },
   C: { tags: ['Wealth', 'Spiritual', 'Intuition'], title: 'Your energy today is calling for wealth, spiritual alignment & intuition', description: 'Your answers carry a beautiful mix of energies, so we selected crystals from the strongest pools that align with you today.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] }
 };
+const entryQuizSessionKey = 'otsyf-entry-quiz-shown';
+const quizRoutes = ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'];
+const pageRevealSelector = [
+  'main > *', '.section', '.product-card', '.feature-tile', '.editorial-copy',
+  '.story-quote', '.rite-step', '.directory-link', '.home-campaign', '.home-rite-card',
+  '.intention-tile', '.vk-home > *', '.vk-page-intro', '.vk-experience-card',
+  '.vk-pathway', '.vk-library-card', '.vk-tool-card'
+].join(',');
+function shouldShowEntryQuiz(path) {
+  if (path === '/checkout' || quizRoutes.includes(path)) return false;
+  try {
+    if (window.sessionStorage.getItem(entryQuizSessionKey) === '1') return false;
+    window.sessionStorage.setItem(entryQuizSessionKey, '1');
+  } catch {
+    // Keep the first-visit experience available when browser storage is disabled.
+  }
+  return true;
+}
 const currencyData = {
   INR: { sign: 'Rs.', multiplier: 1 },
   AUD: { sign: 'A$', multiplier: 0.0185 },
@@ -1077,11 +1095,12 @@ function App() {
   });
   const [favorites, setFavorites] = useState([]);
   const [drawer, setDrawer] = useState('');
-  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [quizModalOpen, setQuizModalOpen] = useState(() => shouldShowEntryQuiz(path));
   const [quickProduct, setQuickProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
   const [session, setSession] = useState(null);
+  const pageMotionRef = useRef(null);
   const catalogProducts = useMemo(
     () => storefrontCatalog.status === 'ready' ? normalizeShopifyProducts(storefrontCatalog.products) : [],
     [storefrontCatalog.status, storefrontCatalog.products]
@@ -1236,6 +1255,38 @@ function App() {
       ? `${product.name} | Open to See Your Future`
       : 'Open to See Your Future';
   }, [product, productDetail]);
+  useEffect(() => {
+    const root = pageMotionRef.current;
+    if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const revealItems = Array.from(root.querySelectorAll(pageRevealSelector));
+    if (!revealItems.length) return;
+    revealItems.forEach((item, index) => {
+      item.dataset.pageReveal = 'pending';
+      item.style.setProperty('--page-reveal-delay', `${(index % 6) * 65}ms`);
+    });
+    if (!('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => { item.dataset.pageReveal = 'visible'; });
+      return () => revealItems.forEach((item) => {
+        delete item.dataset.pageReveal;
+        item.style.removeProperty('--page-reveal-delay');
+      });
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.dataset.pageReveal = 'visible';
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -48px 0px' });
+    revealItems.forEach((item) => observer.observe(item));
+    return () => {
+      observer.disconnect();
+      revealItems.forEach((item) => {
+        delete item.dataset.pageReveal;
+        item.style.removeProperty('--page-reveal-delay');
+      });
+    };
+  }, [path, storefrontCatalog.status]);
   const closeQuizModal = () => setQuizModalOpen(false);
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
   const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} products={browsableProducts} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
@@ -1270,8 +1321,10 @@ function App() {
     {needsShopifyCatalog && storefrontCatalog.status === 'loading' && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>Loading the live Shopify catalog…</div>}
     {needsShopifyCatalog && storefrontCatalog.status === 'error' && <div className="demo-note" role="alert" style={{ padding: '12px 4%', textAlign: 'center' }}>{storefrontCatalog.error} No preview products can be purchased.</div>}
     {needsShopifyCatalog && storefrontCatalog.status === 'ready' && catalogProducts.length === 0 && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>There are no products published in Shopify yet. App preview listings are not being sold.</div>}
-    {content}
-    {!checkout && !home && <Footer showToast={showToast} />}
+    <div key={path} ref={pageMotionRef} className="page-motion-shell">
+      {content}
+      {!checkout && !home && <Footer showToast={showToast} />}
+    </div>
     {showStoreChrome && <div className="fixed-currency"><label className="sr-only" htmlFor="currency">Currency</label><select id="currency" className="currency-select" value={currency} onChange={(event) => setCurrency(event.target.value)}>{Object.keys(currencyData).map((code) => <option key={code} value={code}>{code}</option>)}</select><ChevronDown size={13} aria-hidden="true" /></div>}
     {drawer === 'cart' && <CartDrawer close={() => setDrawer('')} items={cart} products={browsableProducts} currency={currency} showToast={showToast} onQuantity={quantityChange} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} />}
     {drawer === 'wishlist' && <WishlistDrawer close={() => setDrawer('')} favorites={favorites} products={browsableProducts} currency={currency} onFavorite={toggleFavorite} onQuickView={(product) => { setDrawer(''); setQuickProduct(product); }} onAdd={addToCart} />}
