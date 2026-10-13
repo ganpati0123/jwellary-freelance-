@@ -28,7 +28,6 @@ const quizOutcomes = {
   B: { tags: ['Confidence', 'Growth', 'Opportunity'], title: 'Your energy today is calling for confidence & growth', description: 'There is momentum in your answers. We gathered pieces for clear intention, brave movement and the opportunities you are ready to meet.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] },
   C: { tags: ['Wealth', 'Spiritual', 'Intuition'], title: 'Your energy today is calling for wealth, spiritual alignment & intuition', description: 'Your answers carry a beautiful mix of energies, so we selected crystals from the strongest pools that align with you today.', items: ['wealth-elixir', 'wealth-mixel', 'money-oil', 'money-cheque'] }
 };
-const entryQuizSessionKey = 'otsyf-entry-quiz-shown';
 const quizRoutes = ['/pages/daily-crystal-quiz', '/pages/crystal-quiz'];
 const pageRevealSelector = [
   'main > *', '.section', '.product-card', '.feature-tile', '.editorial-copy',
@@ -36,16 +35,6 @@ const pageRevealSelector = [
   '.intention-tile', '.vk-home > *', '.vk-page-intro', '.vk-experience-card',
   '.vk-pathway', '.vk-library-card', '.vk-tool-card'
 ].join(',');
-function shouldShowEntryQuiz(path) {
-  if (path === '/checkout' || quizRoutes.includes(path)) return false;
-  try {
-    if (window.sessionStorage.getItem(entryQuizSessionKey) === '1') return false;
-    window.sessionStorage.setItem(entryQuizSessionKey, '1');
-  } catch {
-    // Keep the first-visit experience available when browser storage is disabled.
-  }
-  return true;
-}
 const currencyData = {
   INR: { sign: 'Rs.', multiplier: 1 },
   AUD: { sign: 'A$', multiplier: 0.0185 },
@@ -785,9 +774,9 @@ const directoryLinks = [
   ['Learn About Crystals', '/pages/explore-with-intention']
 ];
 
-function DirectoryLinks() {
+function DirectoryLinks({ onOpenQuizBeforeNavigation }) {
   return <>
-    <div className="directory-list">{directoryLinks.map(([label, href]) => <a key={label} className="directory-link" href={href}>{label}</a>)}</div>
+    <div className="directory-list">{directoryLinks.map(([label, href]) => <a key={label} className="directory-link" href={href} onClick={(event) => onOpenQuizBeforeNavigation(event, href, label)}>{label}</a>)}</div>
     <p className="directory-policy">
       <a href="/links#disclaimer">Terms of Use</a>
       <span>·</span>
@@ -796,7 +785,7 @@ function DirectoryLinks() {
   </>;
 }
 
-function Home() {
+function Home({ onOpenQuizBeforeNavigation }) {
   return <main className="link-home-page">
     <div className="link-home">
       <header className="link-home-intro">
@@ -808,14 +797,14 @@ function Home() {
         </div>
       </header>
       <div className="home-campaign-promos">
-        <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection">
+        <a className="home-campaign" href="/collections/divine-diwali" aria-label="Explore the Aumatrix 2.0 Divine Diwali collection" onClick={(event) => onOpenQuizBeforeNavigation(event, '/collections/divine-diwali', 'Divine Diwali collection')}>
           <img src="/images/link-divine-diwali.jpg" alt="Divine Diwali collection campaign artwork" />
         </a>
-        <a className="home-rite-card" href="/shop" aria-label="Open the full website from the featured masterclass">
+        <a className="home-rite-card" href="/pages/3-sacred-rites-of-a-shaman" aria-label="Explore the 3 Sacred Rites of a Shaman masterclass with Master Vani Kabir" onClick={(event) => onOpenQuizBeforeNavigation(event, '/pages/3-sacred-rites-of-a-shaman', '3 Sacred Rites masterclass')}>
           <img src="/images/link-masterclass.jpg" alt="3 Sacred Rites of a Shaman masterclass with Master Vani Kabir" />
         </a>
       </div>
-      <DirectoryLinks />
+      <DirectoryLinks onOpenQuizBeforeNavigation={onOpenQuizBeforeNavigation} />
     </div>
   </main>;
 }
@@ -942,12 +931,12 @@ function HomeProductSection({ title, ids, products: catalogProducts, href, curre
   </section>;
 }
 
-function DirectoryPage() {
+function DirectoryPage({ onOpenQuizBeforeNavigation }) {
   return <main className="directory-page">
     <Brand large />
     <h1 className="directory-title">Open a path to what comes next.</h1>
     <p className="directory-intro">Explore collections, learning spaces and everyday rituals. Follow what feels right for your next chapter.</p>
-    <DirectoryLinks />
+    <DirectoryLinks onOpenQuizBeforeNavigation={onOpenQuizBeforeNavigation} />
   </main>;
 }
 
@@ -1008,7 +997,7 @@ function MasterclassPage() {
   </main>;
 }
 
-function QuizPage({ products: catalogProducts, currency, favorites, onFavorite, onQuickView, onAdd, modal = false }) {
+function QuizPage({ products: catalogProducts, currency, favorites, onFavorite, onQuickView, onAdd, onContinue, continueLabel, modal = false }) {
   const Page = modal ? 'div' : 'main';
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -1039,7 +1028,7 @@ function QuizPage({ products: catalogProducts, currency, favorites, onFavorite, 
       <span className="eyebrow">Crystal of the day</span><h2 className="quiz-result-title">{result.title}</h2><p>{result.description}</p>
       <div className="result-tags">{result.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
       <div className="recommend-grid">{recommended.map((product) => <ProductCard key={product.id} product={product} currency={currency} favorite={favorites.includes(product.id)} onFavorite={onFavorite} onQuickView={onQuickView} onAdd={onAdd} />)}</div>
-      <div className="quiz-result-actions"><button className="button button-text" onClick={restart}><RotateCcw size={14} /> Retake quiz</button><a className="button button-dark" href="/collections/crystals">Shop all crystals <ArrowRight size={15} /></a></div>
+      <div className="quiz-result-actions"><button className="button button-text" onClick={restart}><RotateCcw size={14} /> Retake quiz</button><a className="button button-dark" href="/collections/crystals">Shop all crystals <ArrowRight size={15} /></a>{onContinue && <button type="button" className="button button-light" onClick={onContinue}>Continue to {continueLabel} <ArrowRight size={15} /></button>}</div>
     </section>}
   </Page>;
 }
@@ -1095,7 +1084,8 @@ function App() {
   });
   const [favorites, setFavorites] = useState([]);
   const [drawer, setDrawer] = useState('');
-  const [quizModalOpen, setQuizModalOpen] = useState(() => shouldShowEntryQuiz(path));
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [pendingQuizDestination, setPendingQuizDestination] = useState(null);
   const [quickProduct, setQuickProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
@@ -1287,16 +1277,46 @@ function App() {
       });
     };
   }, [path, storefrontCatalog.status]);
-  const closeQuizModal = () => setQuizModalOpen(false);
+  const openQuiz = () => {
+    setPendingQuizDestination(null);
+    setQuizModalOpen(true);
+  };
+  const openQuizBeforeNavigation = (event, href, label) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const destination = quizRoutes.includes(href)
+      ? { href: '/collections/crystals', label: 'your crystal recommendations' }
+      : { href, label };
+    setPendingQuizDestination(destination);
+    setQuizModalOpen(true);
+  };
+  const continueToQuizDestination = () => {
+    const destination = pendingQuizDestination?.href;
+    setPendingQuizDestination(null);
+    setQuizModalOpen(false);
+    if (destination) window.location.assign(destination);
+  };
+  const closeQuizModal = () => {
+    if (pendingQuizDestination) {
+      continueToQuizDestination();
+      return;
+    }
+    setQuizModalOpen(false);
+  };
+  const openRecommendedProduct = (item) => {
+    setPendingQuizDestination(null);
+    setQuizModalOpen(false);
+    setQuickProduct(item);
+  };
   const collectionValid = !!collection && (!incomingSubcollectionSlug || !!subcollection);
   const productSection = (title, ids, href) => <HomeProductSection key={title} title={title} ids={ids} products={browsableProducts} href={href} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} autoScroll studioTheme={title === 'Sacred Energy Tools'} />;
   const catalogSection = browsableProducts.length
     ? <HomeProductSection title="Shop all products" ids={browsableProducts.map((item) => item.id)} products={browsableProducts} href="/collections/all" currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
     : null;
-  const content = home ? <Home />
+  const content = home ? <Home onOpenQuizBeforeNavigation={openQuizBeforeNavigation} />
     : shopHome ? <StoreHome productSection={productSection} catalogSection={catalogSection} />
     : productDetail ? <ProductPage product={product} products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onAdd={addToCart} onBuyNow={buyNow} onQuickView={setQuickProduct} />
-      : checkout ? <CheckoutPage items={cart} products={browsableProducts} currency={currency} onQuantity={quantityChange} showToast={showToast} onOpenQuiz={() => setQuizModalOpen(true)} />
+      : checkout ? <CheckoutPage items={cart} products={browsableProducts} currency={currency} onQuantity={quantityChange} showToast={showToast} onOpenQuiz={openQuiz} />
         : collectionValid ? <CollectionPage collection={collection} subcollection={subcollection} products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
       : intentionPage ? <IntentionPage products={browsableProducts} currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={setQuickProduct} onAdd={addToCart} />
         : journalPage ? <JournalPage pathname={path} />
@@ -1313,11 +1333,11 @@ function App() {
                    : libraryDetailPage ? <LibraryDetailPage pathname={path} />
                      : contactPage ? <ContactPage />
                        : masterclassPage ? <MasterclassPage />
-          : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage />
+          : ['/links', '/pages/links', '/pages/link-in-bio'].includes(path) ? <DirectoryPage onOpenQuizBeforeNavigation={openQuizBeforeNavigation} />
             : <main className="directory-page"><span className="eyebrow">The studio</span><h1 className="directory-title">This path is still unfolding.</h1><p className="directory-intro">The page you’re looking for hasn’t been gathered here yet.</p><a className="button button-dark" href="/">Return to the beginning</a></main>;
   return <div className="app-shell">
     {spiritualSitePage && <SpiritualSiteHeader />}
-    {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={() => setQuizModalOpen(true)} />}
+    {showStoreChrome && <Header routeSlug={collectionSlug} cartCount={cartCount} wishlistCount={favorites.length} onAction={actions} onOpenQuiz={openQuiz} />}
     {needsShopifyCatalog && storefrontCatalog.status === 'loading' && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>Loading the live Shopify catalog…</div>}
     {needsShopifyCatalog && storefrontCatalog.status === 'error' && <div className="demo-note" role="alert" style={{ padding: '12px 4%', textAlign: 'center' }}>{storefrontCatalog.error} No preview products can be purchased.</div>}
     {needsShopifyCatalog && storefrontCatalog.status === 'ready' && catalogProducts.length === 0 && <div className="demo-note" role="status" style={{ padding: '12px 4%', textAlign: 'center' }}>There are no products published in Shopify yet. App preview listings are not being sold.</div>}
@@ -1333,7 +1353,7 @@ function App() {
     {quickProduct && <ProductModal product={quickProduct} currency={currency} onClose={() => setQuickProduct(null)} onAdd={addToCart} />}
     {quizModalOpen && <Modal onClose={closeQuizModal} className="quiz-modal" labelId="quiz-modal-title">
       <button type="button" className="modal-close" aria-label="Close quiz" onClick={closeQuizModal}><X size={17} /></button>
-      <QuizPage products={browsableProducts} modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={(item) => { closeQuizModal(); setQuickProduct(item); }} onAdd={addToCart} />
+      <QuizPage products={browsableProducts} modal currency={currency} favorites={favorites} onFavorite={toggleFavorite} onQuickView={openRecommendedProduct} onAdd={addToCart} onContinue={pendingQuizDestination ? continueToQuizDestination : undefined} continueLabel={pendingQuizDestination?.label} />
     </Modal>}
     {toast && <div className="toast" role="status">{toast}</div>}
     {showStoreChrome && <button className="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><ArrowUp size={18} strokeWidth={1.5} /></button>}
